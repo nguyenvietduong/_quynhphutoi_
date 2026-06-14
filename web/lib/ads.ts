@@ -19,9 +19,11 @@ export type AdDoc = {
   _id?: ObjectId;
   advertiser: string;        // tên nhãn hàng
   title: string;             // dòng chữ hiển thị (native) / alt
+  description?: string;      // mô tả chi tiết (hiển thị ở trang chi tiết quảng cáo)
   imageDesktop: string;      // ảnh chính
   imageMobile?: string;      // ảnh cho mobile (tuỳ chọn)
-  linkUrl: string;           // link đích
+  linkUrl: string;           // link đích (tuỳ chọn — rỗng nếu chỉ liên hệ qua SĐT)
+  phone?: string;            // SĐT liên hệ (tuỳ chọn)
   placement: AdPlacement;
   weight: number;            // trọng số xoay vòng (≥1)
   startDate?: Date | null;
@@ -64,6 +66,15 @@ export async function getAd(id: string) {
   return (await ads()).findOne({ _id: new ObjectId(id) });
 }
 
+// Quảng cáo công khai cho trang chi tiết: phải đang chạy + trong khoảng ngày.
+export async function getPublicAd(id: string) {
+  const ad = await getAd(id);
+  if (!ad || !ad.active) return null;
+  const now = new Date();
+  if ((ad.startDate && ad.startDate > now) || (ad.endDate && ad.endDate < now)) return null;
+  return ad;
+}
+
 export type CreateAdInput = Omit<AdDoc, "_id" | "impressions" | "clicks" | "createdAt" | "updatedAt">;
 
 export async function createAd(input: CreateAdInput) {
@@ -90,12 +101,10 @@ export async function recordImpression(id: string) {
   await (await ads()).updateOne({ _id: new ObjectId(id) }, { $inc: { impressions: 1 } });
 }
 
-// Đếm click + trả link đích để redirect.
-export async function recordClick(id: string): Promise<string | null> {
-  if (!ObjectId.isValid(id)) return null;
-  const col = await ads();
-  const ad = await col.findOne({ _id: new ObjectId(id) });
-  if (!ad) return null;
-  await col.updateOne({ _id: ad._id }, { $inc: { clicks: 1 } });
-  return ad.linkUrl;
+// Đếm click. Trả true nếu tìm thấy quảng cáo (để route quyết định redirect/404).
+// Click giờ dẫn vào trang chi tiết nội bộ /quang-cao/[id] (không redirect thẳng ra ngoài).
+export async function recordClick(id: string): Promise<boolean> {
+  if (!ObjectId.isValid(id)) return false;
+  const res = await (await ads()).updateOne({ _id: new ObjectId(id) }, { $inc: { clicks: 1 } });
+  return res.matchedCount > 0;
 }

@@ -7,8 +7,8 @@ import { RowActions } from "@/components/admin/RowActions";
 import { useToast } from "@/components/common/Toast";
 
 export type AdRow = {
-  id: string; advertiser: string; title: string; imageDesktop: string; imageMobile: string;
-  linkUrl: string; placement: string; weight: number; startDate: string; endDate: string;
+  id: string; advertiser: string; title: string; description: string; imageDesktop: string; imageMobile: string;
+  linkUrl: string; phone: string; placement: string; weight: number; startDate: string; endDate: string;
   active: boolean; impressions: number; clicks: number;
 };
 
@@ -21,7 +21,7 @@ const PLACEMENTS = [
 ];
 const placeLabel = (s: string) => PLACEMENTS.find((p) => p.slug === s)?.label ?? s;
 
-const EMPTY = { id: "", advertiser: "", title: "", imageDesktop: "", imageMobile: "", linkUrl: "", placement: "home-banner", weight: 1, startDate: "", endDate: "", active: true, impressions: 0, clicks: 0 };
+const EMPTY = { id: "", advertiser: "", title: "", description: "", imageDesktop: "", imageMobile: "", linkUrl: "", phone: "", placement: "home-banner", weight: 1, startDate: "", endDate: "", active: true, impressions: 0, clicks: 0 };
 
 export function AdManager({ initial }: { initial: AdRow[] }) {
   const [rows, setRows] = useState<AdRow[]>(initial);
@@ -46,12 +46,14 @@ export function AdManager({ initial }: { initial: AdRow[] }) {
     e.preventDefault();
     if (!form.advertiser.trim() || !form.title.trim()) { toast.error("Nhập tên nhãn hàng và tiêu đề."); return; }
     if (!form.imageDesktop) { toast.error("Cần tải ảnh quảng cáo."); return; }
-    if (!/^https?:\/\//i.test(form.linkUrl)) { toast.error("Link đích phải bắt đầu bằng http(s)://"); return; }
+    // Link đích tuỳ chọn — chỉ kiểm định khi có nhập.
+    if (form.linkUrl.trim() && !/^https?:\/\//i.test(form.linkUrl.trim())) { toast.error("Link đích phải bắt đầu bằng http(s)://"); return; }
     setBusy(true);
     try {
       const body = {
-        advertiser: form.advertiser, title: form.title, imageDesktop: form.imageDesktop, imageMobile: form.imageMobile,
-        linkUrl: form.linkUrl, placement: form.placement, weight: Number(form.weight) || 1,
+        advertiser: form.advertiser, title: form.title, description: form.description,
+        imageDesktop: form.imageDesktop, imageMobile: form.imageMobile,
+        linkUrl: form.linkUrl, phone: form.phone, placement: form.placement, weight: Number(form.weight) || 1,
         startDate: form.startDate || null, endDate: form.endDate || null, active: form.active,
       };
       const res = await fetch(editingId ? `/api/admin/ads/${editingId}` : "/api/admin/ads", {
@@ -104,9 +106,23 @@ export function AdManager({ initial }: { initial: AdRow[] }) {
               </select>
             </div>
             <div className="qp-form-group">
-              <label className="qp-label">Link đích <span className="req">*</span></label>
-              <input className="qp-input" value={form.linkUrl} onChange={(e) => set("linkUrl", e.target.value)} placeholder="https://..." />
+              <label className="qp-label">Link đích (tuỳ chọn)</label>
+              <input className="qp-input" value={form.linkUrl} onChange={(e) => set("linkUrl", e.target.value)} placeholder="https://… (để trống nếu chỉ liên hệ qua SĐT)" />
             </div>
+          </div>
+          <div className="qp-acc-grid2">
+            <div className="qp-form-group">
+              <label className="qp-label">SĐT liên hệ (tuỳ chọn)</label>
+              <input className="qp-input" type="tel" value={form.phone} maxLength={20} onChange={(e) => set("phone", e.target.value)} placeholder="VD: 0987 654 321" />
+            </div>
+            <div className="qp-form-group">
+              <label className="qp-label">Trọng số ưu tiên</label>
+              <input type="number" min={1} className="qp-input" value={form.weight} onChange={(e) => set("weight", Number(e.target.value))} />
+            </div>
+          </div>
+          <div className="qp-form-group">
+            <label className="qp-label">Mô tả chi tiết (tuỳ chọn — hiển thị ở trang chi tiết quảng cáo)</label>
+            <textarea className="qp-input" rows={4} value={form.description} maxLength={2000} onChange={(e) => set("description", e.target.value)} placeholder="Giới thiệu sản phẩm/dịch vụ, ưu đãi, địa chỉ cửa hàng…" />
           </div>
           <div className="qp-form-group">
             <label className="qp-label">Ảnh quảng cáo (desktop) <span className="req">*</span></label>
@@ -118,18 +134,12 @@ export function AdManager({ initial }: { initial: AdRow[] }) {
           </div>
           <div className="qp-acc-grid2">
             <div className="qp-form-group">
-              <label className="qp-label">Trọng số ưu tiên</label>
-              <input type="number" min={1} className="qp-input" value={form.weight} onChange={(e) => set("weight", Number(e.target.value))} />
+              <label className="qp-label">Từ ngày</label>
+              <input type="date" className="qp-input" value={form.startDate} onChange={(e) => set("startDate", e.target.value)} />
             </div>
-            <div className="qp-form-group" style={{ display: "flex", gap: 12 }}>
-              <div style={{ flex: 1 }}>
-                <label className="qp-label">Từ ngày</label>
-                <input type="date" className="qp-input" value={form.startDate} onChange={(e) => set("startDate", e.target.value)} />
-              </div>
-              <div style={{ flex: 1 }}>
-                <label className="qp-label">Đến ngày</label>
-                <input type="date" className="qp-input" value={form.endDate} onChange={(e) => set("endDate", e.target.value)} />
-              </div>
+            <div className="qp-form-group">
+              <label className="qp-label">Đến ngày</label>
+              <input type="date" className="qp-input" value={form.endDate} onChange={(e) => set("endDate", e.target.value)} />
             </div>
           </div>
           <label className="qp-acc-pending-toggle" style={{ marginLeft: 0 }}>

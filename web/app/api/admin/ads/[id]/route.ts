@@ -20,11 +20,15 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   const patch: Partial<CreateAdInput> = {};
   if (typeof b.advertiser === "string") patch.advertiser = b.advertiser.trim();
   if (typeof b.title === "string") patch.title = b.title.trim();
+  if (typeof b.description === "string") patch.description = b.description.trim() || undefined;
   if (typeof b.imageDesktop === "string") patch.imageDesktop = b.imageDesktop.trim();
   if (typeof b.imageMobile === "string") patch.imageMobile = b.imageMobile.trim() || undefined;
+  if (typeof b.phone === "string") patch.phone = b.phone.trim() || undefined;
   if (typeof b.linkUrl === "string") {
-    if (!/^https?:\/\//i.test(b.linkUrl)) return NextResponse.json({ error: "Link đích không hợp lệ." }, { status: 400 });
-    patch.linkUrl = b.linkUrl.trim();
+    const url = b.linkUrl.trim();
+    // Link đích TUỲ CHỌN — cho phép rỗng; chỉ kiểm định khi có nhập.
+    if (url && !/^https?:\/\//i.test(url)) return NextResponse.json({ error: "Link đích không hợp lệ." }, { status: 400 });
+    patch.linkUrl = url;
   }
   if (typeof b.placement === "string" && isPlacement(b.placement)) patch.placement = b.placement;
   if (b.weight !== undefined) patch.weight = Math.max(1, Number(b.weight) || 1);

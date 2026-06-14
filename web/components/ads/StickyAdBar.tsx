@@ -68,7 +68,7 @@ export function StickyAdBar() {
   const ad = ads[Math.min(idx, ads.length - 1)];
   return (
     <div className="qp-stickybar" role="complementary" aria-label="Quảng cáo">
-      <a className="qp-stickybar__main" key={ad.id} href={`/api/ads/${ad.id}/click`} target="_blank" rel="sponsored nofollow noopener">
+      <a className="qp-stickybar__main" key={ad.id} href={`/api/ads/${ad.id}/click`} rel="nofollow">
         <span className="qp-stickybar__media">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={ad.imageDesktop} alt="" loading="lazy" />

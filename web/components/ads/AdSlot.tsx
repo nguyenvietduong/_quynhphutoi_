@@ -55,13 +55,13 @@ export function AdSlot({ placement, className }: { placement: Placement; classNa
     // Thẻ "Tài trợ" trông giống card tin tức.
     return (
       <article ref={ref} className={`qp-newscard qp-ad-native ${className ?? ""}`}>
-        <a className="qp-newscard__media" href={href} target="_blank" rel="sponsored nofollow noopener" aria-label={ad.title}>
+        <a className="qp-newscard__media" href={href} rel="nofollow" aria-label={ad.title}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={ad.imageDesktop} alt="" loading="lazy" />
           <span className="qp-ad__label">Tài trợ</span>
         </a>
         <div className="qp-newscard__body">
-          <h3 className="qp-newscard__title"><a href={href} target="_blank" rel="sponsored nofollow noopener">{ad.title}</a></h3>
+          <h3 className="qp-newscard__title"><a href={href} rel="nofollow">{ad.title}</a></h3>
           <div className="qp-newscard__meta"><span>{ad.advertiser}</span></div>
         </div>
       </article>
@@ -70,7 +70,7 @@ export function AdSlot({ placement, className }: { placement: Placement; classNa
 
   return (
     <div ref={ref} className={`qp-ad qp-ad--${variant} ${className ?? ""}`}>
-      <a href={href} target="_blank" rel="sponsored nofollow noopener" aria-label={`Quảng cáo: ${ad.advertiser}`}>
+      <a href={href} rel="nofollow" aria-label={`Quảng cáo: ${ad.advertiser}`}>
         <picture>
           {ad.imageMobile && <source media="(max-width: 640px)" srcSet={ad.imageMobile} />}
           <img src={ad.imageDesktop} alt={ad.title} loading="lazy" />

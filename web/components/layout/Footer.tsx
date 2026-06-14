@@ -74,6 +74,7 @@ export async function Footer() {
             {colUtil.map((item) => (
               <Link href={item.href} key={item.id}>{item.label}</Link>
             ))}
+            <Link href="/quang-cao">Quảng cáo</Link>
           </nav>
 
           <div className="qp-footer__col qp-footer__contact">

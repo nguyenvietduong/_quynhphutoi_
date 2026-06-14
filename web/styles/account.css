@@ -123,6 +123,13 @@
 .qp-ad-strip { width: 100%; }
 .qp-ad-strip .qp-ad { max-width: 1100px; margin-inline: auto; }
 
+/* ===== Trang chi tiết quảng cáo (/quang-cao/[id]) ===== */
+.qp-ad-detail__media { border-radius: var(--radius-lg); overflow: hidden; border: 1px solid var(--color-gray-border); background: var(--color-navy-pale); }
+.qp-ad-detail__media img { width: 100%; height: auto; display: block; }
+.qp-ad-detail__desc { margin-top: var(--space-6); color: var(--color-gray-text); line-height: 1.75; font-size: 15.5px; }
+.qp-ad-detail__desc p { margin: 0 0 var(--space-4); }
+.qp-ad-detail__desc p:last-child { margin-bottom: 0; }
+
 /* Thanh quảng cáo nổi sát đáy màn hình (slider, có nút đóng) */
 .qp-stickybar {
   position: fixed; bottom: 50px; left: 50%; transform: translateX(-50%); z-index: 200;
