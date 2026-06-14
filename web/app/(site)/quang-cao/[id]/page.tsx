@@ -19,6 +19,10 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   };
 }
 
+const ICON = { viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.9, strokeLinecap: "round" as const, strokeLinejoin: "round" as const, width: 18, height: 18 };
+function PhoneIcon() { return (<svg {...ICON} aria-hidden><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.6A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.3 1.8.6 2.6a2 2 0 0 1-.5 2.1L8.1 9.6a16 16 0 0 0 6 6l1.2-1.1a2 2 0 0 1 2.1-.5c.8.3 1.7.5 2.6.6a2 2 0 0 1 1.7 2z" /></svg>); }
+function PinIcon() { return (<svg {...ICON} aria-hidden><path d="M21 10c0 6-9 12-9 12s-9-6-9-12a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg>); }
+
 export default async function AdDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const ad = await getPublicAd(id);
@@ -27,80 +31,82 @@ export default async function AdDetailPage({ params }: { params: Promise<{ id: s
   // Đếm lượt xem trang chi tiết (giống incrementViews của bài viết).
   await recordImpression(id).catch(() => {});
 
-  // Một vài quảng cáo khác đang chạy để gợi ý.
   const others = (await listAllActiveAds()).filter((a) => a._id!.toString() !== id).slice(0, 3);
+  const hasDesc = !!stripHtml(ad.description || "");
+  const brandInitial = (ad.advertiser.trim()[0] || "?").toUpperCase();
 
   return (
-    <article>
-      <section className="qp-pagehero" aria-labelledby="ad-detail-title">
-        <span className="qp-pagehero__blob is-teal" aria-hidden />
-        <span className="qp-pagehero__blob is-indigo" aria-hidden />
-        <span className="qp-pagehero__blob is-yellow" aria-hidden />
-        <div className="container-wide qp-pagehero__inner">
-          <nav className="qp-breadcrumb" aria-label="Breadcrumb">
-            <Link href="/">Trang chủ</Link>
-            <span className="qp-breadcrumb__sep">›</span>
-            <Link href="/quang-cao">Quảng cáo</Link>
-            <span className="qp-breadcrumb__sep">›</span>
-            <span className="qp-breadcrumb__current">{ad.advertiser}</span>
-          </nav>
-          <div className="qp-lf-detail__badges">
-            <span className="qp-ad-sponsor-badge">★ Nội dung tài trợ</span>
-          </div>
-          <h1 id="ad-detail-title" className="type-h1" style={{ margin: "var(--space-3) 0 var(--space-4)" }}>{ad.title}</h1>
-          <p className="qp-pagehero__lead">{ad.advertiser}</p>
-        </div>
-      </section>
+    <article className="qp-addetail">
+      <div className="container-wide">
+        <nav className="qp-breadcrumb qp-addetail__crumbs" aria-label="Breadcrumb">
+          <Link href="/">Trang chủ</Link>
+          <span className="qp-breadcrumb__sep">›</span>
+          <Link href="/quang-cao">Quảng cáo</Link>
+          <span className="qp-breadcrumb__sep">›</span>
+          <span className="qp-breadcrumb__current">{ad.advertiser}</span>
+        </nav>
 
-      <div className="container-wide qp-lf-body">
-        <div className="qp-article-layout is-lf">
-          <div className="qp-lf-main">
-            <div className="qp-ad-detail__gallery">
-              <ImageGallery images={ad.images?.length ? ad.images : [ad.imageDesktop]} alt={ad.title} />
+        {/* Đầu trang kiểu "sản phẩm": ảnh trái · thông tin + CTA phải */}
+        <div className="qp-addetail__head">
+          <div className="qp-addetail__media">
+            <ImageGallery images={ad.images?.length ? ad.images : [ad.imageDesktop]} alt={ad.title} />
+          </div>
+
+          <aside className="qp-addetail__panel">
+            <span className="qp-ad-sponsor-badge">★ Nội dung tài trợ</span>
+            <h1 className="qp-addetail__title">{ad.title}</h1>
+            <div className="qp-addetail__brand">
+              <span className="qp-addetail__brand-ic" aria-hidden>{brandInitial}</span>
+              <span>{ad.advertiser}</span>
             </div>
 
-            {stripHtml(ad.description || "") ? (
-              <div className="rich-text-editor__content qp-rte-view qp-ad-detail__desc" dangerouslySetInnerHTML={{ __html: ad.description! }} />
-            ) : (
-              <p className="qp-ad-detail__desc text-muted">Nhà tài trợ chưa cung cấp nội dung chi tiết. Vui lòng liên hệ trực tiếp qua thông tin bên cạnh.</p>
-            )}
-
-            {ad.mapUrl && (
-              <div style={{ marginTop: "var(--space-6)" }}>
-                <MapEmbed url={ad.mapUrl} address={ad.address} />
-              </div>
-            )}
-          </div>
-
-          <aside className="qp-lf-aside">
-            {/* Liên hệ — CTA chính */}
-            <div className="qp-lf-infocard qp-lf-infocard--cta">
-              <div className="qp-lf-infocard__title">Liên hệ nhà tài trợ</div>
-              <div className="qp-lf-spec">
-                <div className="qp-lf-spec__row"><span>Nhãn hàng</span><b>{ad.advertiser}</b></div>
+            {(ad.phone || ad.address) && (
+              <div className="qp-addetail__contact">
                 {ad.phone && (
-                  <div className="qp-lf-spec__row"><span>Điện thoại</span><b><a href={`tel:${ad.phone}`}>{ad.phone}</a></b></div>
+                  <a className="qp-addetail__row" href={`tel:${ad.phone}`}>
+                    <PhoneIcon /><span>{ad.phone}</span>
+                  </a>
                 )}
                 {ad.address && (
-                  <div className="qp-lf-spec__row"><span>Địa chỉ</span><b>{ad.address}</b></div>
+                  <div className="qp-addetail__row is-static">
+                    <PinIcon /><span>{ad.address}</span>
+                  </div>
                 )}
               </div>
-              {ad.phone && <a href={`tel:${ad.phone}`} className="qp-btn-primary qp-btn-block mt-6">Gọi ngay</a>}
+            )}
+
+            <div className="qp-addetail__cta">
+              {ad.phone && <a href={`tel:${ad.phone}`} className="qp-btn-primary qp-btn-block">Gọi ngay</a>}
               {ad.linkUrl && (
-                <a href={ad.linkUrl} target="_blank" rel="sponsored nofollow noopener"
-                  className={`qp-btn-outline qp-btn-block ${ad.phone ? "mt-4" : "mt-6"}`}>
+                <a href={ad.linkUrl} target="_blank" rel="sponsored nofollow noopener" className="qp-btn-outline qp-btn-block">
                   Truy cập website →
                 </a>
               )}
               {!ad.phone && !ad.linkUrl && (
-                <p className="type-body-small text-muted" style={{ margin: "12px 0 0" }}>Chưa có thông tin liên hệ.</p>
+                <p className="type-body-small text-muted">Liên hệ trực tiếp với nhà tài trợ.</p>
               )}
             </div>
           </aside>
         </div>
 
+        {/* Nội dung giới thiệu (rich-text) */}
+        {hasDesc && (
+          <section className="qp-addetail__content">
+            <h2 className="qp-addetail__h2">Giới thiệu</h2>
+            <div className="rich-text-editor__content qp-rte-view" dangerouslySetInnerHTML={{ __html: ad.description! }} />
+          </section>
+        )}
+
+        {/* Bản đồ */}
+        {ad.mapUrl && (
+          <div className="qp-addetail__map">
+            <MapEmbed url={ad.mapUrl} address={ad.address} />
+          </div>
+        )}
+
+        {/* Quảng cáo khác */}
         {others.length > 0 && (
-          <div className="qp-lf-related">
+          <div className="qp-addetail__related">
             <header className="qp-newsgrid-head">
               <span className="type-tag qp-sechead__eyebrow">Nhà tài trợ khác</span>
               <h2 className="type-h2">Quảng cáo khác</h2>

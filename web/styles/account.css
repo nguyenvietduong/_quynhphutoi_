@@ -123,13 +123,55 @@
 .qp-ad-strip { width: 100%; }
 .qp-ad-strip .qp-ad { max-width: 1100px; margin-inline: auto; }
 
-/* ===== Trang chi tiết quảng cáo (/quang-cao/[id]) ===== */
-/* Thư viện ảnh — giới hạn bề ngang để ảnh hiển thị NHỎ HƠN (không tràn full cột). */
-.qp-ad-detail__gallery { max-width: 460px; }
-@media (max-width: 900px) { .qp-ad-detail__gallery { max-width: 100%; } }
-.qp-ad-detail__desc { margin-top: var(--space-6); }
+/* ===== Trang chi tiết quảng cáo (/quang-cao/[id]) — bố cục kiểu trang sản phẩm ===== */
+.qp-addetail { padding-bottom: var(--space-10, 64px); }
+.qp-addetail__crumbs { margin: 18px 0 14px; }
+
+/* Đầu trang: ảnh trái (lấp đầy cột) · panel thông tin/CTA phải (sticky) */
+.qp-addetail__head {
+  display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(300px, 0.85fr);
+  gap: 28px; align-items: start; margin-bottom: 40px;
+}
+@media (max-width: 880px) { .qp-addetail__head { grid-template-columns: 1fr; gap: 22px; } }
+.qp-addetail__media { min-width: 0; }
+.qp-addetail__media .qp-gallery { margin-bottom: 0; }
+
+.qp-addetail__panel {
+  position: sticky; top: calc(var(--topbar-height, 72px) + 16px);
+  display: flex; flex-direction: column; gap: 13px;
+  background: #fff; border: 1px solid var(--color-gray-border);
+  border-radius: var(--radius-lg); padding: 22px 22px 24px;
+  box-shadow: var(--shadow-card);
+}
+@media (max-width: 880px) { .qp-addetail__panel { position: static; } }
+
+.qp-addetail__title { font: 800 25px/1.28 var(--font-primary); letter-spacing: -0.3px; color: var(--color-navy-deep); margin: 2px 0 0; }
+.qp-addetail__brand { display: inline-flex; align-items: center; gap: 10px; font: 600 14px/1.3 var(--font-primary); color: var(--color-gray-text); }
+.qp-addetail__brand-ic {
+  width: 32px; height: 32px; flex-shrink: 0; border-radius: 10px;
+  display: grid; place-items: center; font: 800 14px/1 var(--font-primary);
+  background: var(--color-teal-pale); color: var(--color-teal-dark);
+}
+
+.qp-addetail__contact { display: flex; flex-direction: column; border-top: 1px solid var(--color-gray-border); margin-top: 2px; padding-top: 6px; }
+.qp-addetail__row { display: flex; align-items: center; gap: 11px; padding: 9px 0; font: 600 14.5px/1.4 var(--font-primary); color: var(--color-navy-deep); text-decoration: none; }
+.qp-addetail__row svg { color: var(--color-teal-dark); flex-shrink: 0; }
+.qp-addetail__row.is-static { color: var(--color-gray-text); font-weight: 500; }
+a.qp-addetail__row:hover { color: var(--color-teal-dark); }
+
+.qp-addetail__cta { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
+
+/* Nội dung giới thiệu + bản đồ — bề ngang vừa đọc, không tràn full */
+.qp-addetail__content, .qp-addetail__map { max-width: 880px; margin-bottom: 36px; }
+.qp-addetail__h2 {
+  display: inline-block; font: 800 18px/1.3 var(--font-primary); color: var(--color-navy-deep);
+  margin-bottom: 16px; padding-bottom: 8px; border-bottom: 3px solid var(--color-yellow);
+}
+.qp-addetail__related { margin-top: 8px; }
+
 /* Nhãn "Nội dung tài trợ" — minh bạch, không giả làm tin tức thật */
 .qp-ad-sponsor-badge {
+  align-self: flex-start;
   display: inline-flex; align-items: center; gap: 6px;
   font: 700 11px/1 var(--font-mono-sans); letter-spacing: 0.8px; text-transform: uppercase;
   padding: 6px 12px; border-radius: var(--radius-pill);
