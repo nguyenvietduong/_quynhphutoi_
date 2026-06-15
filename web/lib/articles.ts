@@ -318,6 +318,7 @@ export function toNewsCardArticle(d: ArticleDoc): import("@/lib/news").Article {
     id: d.slug, slug: d.slug, category: d.category as import("@/lib/news").NewsCategory,
     title: d.title, excerpt: d.excerpt, image: d.coverImage, date,
     readTime: `${d.readingMinutes} phút đọc`, author: d.author?.name ?? "", tags: d.tags ?? [],
+    views: d.views ?? 0,
   };
 }
 

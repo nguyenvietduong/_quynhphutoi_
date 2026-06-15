@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { articleViews, fmtViews, type Article } from "@/lib/news";
+import { fmtViews, type Article } from "@/lib/news";
 
 /* Card bài viết dùng chung (trang Tin tức + section tin tức trang chủ).
    Badge đè trên ảnh, title 2 dòng (giữ chiều cao), excerpt, meta chấm. */
@@ -20,7 +20,7 @@ export function NewsCard({ a }: { a: Article }) {
           <span className="qp-dot-sep" aria-hidden />
           <span>{a.readTime}</span>
           <span className="qp-dot-sep" aria-hidden />
-          <span>{fmtViews(articleViews(a))}</span>
+          <span>{fmtViews(a.views)}</span>
         </div>
       </div>
     </article>

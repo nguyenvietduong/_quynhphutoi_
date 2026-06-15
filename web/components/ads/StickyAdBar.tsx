@@ -4,17 +4,37 @@
 // (không che màn, không mất quảng cáo); bấm nút đó để mở lại NGAY.
 // Trạng thái ẩn KHÔNG lưu qua reload → tải lại trang là quảng cáo HIỆN LẠI.
 // Nếu để yên (không reload), sau REAPPEAR_MS (mặc định 5 phút) thanh sẽ TỰ BUNG lại.
-import { useEffect, useRef, useState } from "react";
+// Vòng xoay TÔN TRỌNG TRỌNG SỐ ƯU TIÊN (weight): ad trọng số cao hiện trước + nhiều hơn.
+import { useEffect, useMemo, useRef, useState } from "react";
 
-type Ad = { id: string; advertiser: string; title: string; imageDesktop: string; imageMobile: string | null };
+type Ad = { id: string; advertiser: string; title: string; imageDesktop: string; imageMobile: string | null; weight?: number };
 
 const REAPPEAR_MS = 5 * 60 * 1000;             // 5 phút → tự hiện lại (trong cùng phiên xem)
+
+// Smooth weighted round-robin: trả về thứ tự xoay (dài = tổng trọng số) sao cho ad
+// trọng số cao xuất hiện nhiều hơn nhưng vẫn xen kẽ mượt (không gom cụm cùng 1 ad).
+function weightedOrder(ads: Ad[]): Ad[] {
+  if (ads.length <= 1) return ads;
+  const state = ads.map((ad) => ({ ad, eff: Math.max(1, ad.weight || 1), cur: 0 }));
+  const total = state.reduce((s, x) => s + x.eff, 0);
+  const seq: Ad[] = [];
+  for (let n = 0; n < total; n++) {
+    let best = state[0];
+    for (const x of state) { x.cur += x.eff; if (x.cur > best.cur) best = x; }
+    best.cur -= total;
+    seq.push(best.ad);
+  }
+  return seq;
+}
 
 export function StickyAdBar() {
   const [ads, setAds] = useState<Ad[]>([]);
   const [idx, setIdx] = useState(0);
   const [collapsed, setCollapsed] = useState(false);
   const seen = useRef<Set<string>>(new Set());
+
+  // Vòng xoay theo trọng số ưu tiên (ổn định cho tới khi danh sách ads đổi).
+  const order = useMemo(() => weightedOrder(ads), [ads]);
 
   // Lấy tất cả quảng cáo đang chạy.
   useEffect(() => {
@@ -34,21 +54,21 @@ export function StickyAdBar() {
     return () => clearTimeout(t);
   }, [collapsed]);
 
-  // Tự chuyển slide (khi đang mở).
+  // Tự chuyển slide (khi đang mở) — chạy theo vòng xoay có trọng số.
   useEffect(() => {
-    if (collapsed || ads.length <= 1) return;
-    const iv = setInterval(() => setIdx((i) => (i + 1) % ads.length), 5000);
+    if (collapsed || order.length <= 1) return;
+    const iv = setInterval(() => setIdx((i) => (i + 1) % order.length), 5000);
     return () => clearInterval(iv);
-  }, [collapsed, ads.length]);
+  }, [collapsed, order.length]);
 
   // Đếm lượt hiển thị (mỗi quảng cáo 1 lần, khi đang mở).
   useEffect(() => {
     if (collapsed) return;
-    const ad = ads[idx];
+    const ad = order[idx];
     if (!ad || seen.current.has(ad.id)) return;
     seen.current.add(ad.id);
     fetch(`/api/ads/${ad.id}/impression`, { method: "POST", keepalive: true }).catch(() => {});
-  }, [collapsed, idx, ads]);
+  }, [collapsed, idx, order]);
 
   function collapse() { setCollapsed(true); }
   function expand() { setCollapsed(false); }
@@ -65,7 +85,8 @@ export function StickyAdBar() {
     );
   }
 
-  const ad = ads[Math.min(idx, ads.length - 1)];
+  const ad = order[Math.min(idx, order.length - 1)];
+  const activeDot = ads.findIndex((a) => a.id === ad.id);
   return (
     <div className="qp-stickybar" role="complementary" aria-label="Quảng cáo">
       <a className="qp-stickybar__main" key={ad.id} href={`/api/ads/${ad.id}/click`} rel="nofollow">
@@ -83,7 +104,7 @@ export function StickyAdBar() {
 
       {ads.length > 1 && (
         <span className="qp-stickybar__dots" aria-hidden>
-          {ads.map((_, i) => <span key={i} className={`qp-stickybar__dot${i === idx ? " is-active" : ""}`} />)}
+          {ads.map((_, i) => <span key={i} className={`qp-stickybar__dot${i === activeDot ? " is-active" : ""}`} />)}
         </span>
       )}
 

@@ -1,7 +1,6 @@
 // Bật/tắt thích 1 bài viết (cần đăng nhập).
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
-import { getArticle } from "@/lib/news";
 import { getArticleBySlug } from "@/lib/articles";
 import { toggleNewsLike } from "@/lib/news-social";
 import { rateLimit, tooMany } from "@/lib/ratelimit";
@@ -17,8 +16,8 @@ export async function POST(_req: Request, { params }: { params: Promise<{ slug: 
   if (!rl.ok) return tooMany(rl.retryAfter, "Bạn thao tác quá nhanh.");
 
   const { slug } = await params;
-  const exists = !!getArticle(slug) || !!(await getArticleBySlug(slug));
-  if (!exists) return NextResponse.json({ error: "Không tìm thấy bài viết." }, { status: 404 });
+  const doc = await getArticleBySlug(slug);
+  if (!doc || doc.status !== "published") return NextResponse.json({ error: "Không tìm thấy bài viết." }, { status: 404 });
 
   const result = await toggleNewsLike(slug, session.id);
   return NextResponse.json(result);

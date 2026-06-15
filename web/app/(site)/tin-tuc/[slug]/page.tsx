@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { NEWS, getArticle, relatedArticles, articleBody, articleViews, fmtViews, type Article } from "@/lib/news";
+import { fmtViews, type Article } from "@/lib/news";
 import { getArticleBySlug, relatedArticles as relatedDbArticles, toNewsCardArticle, incrementViews, buildArticleMetadata, buildArticleJsonLd, type ArticleBlock } from "@/lib/articles";
 import { getSession } from "@/lib/auth";
 import { newsLikeInfo, listNewsComments } from "@/lib/news-social";
@@ -12,16 +12,11 @@ import { NewsCard } from "@/components/news/NewsCard";
 
 export const dynamic = "force-dynamic";
 
-export function generateStaticParams() {
-  return NEWS.map((a) => ({ slug: a.slug }));
-}
-
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const db = await getArticleBySlug(slug);
   if (db && db.status === "published") return buildArticleMetadata(db); // SEO đầy đủ: canonical, OG, robots…
-  const a = getArticle(slug);
-  return { title: a?.title ?? "Bài viết", description: a?.excerpt };
+  return { title: "Bài viết", robots: { index: false, follow: false } };
 }
 
 function badgeClass(cat: string) {
@@ -31,7 +26,7 @@ function badgeClass(cat: string) {
   return "";
 }
 
-// View model thống nhất cho cả 2 nguồn: DB articles (admin tạo) và NEWS tĩnh (demo).
+// View model cho bài viết (DB articles do admin tạo).
 type ArticleView = {
   title: string; category: string; image: string; date: string; readTime: string;
   author: string; tags: string[]; viewsText: string;
@@ -41,30 +36,18 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
   const { slug } = await params;
 
   const db = await getArticleBySlug(slug);
-  const useDb = !!db && db.status === "published";
+  if (!db || db.status !== "published") notFound();
 
-  let view: ArticleView;
-  let body: ArticleBlock[];
-  let related: Article[];
-
-  if (useDb && db) {
-    await incrementViews(slug).catch(() => {});
-    const dd = db.publishedAt ?? db.createdAt;
-    view = {
-      title: db.title, category: db.category, image: db.coverImage,
-      date: dd ? `${String(dd.getDate()).padStart(2, "0")}/${String(dd.getMonth() + 1).padStart(2, "0")}/${dd.getFullYear()}` : "",
-      readTime: `${db.readingMinutes} phút đọc`, author: db.author?.name ?? "Ban biên tập",
-      tags: db.tags ?? [], viewsText: fmtViews((db.views ?? 0) + 1),
-    };
-    body = db.body ?? [];
-    related = (await relatedDbArticles(slug, 4)).map(toNewsCardArticle);
-  } else {
-    const a = getArticle(slug);
-    if (!a) notFound();
-    view = { title: a.title, category: a.category, image: a.image, date: a.date, readTime: a.readTime, author: a.author, tags: a.tags, viewsText: fmtViews(articleViews(a)) };
-    body = articleBody(a) as ArticleBlock[];
-    related = relatedArticles(slug, 4);
-  }
+  await incrementViews(slug).catch(() => {});
+  const dd = db.publishedAt ?? db.createdAt;
+  const view: ArticleView = {
+    title: db.title, category: db.category, image: db.coverImage,
+    date: dd ? `${String(dd.getDate()).padStart(2, "0")}/${String(dd.getMonth() + 1).padStart(2, "0")}/${dd.getFullYear()}` : "",
+    readTime: `${db.readingMinutes} phút đọc`, author: db.author?.name ?? "Ban biên tập",
+    tags: db.tags ?? [], viewsText: fmtViews((db.views ?? 0) + 1),
+  };
+  const body: ArticleBlock[] = db.body ?? [];
+  const related: Article[] = (await relatedDbArticles(slug, 4)).map(toNewsCardArticle);
 
   const headings = body
     .map((b, i) => (b.type === "h2" ? { id: `sec-${i}`, text: b.text } : null))
@@ -88,10 +71,8 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
 
   return (
     <article>
-      {/* Dữ liệu có cấu trúc (SEO) cho bài viết DB */}
-      {useDb && db && (
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(buildArticleJsonLd(db)) }} />
-      )}
+      {/* Dữ liệu có cấu trúc (SEO) cho bài viết */}
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(buildArticleJsonLd(db)) }} />
       {/* Hero đồng bộ với các trang chi tiết khác */}
       <section className="qp-pagehero qp-lf-hero is-nhat-duoc" aria-labelledby="art-title">
         <span className="qp-pagehero__blob is-teal" aria-hidden />

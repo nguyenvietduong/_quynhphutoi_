@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { Pagination } from "@/components/common/Pagination";
 import Image from "next/image";
-import { NEWS, articleViews, fmtViews, dateKey, type Article } from "@/lib/news";
+import { fmtViews, dateKey, type Article } from "@/lib/news";
 import { NewsCard } from "./NewsCard";
 
 const PAGE_SIZE = 8;
@@ -27,7 +27,7 @@ function FeaturedCard({ a }: { a: Article }) {
         <span className="qp-tag-cat">{a.category}</span>
         <h2 className="qp-featured__title">{a.title}</h2>
         <p className="qp-featured__excerpt">{a.excerpt}</p>
-        <div className="qp-featured__meta"><span>{a.date}</span><Sep /><span>{fmtViews(articleViews(a))}</span></div>
+        <div className="qp-featured__meta"><span>{a.date}</span><Sep /><span>{fmtViews(a.views)}</span></div>
       </div>
       <div className="qp-featured__media">
         <Image src={a.image} alt="" fill sizes="(max-width:767px) 100vw, 50vw" style={{ objectFit: "cover" }} />
@@ -59,13 +59,13 @@ function PopularItem({ a, rank }: { a: Article; rank: number }) {
       <span className="qp-popular__rank">{String(rank).padStart(2, "0")}</span>
       <span className="qp-popular__body">
         <span className="qp-popular__title">{a.title}</span>
-        <span className="qp-popular__meta"><span>{a.date}</span><Sep /><span>{fmtViews(articleViews(a))}</span></span>
+        <span className="qp-popular__meta"><span>{a.date}</span><Sep /><span>{fmtViews(a.views)}</span></span>
       </span>
     </Link>
   );
 }
 
-export function NewsBrowser({ items = NEWS }: { items?: Article[] }) {
+export function NewsBrowser({ items = [] }: { items?: Article[] }) {
   const [category, setCategory] = useState("Tất cả");
   const [sort, setSort] = useState<SortValue>("newest");
   const [query, setQuery] = useState("");
@@ -82,7 +82,7 @@ export function NewsBrowser({ items = NEWS }: { items?: Article[] }) {
     });
     return [...filtered].sort((x, y) => {
       if (sort === "oldest") return dateKey(x.date) - dateKey(y.date);
-      if (sort === "popular") return articleViews(y) - articleViews(x);
+      if (sort === "popular") return y.views - x.views;
       return dateKey(y.date) - dateKey(x.date);
     });
   }, [items, category, sort, query]);
@@ -90,7 +90,7 @@ export function NewsBrowser({ items = NEWS }: { items?: Article[] }) {
   const defaultMode = category === "Tất cả" && !query.trim() && page === 1;
   const featured = defaultMode ? sorted[0] : undefined;
   const levelTwo = defaultMode ? sorted.slice(1, 4) : [];
-  const popular = useMemo(() => [...items].sort((a, b) => articleViews(b) - articleViews(a)).slice(0, 7), [items]);
+  const popular = useMemo(() => [...items].sort((a, b) => b.views - a.views).slice(0, 7), [items]);
 
   const listSource = defaultMode ? sorted.slice(4) : sorted;
   const totalPages = Math.max(1, Math.ceil(listSource.length / PAGE_SIZE));

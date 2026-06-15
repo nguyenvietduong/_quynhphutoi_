@@ -2,7 +2,7 @@ import { buildMetadata } from "@/lib/seo";
 import Link from "next/link";
 import { NewsBrowser } from "@/components/news/NewsBrowser";
 import { listArticles, toNewsCardArticle } from "@/lib/articles";
-import { NEWS, type Article } from "@/lib/news";
+import type { Article } from "@/lib/news";
 
 export const metadata = buildMetadata({
   title: "Tin tức & thông báo",
@@ -13,11 +13,9 @@ export const metadata = buildMetadata({
 export const dynamic = "force-dynamic";
 
 export default async function TinTucPage() {
-  // Bài viết admin xuất bản (DB) hiển thị trước, rồi tới dữ liệu mẫu (NEWS) — khử trùng theo slug.
+  // Chỉ hiển thị bài viết admin đã xuất bản (DB) — không còn dữ liệu mẫu.
   const dbDocs = await listArticles({ status: "published", limit: 60 }).catch(() => []);
-  const dbCards = dbDocs.map(toNewsCardArticle);
-  const seen = new Set(dbCards.map((a) => a.slug));
-  const items: Article[] = [...dbCards, ...NEWS.filter((a) => !seen.has(a.slug))];
+  const items: Article[] = dbDocs.map(toNewsCardArticle);
   return (
     <>
       {/* Page hero sáng (gradient + đốm sáng + cây lúa halftone) */}

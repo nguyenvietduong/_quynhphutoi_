@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { HeroSlider } from "@/components/home/HeroSlider";
-import { NEWS } from "@/lib/news";
+import { listArticles, toNewsCardArticle } from "@/lib/articles";
 import { NewsCard } from "@/components/news/NewsCard";
 import { SITE, buildMetadata, jsonLdWebSite, jsonLdOrganization } from "@/lib/seo";
 import { JsonLd } from "@/components/common/JsonLd";
@@ -116,7 +116,11 @@ function SectionHead({ eyebrow, title, href, linkLabel = "Xem tất cả", desc 
   );
 }
 
-export default function HomePage() {
+export const dynamic = "force-dynamic";
+
+export default async function HomePage() {
+  // 4 bài viết mới nhất đã xuất bản (DB) cho section tin tức trang chủ.
+  const latestNews = (await listArticles({ status: "published", limit: 4 }).catch(() => [])).map(toNewsCardArticle);
   return (
     <>
       <JsonLd data={[jsonLdWebSite(), jsonLdOrganization()]} />
@@ -154,18 +158,20 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* TIN TỨC & THÔNG BÁO */}
-      <section className="section section-alt">
-        <div className="container-wide">
-          <SectionHead eyebrow="Cập nhật" title="Tin tức & thông báo" href="/tin-tuc" />
+      {/* TIN TỨC & THÔNG BÁO — chỉ hiện khi đã có bài xuất bản */}
+      {latestNews.length > 0 && (
+        <section className="section section-alt">
+          <div className="container-wide">
+            <SectionHead eyebrow="Cập nhật" title="Tin tức & thông báo" href="/tin-tuc" />
 
-          <div className="qp-grid-news qp-scroller">
-            {NEWS.slice(0, 4).map((a) => (
-              <NewsCard key={a.id} a={a} />
-            ))}
+            <div className="qp-grid-news qp-scroller">
+              {latestNews.map((a) => (
+                <NewsCard key={a.id} a={a} />
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* VIỆC LÀM MỚI NHẤT */}
       <section className="section">

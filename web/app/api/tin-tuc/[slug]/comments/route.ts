@@ -1,7 +1,6 @@
 // Bình luận của 1 bài viết: GET danh sách, POST thêm (cần đăng nhập).
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
-import { getArticle } from "@/lib/news";
 import { getArticleBySlug } from "@/lib/articles";
 import { addNewsComment, listNewsComments, newsCommenterIds } from "@/lib/news-social";
 import { notifyMany } from "@/lib/notifications";
@@ -9,10 +8,8 @@ import { rateLimit, tooMany } from "@/lib/ratelimit";
 import { verifyRecaptcha } from "@/lib/recaptcha";
 import { getSettings } from "@/lib/settings";
 
-// Bài tồn tại nếu có trong dữ liệu tĩnh HOẶC là bài DB đã xuất bản. Trả tiêu đề để dùng cho thông báo.
+// Bài tồn tại nếu là bài DB đã xuất bản. Trả tiêu đề để dùng cho thông báo.
 async function resolveArticleTitle(slug: string): Promise<string | null> {
-  const s = getArticle(slug);
-  if (s) return s.title;
   const d = await getArticleBySlug(slug);
   if (d && d.status === "published") return d.title;
   return null;
@@ -62,7 +59,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ slug: s
   try {
     const c = await addNewsComment(slug, { id: session.id, name: session.name }, content);
 
-    // Bài viết tĩnh (không có chủ) → thông báo cho những người đã bình luận trong bài (trừ người vừa bình luận).
+    // Bài viết không gắn chủ sở hữu → thông báo cho những người đã bình luận trong bài (trừ người vừa bình luận).
     const participants = await newsCommenterIds(slug);
     await notifyMany(participants, { type: "comment", title: `${session.name} đã bình luận bài “${articleTitle}”`, href: `/tin-tuc/${slug}#comments`, actorName: session.name, module: "tin-tuc" }, session.id);
 

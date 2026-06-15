@@ -8,7 +8,7 @@ import { market } from "@/lib/market";
 import { health } from "@/lib/health";
 import { transit } from "@/lib/transit";
 import { schools } from "@/lib/schools";
-import { NEWS } from "@/lib/news";
+import { listArticles } from "@/lib/articles";
 import { stripHtml } from "@/lib/strip-html";
 
 export type SearchHit = { module: string; moduleLabel: string; title: string; subtitle: string; href: string; image: string | null };
@@ -46,7 +46,8 @@ export async function searchAll(query: string, perModule = 6, moduleFilter?: str
   };
 
   // Chạy song song các phân hệ DB.
-  const [lf, jb, mb, dt, ch, yt, gt, th] = await Promise.all([
+  const [nw, lf, jb, mb, dt, ch, yt, gt, th] = await Promise.all([
+    listArticles({ status: "published", limit: 800 }).catch(() => []),
     lostFound().then((c) => c.find({ approved: true, active: true }, { projection: { slug: 1, title: 1, description: 1, categoryName: 1, images: 1 } }).limit(800).toArray()),
     jobs().then((c) => c.find({ approved: true, active: true }, { projection: { slug: 1, title: 1, company: 1, description: 1, images: 1 } }).limit(800).toArray()),
     classifieds().then((c) => c.find({ approved: true, active: true }, { projection: { slug: 1, title: 1, description: 1, priceText: 1, images: 1 } }).limit(800).toArray()),
@@ -57,10 +58,10 @@ export async function searchAll(query: string, perModule = 6, moduleFilter?: str
     schools().then((c) => c.find({ active: true }, { projection: { slug: 1, name: 1, levelLabel: 1 } }).limit(800).toArray()),
   ]);
 
-  // Tin tức (dữ liệu tĩnh)
-  push("tin-tuc", NEWS
+  // Tin tức (bài viết đã xuất bản trong DB)
+  push("tin-tuc", nw
     .filter((a) => has(a.title) || has(a.excerpt) || a.tags.some((t) => has(t)))
-    .map((a) => ({ module: "tin-tuc", moduleLabel: MODULES["tin-tuc"], title: a.title, subtitle: a.category, href: `/tin-tuc/${a.slug}`, image: a.image })));
+    .map((a) => ({ module: "tin-tuc", moduleLabel: MODULES["tin-tuc"], title: a.title, subtitle: a.category, href: `/tin-tuc/${a.slug}`, image: a.coverImage || null })));
 
   push("tim-do-roi", lf
     .filter((d) => has(d.title) || has(stripHtml(d.description || "")) || has(d.categoryName || ""))
