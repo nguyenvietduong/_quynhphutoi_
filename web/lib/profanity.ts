@@ -250,6 +250,38 @@ export async function addProfanityWords(texts: string[], accentInsensitive = fal
   return docs.map((d, i) => ({ ...d, _id: res.insertedIds[i] }));
 }
 
+// Gom từ điển tục từ thư viện ngoài (leo-profanity + bad-words — chủ yếu tiếng Anh).
+// Dynamic import để KHÔNG nạp từ điển vào đường nóng (route đăng tin/bình luận).
+async function collectLibraryWords(): Promise<string[]> {
+  const set = new Set<string>();
+  // chỉ nhận từ "sạch": chữ/số ascii, có thể kèm khoảng/gạch/nháy, dài 3–80.
+  const ok = (w: unknown) => {
+    const t = String(w ?? "").trim().toLowerCase();
+    return t.length >= 3 && t.length <= 80 && /^[a-z0-9][a-z0-9 '-]*$/.test(t);
+  };
+  try {
+    const bw = await import("bad-words");
+    const Filter = (bw as { Filter?: new () => { list: string[] }; default?: unknown }).Filter
+      ?? (bw as { default?: { Filter?: new () => { list: string[] } } }).default?.Filter
+      ?? (bw as { default?: new () => { list: string[] } }).default;
+    if (Filter) for (const w of new (Filter as new () => { list: string[] })().list) if (ok(w)) set.add(String(w).trim().toLowerCase());
+  } catch { /* thiếu package → bỏ qua */ }
+  try {
+    const leoMod = await import("leo-profanity");
+    const leo = (leoMod.default ?? leoMod) as unknown as { getDictionary: (l: string) => string[] };
+    for (const w of leo.getDictionary("en")) if (ok(w)) set.add(String(w).trim().toLowerCase());
+  } catch { /* thiếu package → bỏ qua */ }
+  return [...set];
+}
+
+// Nạp từ điển thư viện vào DB (chỉ thêm từ chưa có). accentInsensitive=false để
+// tránh từ tiếng Anh ngắn "đè" lên từ tiếng Việt có dấu.
+export async function importLibraryWords(): Promise<{ added: number; scanned: number }> {
+  const words = await collectLibraryWords();
+  const added = await addProfanityWords(words, false);
+  return { added: added.length, scanned: words.length };
+}
+
 export type ProfanityPatch = Partial<{ text: string; accentInsensitive: boolean; enabled: boolean; note: string }>;
 
 export async function updateProfanityWord(id: string, patch: ProfanityPatch): Promise<number> {

@@ -97,6 +97,22 @@ export function ProfanityManager({ initial }: { initial: ProfanityRow[] }) {
     }
   }
 
+  async function importLib() {
+    if (busy) return;
+    if (!confirm("Nạp từ điển tục tiếng Anh từ thư viện (leo-profanity + bad-words)? Chỉ thêm từ chưa có.")) return;
+    setBusy(true);
+    try {
+      const res = await fetch("/api/admin/profanity/import", { method: "POST" });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) { toast.error(data.error || "Không nạp được."); return; }
+      if (data.added > 0) {
+        const list = await fetch("/api/admin/profanity").then((r) => r.json()).catch(() => ({ items: rows }));
+        setRows(list.items ?? rows);
+        toast.success(`Đã thêm ${data.added} từ tiếng Anh (quét ${data.scanned}).`);
+      } else toast.info("Đã có đủ, không thêm từ nào từ thư viện.");
+    } finally { setBusy(false); }
+  }
+
   async function restoreDefaults() {
     if (busy) return;
     if (!confirm("Nạp lại các từ cấm mặc định còn thiếu? (Không ghi đè từ đã chỉnh sửa)")) return;
@@ -131,6 +147,7 @@ export function ProfanityManager({ initial }: { initial: ProfanityRow[] }) {
         </span>
         <span style={{ flex: 1 }} />
         <button type="button" className="qp-btn-outline qp-btn-sm" onClick={copyAll} disabled={!rows.length} style={{ fontSize: SMALL }}>Copy tất cả</button>
+        <button type="button" className="qp-btn-outline qp-btn-sm" onClick={importLib} disabled={busy} style={{ fontSize: SMALL }}>Nạp từ thư viện</button>
         <button type="button" className="qp-btn-outline qp-btn-sm" onClick={restoreDefaults} disabled={busy} style={{ fontSize: SMALL }}>Khôi phục mặc định</button>
       </div>
 
