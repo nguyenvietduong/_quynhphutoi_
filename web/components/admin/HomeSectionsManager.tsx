@@ -7,8 +7,9 @@ import { useToast } from "@/components/common/Toast";
 import type { HomeSectionsConfig, HomeSectionConfig, HomeSectionKey, HomeSectionMode, HomeCandidate } from "@/lib/home-sections";
 
 // Hằng client-safe (KHÔNG import value từ lib/home-sections — sẽ kéo mongodb vào bundle).
-const KEYS: HomeSectionKey[] = ["tin-tuc", "viec-lam", "tim-do-roi", "mua-ban"];
-const LABEL: Record<HomeSectionKey, string> = { "tin-tuc": "Tin tức", "viec-lam": "Việc làm", "tim-do-roi": "Tìm đồ rơi", "mua-ban": "Mua bán" };
+const KEYS: HomeSectionKey[] = ["tin-tuc", "viec-lam", "tim-do-roi", "mua-ban", "marquee"];
+const LABEL: Record<HomeSectionKey, string> = { "tin-tuc": "Tin tức", "viec-lam": "Việc làm", "tim-do-roi": "Tìm đồ rơi", "mua-ban": "Mua bán", "marquee": "Dải chạy dưới navbar (Marquee)" };
+const NOTE: Partial<Record<HomeSectionKey, string>> = { "marquee": "Dải chạy “Cập nhật mới” ngay dưới thanh menu — chỉ lấy tiêu đề từ Tin tức." };
 const MODES: { value: HomeSectionMode; label: string }[] = [
   { value: "latest", label: "Mới nhất" },
   { value: "random", label: "Ngẫu nhiên" },
@@ -79,12 +80,13 @@ function SectionCard({ k, cfg, candidates, onPatch, onToggleSlug }: {
 
   return (
     <div className="qp-acc-card">
-      <div className="qp-acc-card__title qp-acc-card__title--row" style={{ marginBottom: 12 }}>
+      <div className="qp-acc-card__title qp-acc-card__title--row" style={{ marginBottom: NOTE[k] ? 4 : 12 }}>
         <span>{LABEL[k]}</span>
         <label className="qp-check" style={{ margin: 0 }}>
           <input type="checkbox" checked={cfg.enabled} onChange={(e) => onPatch({ enabled: e.target.checked })} /> Hiển thị khối
         </label>
       </div>
+      {NOTE[k] && <p className="type-body-small text-muted" style={{ marginBottom: 12 }}>{NOTE[k]}</p>}
 
       <div className="qp-acc-grid2">
         <div className="qp-form-group">

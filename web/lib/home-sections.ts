@@ -14,7 +14,7 @@ import { classifieds, CONDITION_LABEL, type ClassifiedDoc } from "@/lib/classifi
 import type { Article } from "@/lib/news";
 import { formatDate } from "@/lib/datetime";
 
-export type HomeSectionKey = "tin-tuc" | "viec-lam" | "tim-do-roi" | "mua-ban";
+export type HomeSectionKey = "tin-tuc" | "viec-lam" | "tim-do-roi" | "mua-ban" | "marquee";
 export type HomeSectionMode = "latest" | "random" | "manual";
 export const HOME_SECTION_MODES: HomeSectionMode[] = ["latest", "random", "manual"];
 
@@ -26,15 +26,17 @@ export type HomeSectionConfig = {
 };
 export type HomeSectionsConfig = Record<HomeSectionKey, HomeSectionConfig>;
 
-export const HOME_SECTION_KEYS: HomeSectionKey[] = ["tin-tuc", "viec-lam", "tim-do-roi", "mua-ban"];
+// "marquee" = dải chạy "Cập nhật mới" dưới navbar (chỉ lấy tiêu đề từ Tin tức).
+export const HOME_SECTION_KEYS: HomeSectionKey[] = ["tin-tuc", "viec-lam", "tim-do-roi", "mua-ban", "marquee"];
 export const HOME_SECTION_LABEL: Record<HomeSectionKey, string> = {
   "tin-tuc": "Tin tức",
   "viec-lam": "Việc làm",
   "tim-do-roi": "Tìm đồ rơi",
   "mua-ban": "Mua bán",
+  "marquee": "Dải chạy (Marquee)",
 };
 
-const DEFAULT_LIMIT: Record<HomeSectionKey, number> = { "tin-tuc": 4, "viec-lam": 3, "tim-do-roi": 4, "mua-ban": 4 };
+const DEFAULT_LIMIT: Record<HomeSectionKey, number> = { "tin-tuc": 4, "viec-lam": 3, "tim-do-roi": 4, "mua-ban": 4, "marquee": 8 };
 const MAX_LIMIT = 12;
 const MAX_MANUAL = 24;
 
@@ -44,6 +46,7 @@ function defaults(): HomeSectionsConfig {
     "viec-lam": { enabled: true, mode: "latest", manualSlugs: [], limit: DEFAULT_LIMIT["viec-lam"] },
     "tim-do-roi": { enabled: true, mode: "latest", manualSlugs: [], limit: DEFAULT_LIMIT["tim-do-roi"] },
     "mua-ban": { enabled: true, mode: "latest", manualSlugs: [], limit: DEFAULT_LIMIT["mua-ban"] },
+    "marquee": { enabled: true, mode: "latest", manualSlugs: [], limit: DEFAULT_LIMIT["marquee"] },
   };
 }
 
@@ -182,6 +185,14 @@ export async function loadHomeSections(): Promise<HomeSectionsData> {
   return { config, news, jobs: jobCards, lostfound: lfCards, classifieds: clCards };
 }
 
+// Dải chạy Marquee dưới navbar — trả danh sách tiêu đề (chỉ từ Tin tức) theo cấu hình.
+export async function loadMarquee(): Promise<string[]> {
+  const cfg = (await getHomeSections()).marquee;
+  if (!cfg.enabled) return [];
+  const arts = await resolveNews(cfg);
+  return arts.map((a) => a.title);
+}
+
 // ───────────────────────── Ứng viên cho picker thủ công (admin) ─────────────────────────
 export type HomeCandidate = { slug: string; title: string };
 
@@ -192,5 +203,5 @@ export async function listHomeCandidates(): Promise<Record<HomeSectionKey, HomeC
     (await lostFound()).find({ approved: true, active: true }).sort({ createdAt: -1 }).limit(100).project<HomeCandidate>({ _id: 0, slug: 1, title: 1 }).toArray(),
     (await classifieds()).find({ approved: true, active: true }).sort({ createdAt: -1 }).limit(100).project<HomeCandidate>({ _id: 0, slug: 1, title: 1 }).toArray(),
   ]);
-  return { "tin-tuc": a, "viec-lam": j, "tim-do-roi": l, "mua-ban": c };
+  return { "tin-tuc": a, "viec-lam": j, "tim-do-roi": l, "mua-ban": c, "marquee": a };
 }
