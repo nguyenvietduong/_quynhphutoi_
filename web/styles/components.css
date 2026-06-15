@@ -1188,20 +1188,15 @@ a.qp-contactrow__value:hover { color: var(--color-teal-dark); }
 .qp-alert.is-warning { background: var(--color-yellow-light); border-color: #FDE68A; color: var(--color-yellow-dark); }
 .qp-alert.is-error   { background: #FEE2E2; border-color: #FCA5A5; color: #991B1B; }
 
-/* Box "Xem thêm" affiliate (cuối bài viết) */
-.qp-affiliate {
-  display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap;
-  margin: var(--space-6) 0; padding: var(--space-4) var(--space-5);
-  border: 1px dashed var(--color-gray-border); border-radius: var(--radius-card);
-  background: var(--color-yellow-light, #fffbeb);
+/* Link "… Xem thêm" affiliate — kiểu đọc tiếp inline, đặt cuối phần mô tả */
+.qp-affiliate-more { margin: var(--space-3) 0 0; font-size: 15.5px; line-height: 1.7; }
+.qp-affiliate-more__dots { color: var(--color-gray-text); }
+.qp-affiliate-more__link {
+  color: var(--color-teal-dark, #0a7a68); font-weight: 700; text-decoration: none;
+  border-bottom: 1px solid transparent;
 }
-.qp-affiliate__tag {
-  font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
-  color: var(--color-yellow-dark, #92400e); background: #fff; border: 1px solid #FDE68A;
-  padding: 2px 8px; border-radius: 999px;
-}
-.qp-affiliate__btn { margin-left: auto; }
-@media (max-width: 560px) { .qp-affiliate__btn { margin-left: 0; width: 100%; justify-content: center; } }
+.qp-affiliate-more__link:hover { border-bottom-color: currentColor; }
+.qp-affiliate-more__note { color: var(--color-gray-text); font-size: 12.5px; }
 
 .qp-empty { text-align: center; padding: var(--space-16) var(--space-6); color: var(--color-gray-text); }
 .qp-empty__icon { width: 64px; height: 64px; margin: 0 auto var(--space-4); color: var(--color-navy-pale-2); }

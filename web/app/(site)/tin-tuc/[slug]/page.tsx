@@ -141,13 +141,13 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
                 }
               })}
 
+              {/* "… Xem thêm" affiliate (random link Shopee) — cuối phần mô tả; ẩn nếu admin chưa bật */}
+              <AffiliateCTA />
+
               <div className="qp-tag-row mt-8">
                 {a.tags.map((t) => <span className="qp-tag" key={t}>#{t}</span>)}
               </div>
             </div>
-
-            {/* Nút "Xem thêm" affiliate (random link Shopee) — ẩn nếu admin chưa bật */}
-            <AffiliateCTA />
 
             <PostInteractions
               slug={slug}
