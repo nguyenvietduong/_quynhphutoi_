@@ -176,6 +176,10 @@
 }
 .qp-tabbar__btn:hover { color: var(--color-navy); background: var(--color-navy-pale); }
 .qp-tabbar__btn.is-active { color: var(--color-navy); border-bottom-color: var(--color-teal); }
+/* Nhiều tab → cho xuống dòng (vd SEO từng trang) */
+.qp-tabbar--wrap { flex-wrap: wrap; gap: 2px 4px; }
+.qp-tabbar--wrap .qp-tabbar__btn { padding: 8px 12px; font-size: 13.5px; }
+.qp-tabbar__dot { display: inline-block; width: 6px; height: 6px; margin-left: 6px; border-radius: 50%; background: var(--color-teal); vertical-align: middle; }
 
 /* Picker chọn bài (cấu hình trang Tin tức): chip + ô tìm + danh sách kết quả */
 .qp-picker__chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }

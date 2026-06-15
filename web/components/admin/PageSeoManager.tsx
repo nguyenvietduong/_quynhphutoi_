@@ -25,8 +25,15 @@ const DEFS: { key: string; label: string }[] = [
 
 export function PageSeoManager({ initialConfig }: { initialConfig: PageSeoConfig }) {
   const [cfg, setCfg] = useState<PageSeoConfig>(initialConfig);
+  const [active, setActive] = useState<string>(DEFS[0].key);
   const [busy, setBusy] = useState(false);
   const { toast } = useToast();
+
+  // Trang đã được tuỳ chỉnh (có ít nhất 1 field) → đánh dấu chấm trên tab.
+  const isCustomized = (key: string) => {
+    const ov = cfg[key];
+    return !!ov && (!!ov.title || !!ov.description || !!ov.keywords || !!ov.ogImage || !!ov.noindex);
+  };
 
   function patch(key: string, p: Partial<PageSeoOverride>) {
     setCfg((cur) => ({ ...cur, [key]: { ...cur[key], ...p } }));
@@ -52,7 +59,24 @@ export function PageSeoManager({ initialConfig }: { initialConfig: PageSeoConfig
         Áp dụng ngay, không cần build lại.
       </p>
 
-      {DEFS.map((d) => {
+      {/* Mỗi trang = 1 tab nhỏ */}
+      <div className="qp-tabbar qp-tabbar--wrap" role="tablist" aria-label="Chọn trang">
+        {DEFS.map((d) => (
+          <button
+            key={d.key}
+            type="button"
+            role="tab"
+            aria-selected={active === d.key}
+            className={`qp-tabbar__btn${active === d.key ? " is-active" : ""}`}
+            onClick={() => setActive(d.key)}
+          >
+            {d.label}{isCustomized(d.key) ? <span className="qp-tabbar__dot" aria-label="đã tuỳ chỉnh" /> : null}
+          </button>
+        ))}
+      </div>
+
+      {(() => {
+        const d = DEFS.find((x) => x.key === active) ?? DEFS[0];
         const ov = cfg[d.key] ?? {};
         return (
           <div className="qp-acc-card" key={d.key}>
@@ -83,7 +107,7 @@ export function PageSeoManager({ initialConfig }: { initialConfig: PageSeoConfig
             </div>
           </div>
         );
-      })}
+      })()}
 
       <div style={{ display: "flex", gap: 10, marginTop: 4 }}>
         <button type="button" className="qp-btn-primary" onClick={save} disabled={busy}>{busy ? "Đang lưu…" : "Lưu SEO từng trang"}</button>
