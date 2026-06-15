@@ -7,6 +7,7 @@
 import { getDb, ensureIndexes } from "@/lib/db";
 import { ObjectId, type Filter } from "mongodb";
 import { industryName, jobTypeName, type JobType } from "@/lib/industries";
+import type { SeoFields } from "@/lib/seo-fields";
 
 export type { JobType };
 export type JobStatus = "open" | "closed" | "filled";
@@ -34,6 +35,7 @@ export type JobDoc = {
   education?: string;           // trình độ
   deadline?: Date | null;       // hạn nộp hồ sơ
   contact: JobContact;
+  seo?: SeoFields;          // ghi đè SEO trang chi tiết (admin, tuỳ chọn)
   postedBy: ObjectId;
   postedByName: string;
   status: JobStatus;
@@ -232,7 +234,7 @@ export async function deleteJob(slug: string) {
 }
 
 // Admin sửa nội dung tin (ngoài duyệt). description đã sanitize ở tầng route.
-export type JobPatch = Partial<{ title: string; company: string; description: string; featured: boolean; approved: boolean; status: JobStatus; images: string[] }>
+export type JobPatch = Partial<{ title: string; company: string; description: string; featured: boolean; approved: boolean; status: JobStatus; images: string[]; seo: SeoFields }>
   & { "location.address"?: string; "location.mapUrl"?: string };
 export async function updateJob(slug: string, patch: JobPatch) {
   const set: Record<string, unknown> = { updatedAt: new Date() };

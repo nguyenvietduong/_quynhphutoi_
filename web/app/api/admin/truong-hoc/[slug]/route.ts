@@ -2,6 +2,7 @@
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin-guard";
 import { updateSchool, deleteSchool, SCHOOL_LEVELS, type SchoolInput, type SchoolLevel, type SchoolType } from "@/lib/schools";
+import { sanitizeSeoFields } from "@/lib/seo-fields";
 import { WARDS } from "@/lib/wards";
 
 const LEVELS = SCHOOL_LEVELS.map((l) => l.slug) as SchoolLevel[];
@@ -26,6 +27,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ slug: 
   if (b.foundedYear !== undefined) patch.foundedYear = b.foundedYear ? Number(b.foundedYear) : undefined;
   if (typeof b.verified === "boolean") patch.verified = b.verified;
   if (typeof b.active === "boolean") patch.active = b.active;
+  if ("seo" in b) patch.seo = sanitizeSeoFields(b.seo);
 
   const n = await updateSchool(slug, patch);
   if (!n) return NextResponse.json({ error: "Không tìm thấy." }, { status: 404 });

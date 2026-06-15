@@ -6,6 +6,7 @@
 import { getDb, ensureIndexes } from "@/lib/db";
 import { type Filter } from "mongodb";
 import { slugify, uniqueSlug } from "@/lib/slug";
+import type { SeoFields } from "@/lib/seo-fields";
 
 export type SchoolLevel = "mam-non" | "tieu-hoc" | "thcs" | "thpt";
 // gdnn-gdtx: Trung tâm Giáo dục nghề nghiệp – Giáo dục thường xuyên (dạy văn hoá cấp 3).
@@ -49,6 +50,7 @@ export type SchoolDoc = {
   foundedYear?: number;
   description?: string;
   coords?: { lat: number; lng: number };
+  seo?: SeoFields;         // ghi đè SEO trang chi tiết (tuỳ chọn)
 
   active: boolean;
   createdAt: Date;
@@ -110,6 +112,7 @@ export type SchoolInput = {
   phone?: string; email?: string; website?: string; principal?: string;
   foundedYear?: number; description?: string;
   verified?: boolean; active?: boolean; sourceUrl?: string;
+  seo?: SeoFields;
 };
 
 export async function createSchool(input: SchoolInput) {
@@ -123,7 +126,7 @@ export async function createSchool(input: SchoolInput) {
     verified: input.verified ?? false, sourceUrl: input.sourceUrl,
     wardSlug: input.wardSlug, address: input.address,
     phone: input.phone, email: input.email, website: input.website, principal: input.principal,
-    foundedYear: input.foundedYear, description: input.description,
+    foundedYear: input.foundedYear, description: input.description, seo: input.seo,
     active: input.active ?? true, createdAt: now, updatedAt: now,
   };
   const { insertedId } = await col.insertOne(doc);
@@ -154,7 +157,7 @@ export function toSchoolRow(d: SchoolDoc): SchoolRow {
     slug: d.slug, name: d.name, shortName: d.shortName, level: d.level, levels: d.levels, type: d.type,
     wardSlug: d.wardSlug, address: d.address, phone: d.phone, email: d.email, website: d.website,
     principal: d.principal, foundedYear: d.foundedYear, description: d.description, sourceUrl: d.sourceUrl,
-    verified: d.verified, active: d.active,
+    verified: d.verified, active: d.active, seo: d.seo,
   };
 }
 

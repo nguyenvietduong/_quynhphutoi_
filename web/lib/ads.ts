@@ -2,6 +2,7 @@
 // quảng cáo → xoay vòng theo trọng số. Chỗ chưa bán → AdSlot tự fallback AdSense.
 import { getDb, ensureIndexes } from "@/lib/db";
 import { ObjectId } from "mongodb";
+import type { SeoFields } from "@/lib/seo-fields";
 
 export type AdPlacement = "home-banner" | "detail-aside" | "in-feed" | "footer" | "sticky-bottom";
 
@@ -32,6 +33,7 @@ export type AdDoc = {
   startDate?: Date | null;
   endDate?: Date | null;
   active: boolean;
+  seo?: SeoFields;           // ghi đè SEO cho trang chi tiết (tuỳ chọn)
   impressions: number;
   clicks: number;
   createdAt: Date;

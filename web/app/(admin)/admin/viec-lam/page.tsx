@@ -28,6 +28,7 @@ export default async function AdminJobsPage() {
       postedByName: d.postedByName, createdAt: d.createdAt.toISOString(),
       images: d.images ?? [], thumb: d.images?.[0],
       address: d.location.address ?? "", mapUrl: d.location.mapUrl ?? "",
+      seo: d.seo,
       specs: [
         ...spec("Công ty", d.company),
         ...spec("Ngành", d.industryLabel),

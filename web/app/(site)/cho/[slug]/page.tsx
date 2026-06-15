@@ -5,6 +5,7 @@ import { getMarketBySlug, relatedMarket } from "@/lib/market";
 import { getAdminUnitBySlug, fullOldAddress } from "@/lib/admin-units";
 import { DetailSocial } from "@/components/common/DetailSocial";
 import { buildMetadata, jsonLdMarket, jsonLdBreadcrumb } from "@/lib/seo";
+import { applySeo } from "@/lib/seo-fields";
 import { JsonLd } from "@/components/common/JsonLd";
 
 export const dynamic = "force-dynamic";
@@ -14,8 +15,10 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const m = await getMarketBySlug(slug);
   if (!m) return { title: "Không tìm thấy" };
   return buildMetadata({
-    title: `${m.name} — Chợ Quỳnh Phụ`,
-    description: m.description || `${m.name} (${m.categoryLabel}) tại Quỳnh Phụ.`,
+    ...applySeo({
+      title: `${m.name} — Chợ Quỳnh Phụ`,
+      description: m.description || `${m.name} (${m.categoryLabel}) tại Quỳnh Phụ.`,
+    }, m.seo),
     path: `/cho/${slug}`,
     modifiedTime: m.updatedAt?.toISOString(),
   });

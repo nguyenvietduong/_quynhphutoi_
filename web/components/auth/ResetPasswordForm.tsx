@@ -1,15 +1,16 @@
 "use client";
 
 // Đặt lại mật khẩu — token lấy từ URL (?token=...), gọi API /api/auth/reset.
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { executeRecaptcha } from "@/components/common/recaptcha";
+import { Recaptcha, RECAPTCHA_SITE_KEY, type RecaptchaHandle } from "@/components/common/Recaptcha";
 import { useToast } from "@/components/common/Toast";
 
 export function ResetPasswordForm() {
   const router = useRouter();
   const { toast } = useToast();
+  const captcha = useRef<RecaptchaHandle>(null);
   const token = useSearchParams().get("token");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -27,14 +28,20 @@ export function ResetPasswordForm() {
       return;
     }
 
+    const recaptchaToken = captcha.current?.getToken() ?? "";
+    if (RECAPTCHA_SITE_KEY && !recaptchaToken) {
+      toast.error('Vui lòng xác nhận "Tôi không phải robot".');
+      return;
+    }
+
     setLoading(true);
-    const recaptchaToken = await executeRecaptcha("reset");
     const res = await fetch("/api/auth/reset", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ token, password, recaptchaToken }),
     });
     const data = await res.json().catch(() => ({}));
+    captcha.current?.reset();
 
     if (!res.ok) {
       toast.error(data.error || "Đặt lại mật khẩu thất bại.");
@@ -99,6 +106,8 @@ export function ResetPasswordForm() {
           </svg>
         </div>
       </div>
+
+      <Recaptcha ref={captcha} className="qp-recaptcha" />
 
       <button className="btn-login" type="submit" disabled={loading || !hasToken}>
         {loading ? "Đang đổi…" : "Đổi mật khẩu"}

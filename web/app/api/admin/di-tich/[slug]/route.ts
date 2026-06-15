@@ -2,6 +2,7 @@
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin-guard";
 import { updateRelic, deleteRelic, type RelicInput, type RelicType, type RelicRanking } from "@/lib/relics";
+import { sanitizeSeoFields } from "@/lib/seo-fields";
 import { WARDS } from "@/lib/wards";
 
 const TYPES: RelicType[] = ["den", "chua", "dinh", "mieu", "nha-tho", "khac"];
@@ -26,6 +27,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ slug: 
   if (typeof b.verified === "boolean") patch.verified = b.verified;
   if (typeof b.featured === "boolean") patch.featured = b.featured;
   if (typeof b.active === "boolean") patch.active = b.active;
+  if ("seo" in b) patch.seo = sanitizeSeoFields(b.seo);
 
   const n = await updateRelic(slug, patch);
   if (!n) return NextResponse.json({ error: "Không tìm thấy." }, { status: 404 });

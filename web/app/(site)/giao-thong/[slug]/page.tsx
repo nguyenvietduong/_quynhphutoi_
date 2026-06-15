@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { getTransitBySlug, relatedTransit } from "@/lib/transit";
 import { DetailSocial } from "@/components/common/DetailSocial";
 import { buildMetadata, jsonLdTransit, jsonLdBreadcrumb } from "@/lib/seo";
+import { applySeo } from "@/lib/seo-fields";
 import { JsonLd } from "@/components/common/JsonLd";
 
 export const dynamic = "force-dynamic";
@@ -13,8 +14,10 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const t = await getTransitBySlug(slug);
   if (!t) return { title: "Không tìm thấy tuyến" };
   return buildMetadata({
-    title: `${t.name} — Giao thông Quỳnh Phụ`,
-    description: `Tuyến ${t.typeLabel}: ${t.origin} → ${t.destination}. ${t.fare ? "Giá vé " + t.fare + ". " : ""}${t.frequency ?? ""}`,
+    ...applySeo({
+      title: `${t.name} — Giao thông Quỳnh Phụ`,
+      description: `Tuyến ${t.typeLabel}: ${t.origin} → ${t.destination}. ${t.fare ? "Giá vé " + t.fare + ". " : ""}${t.frequency ?? ""}`,
+    }, t.seo),
     path: `/giao-thong/${slug}`,
     modifiedTime: t.updatedAt?.toISOString(),
   });

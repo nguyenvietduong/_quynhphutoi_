@@ -2,14 +2,14 @@
 
 // Modal đăng tin Tìm đồ rơi — POST /api/lost-found (yêu cầu đăng nhập).
 // Tin gửi lên ở trạng thái chờ duyệt (approved=false) nên chưa hiện công khai ngay.
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { WARDS } from "@/lib/wards";
 import { Combobox } from "./Combobox";
 import { RichTextEditor } from "./RichTextEditor";
 import { ImageUploader } from "@/components/common/ImageUploader";
 import { CharCount } from "@/components/common/CharCount";
-import { executeRecaptcha } from "@/components/common/recaptcha";
+import { Recaptcha, RECAPTCHA_SITE_KEY, type RecaptchaHandle } from "@/components/common/Recaptcha";
 import { useToast } from "@/components/common/Toast";
 
 export type CategoryOption = { id: string; label: string };
@@ -48,6 +48,7 @@ export function PostModal({ open, onClose, categoryOptions, isLoggedIn, defaultN
   const [loading, setLoading] = useState(false);
   const [doneSlug, setDoneSlug] = useState<string | null>(null);
   const { toast } = useToast();
+  const captcha = useRef<RecaptchaHandle>(null);
 
   // Đóng bằng phím Esc.
   useEffect(() => {
@@ -95,9 +96,14 @@ export function PostModal({ open, onClose, categoryOptions, isLoggedIn, defaultN
     }
     if (!contactName.trim()) { toast.error("Vui lòng nhập tên liên hệ."); return; }
 
+    const recaptchaToken = captcha.current?.getToken() ?? "";
+    if (RECAPTCHA_SITE_KEY && !recaptchaToken) {
+      toast.error('Vui lòng xác nhận "Tôi không phải robot".');
+      return;
+    }
+
     setLoading(true);
     try {
-      const recaptchaToken = await executeRecaptcha("lostfound_post");
       const res = await fetch("/api/lost-found", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -116,6 +122,7 @@ export function PostModal({ open, onClose, categoryOptions, isLoggedIn, defaultN
         }),
       });
       const data = await res.json().catch(() => ({}));
+      captcha.current?.reset();
       if (!res.ok) {
         toast.error(data.error || "Đăng tin thất bại, vui lòng thử lại.");
         return;
@@ -257,6 +264,8 @@ export function PostModal({ open, onClose, categoryOptions, isLoggedIn, defaultN
               <input type="checkbox" checked={hidePhone} onChange={(e) => setHidePhone(e.target.checked)} />
               Ẩn số điện thoại công khai (người xem liên hệ qua trang tin)
             </label>
+
+            <Recaptcha ref={captcha} className="qp-recaptcha" />
 
             <button className="qp-btn-primary qp-btn-block mt-6" type="submit" disabled={loading}>
               {loading ? "Đang gửi…" : <>Đăng tin <span className="qp-arrow">→</span></>}

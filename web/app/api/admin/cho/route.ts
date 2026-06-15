@@ -2,6 +2,7 @@
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin-guard";
 import { listMarket, createMarket, toMarketRow, MARKET_CATEGORIES, type MarketCategory } from "@/lib/market";
+import { sanitizeSeoFields } from "@/lib/seo-fields";
 import { WARDS } from "@/lib/wards";
 
 const CATEGORIES = MARKET_CATEGORIES.map((c) => c.slug) as MarketCategory[];
@@ -28,6 +29,7 @@ export async function POST(req: Request) {
     name, category: b.category, wardSlug: b.wardSlug, address: b.address, description: b.description,
     schedule: b.schedule, priceText: b.priceText, unit: b.unit,
     contactName: b.contactName, contactPhone: b.contactPhone,
+    seo: sanitizeSeoFields(b.seo),
     verified: !!b.verified, featured: !!b.featured, active: b.active !== false,
   });
   return NextResponse.json({ ok: true, item: toMarketRow(created) });

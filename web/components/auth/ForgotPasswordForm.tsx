@@ -1,26 +1,33 @@
 "use client";
 
 // Form quên mật khẩu — gọi API /api/auth/forgot, gửi email chứa link đặt lại.
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
-import { executeRecaptcha } from "@/components/common/recaptcha";
+import { Recaptcha, RECAPTCHA_SITE_KEY, type RecaptchaHandle } from "@/components/common/Recaptcha";
 import { useToast } from "@/components/common/Toast";
 
 export function ForgotPasswordForm() {
   const { toast } = useToast();
+  const captcha = useRef<RecaptchaHandle>(null);
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setLoading(true);
 
-    const recaptchaToken = await executeRecaptcha("forgot");
+    const recaptchaToken = captcha.current?.getToken() ?? "";
+    if (RECAPTCHA_SITE_KEY && !recaptchaToken) {
+      toast.error('Vui lòng xác nhận "Tôi không phải robot".');
+      return;
+    }
+
+    setLoading(true);
     await fetch("/api/auth/forgot", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, recaptchaToken }),
     });
+    captcha.current?.reset();
 
     toast.success("Nếu email tồn tại, chúng tôi đã gửi liên kết đặt lại mật khẩu. Vui lòng kiểm tra hộp thư.");
     setLoading(false);
@@ -51,6 +58,8 @@ export function ForgotPasswordForm() {
           </svg>
         </div>
       </div>
+
+      <Recaptcha ref={captcha} className="qp-recaptcha" />
 
       <button className="btn-login" type="submit" disabled={loading}>
         {loading ? "Đang gửi…" : "Gửi liên kết đặt lại"}

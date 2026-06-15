@@ -5,6 +5,7 @@ import { isAdmin } from "@/lib/users";
 import { deleteJob, getJobBySlug, updateJob, type JobPatch, type JobStatus } from "@/lib/jobs";
 import { notifyUser } from "@/lib/notifications";
 import { sanitizeHtml } from "@/lib/sanitize";
+import { sanitizeSeoFields } from "@/lib/seo-fields";
 import { isGoogleMapsUrl, resolveMapUrl } from "@/lib/map-embed";
 
 const JOB_STATUSES: JobStatus[] = ["open", "closed", "filled"];
@@ -32,6 +33,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ slug: 
     }
     patch["location.mapUrl"] = raw ? await resolveMapUrl(raw) : "";
   }
+  if ("seo" in b) patch.seo = sanitizeSeoFields(b.seo);
 
   const n = await updateJob(slug, patch);
   if (!n) return NextResponse.json({ error: "Không tìm thấy tin." }, { status: 404 });

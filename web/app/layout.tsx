@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Script from "next/script";
 import { SITE } from "@/lib/seo";
+import { getSettings } from "@/lib/settings";
 import { Be_Vietnam_Pro, Space_Grotesk, JetBrains_Mono, Source_Serif_4 } from "next/font/google";
 import "@/styles/tokens.css";
 import "@/styles/base.css";
@@ -34,38 +35,60 @@ const sourceSerif = Source_Serif_4({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  metadataBase: new URL(SITE.url),
-  title: {
-    default: SITE.name,
-    template: `%s · ${SITE.name}`,
-  },
-  description: SITE.description,
-  applicationName: SITE.name,
-  authors: [{ name: SITE.name }],
-  keywords: [
-    "Quỳnh Phụ", "Thái Bình", "cổng thông tin Quỳnh Phụ", "tin tức Quỳnh Phụ",
-    "việc làm Quỳnh Phụ", "mua bán Quỳnh Phụ", "tìm đồ rơi", "trường học Quỳnh Phụ",
-    "y tế Quỳnh Phụ", "giao thông Quỳnh Phụ", "di tích Quỳnh Phụ", "chợ Quỳnh Phụ",
-  ],
-  alternates: { canonical: "/" },
-  manifest: "/manifest.webmanifest",
-  icons: { icon: "/img/patterns/logo.png", apple: "/img/patterns/logo.png", shortcut: "/img/patterns/logo.png" },
-  robots: {
-    index: true, follow: true,
-    googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 },
-  },
-  openGraph: {
-    type: "website",
-    siteName: SITE.name,
-    title: SITE.name,
-    description: SITE.description,
-    url: SITE.url,
-    locale: SITE.locale,
-    images: [{ url: `${SITE.url}/opengraph-image`, width: 1200, height: 630 }],
-  },
-  twitter: { card: "summary_large_image", title: SITE.name, description: SITE.description, images: [`${SITE.url}/opengraph-image`] },
-};
+// Từ khoá gốc mặc định (dùng khi admin chưa nhập "Từ khoá gốc" ở tab SEO).
+const DEFAULT_KEYWORDS = [
+  "Quỳnh Phụ", "Thái Bình", "cổng thông tin Quỳnh Phụ", "tin tức Quỳnh Phụ",
+  "việc làm Quỳnh Phụ", "mua bán Quỳnh Phụ", "tìm đồ rơi", "trường học Quỳnh Phụ",
+  "y tế Quỳnh Phụ", "giao thông Quỳnh Phụ", "di tích Quỳnh Phụ", "chợ Quỳnh Phụ",
+];
+
+// Metadata gốc toàn site — đọc cấu hình SEO admin (DB). Để trống ô nào → dùng mặc định SITE.
+// Áp dụng ngay cho lượt truy cập tiếp theo (không cần build lại).
+export async function generateMetadata(): Promise<Metadata> {
+  const s = await getSettings();
+  const name = s.seoSiteName || SITE.name;
+  const description = s.seoSiteDescription || SITE.description;
+  const keywords = s.seoDefaultKeywords
+    ? s.seoDefaultKeywords.split(",").map((k) => k.trim()).filter(Boolean)
+    : DEFAULT_KEYWORDS;
+  const ogImage = s.seoDefaultOgImage
+    ? (s.seoDefaultOgImage.startsWith("http") ? s.seoDefaultOgImage : `${SITE.url}${s.seoDefaultOgImage}`)
+    : `${SITE.url}/opengraph-image`;
+  const verification =
+    s.seoVerificationGoogle || s.seoVerificationBing
+      ? {
+          ...(s.seoVerificationGoogle ? { google: s.seoVerificationGoogle } : {}),
+          ...(s.seoVerificationBing ? { other: { "msvalidate.01": s.seoVerificationBing } } : {}),
+        }
+      : undefined;
+
+  return {
+    metadataBase: new URL(SITE.url),
+    title: { default: name, template: `%s · ${name}` },
+    description,
+    applicationName: name,
+    authors: [{ name }],
+    keywords,
+    alternates: { canonical: "/" },
+    manifest: "/manifest.webmanifest",
+    icons: { icon: "/img/patterns/logo.png", apple: "/img/patterns/logo.png", shortcut: "/img/patterns/logo.png" },
+    ...(verification ? { verification } : {}),
+    robots: {
+      index: true, follow: true,
+      googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 },
+    },
+    openGraph: {
+      type: "website",
+      siteName: name,
+      title: name,
+      description,
+      url: SITE.url,
+      locale: SITE.locale,
+      images: [{ url: ogImage, width: 1200, height: 630 }],
+    },
+    twitter: { card: "summary_large_image", title: name, description, images: [ogImage] },
+  };
+}
 
 // Root layout TỐI GIẢN — chỉ <html>/<body>, fonts & CSS toàn cục.
 // Chrome (TopBar/Marquee/Footer) nằm ở app/(site)/layout.tsx.
@@ -79,12 +102,12 @@ export default function RootLayout({
   return (
     <html lang="vi" className={fontVars} suppressHydrationWarning>
       <body suppressHydrationWarning><ToastProvider>{children}</ToastProvider></body>
-      {/* reCAPTCHA v3 — chỉ tải khi đã cấu hình site key */}
+      {/* reCAPTCHA v2 (ô tick) — chỉ tải khi đã cấu hình site key. Render tường minh ở component. */}
       {recaptchaKey && (
         <Script
-          id="recaptcha-v3"
+          id="recaptcha-v2"
           strategy="afterInteractive"
-          src={`https://www.google.com/recaptcha/api.js?render=${recaptchaKey}`}
+          src="https://www.google.com/recaptcha/api.js?hl=vi"
         />
       )}
       {/* Loader AdSense — chỉ tải khi đã cấu hình publisher ID (fallback chỗ chưa bán) */}

@@ -5,7 +5,9 @@ import { getPublicAd, recordImpression, listAllActiveAds } from "@/lib/ads";
 import { MapEmbed } from "@/components/common/MapEmbed";
 import { ImageGallery } from "@/components/common/ImageGallery";
 import { stripHtml } from "@/lib/strip-html";
-import { buildMetadata } from "@/lib/seo";
+import { buildMetadata, jsonLdAd, jsonLdBreadcrumb } from "@/lib/seo";
+import { applySeo } from "@/lib/seo-fields";
+import { JsonLd } from "@/components/common/JsonLd";
 
 export const dynamic = "force-dynamic";
 
@@ -14,11 +16,17 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const ad = await getPublicAd(id);
   if (!ad) return { title: "Không tìm thấy quảng cáo" };
   return buildMetadata({
-    title: `${ad.title} — ${ad.advertiser}`,
-    description: (stripHtml(ad.description || "") || ad.title).slice(0, 160),
+    // SEO override của admin (nếu có) thắng meta tự sinh; vẫn luôn noindex (trang tài trợ).
+    ...applySeo(
+      {
+        title: `${ad.title} — ${ad.advertiser}`,
+        description: (stripHtml(ad.description || "") || ad.title).slice(0, 160),
+        image: ad.images?.[0] || ad.imageDesktop,
+      },
+      ad.seo ?? undefined,
+    ),
     path: `/quang-cao/${id}`,
-    image: ad.images?.[0] || ad.imageDesktop,
-    noindex: true, // trang quảng cáo — không index
+    noindex: true,
   });
 }
 
@@ -40,6 +48,14 @@ export default async function AdDetailPage({ params }: { params: Promise<{ id: s
 
   return (
     <article className="qp-addetail">
+      <JsonLd data={[
+        jsonLdAd(ad, stripHtml(ad.description || "") || ad.title),
+        jsonLdBreadcrumb([
+          { name: "Trang chủ", path: "/" },
+          { name: "Quảng cáo", path: "/quang-cao" },
+          { name: ad.advertiser, path: `/quang-cao/${id}` },
+        ]),
+      ]} />
       <div className="container-wide">
         <nav className="qp-breadcrumb qp-addetail__crumbs" aria-label="Breadcrumb">
           <Link href="/">Trang chủ</Link>

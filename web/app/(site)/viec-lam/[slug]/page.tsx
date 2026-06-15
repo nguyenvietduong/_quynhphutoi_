@@ -12,6 +12,7 @@ import { DetailSocial } from "@/components/common/DetailSocial";
 import { MapEmbed } from "@/components/common/MapEmbed";
 import { formatDate } from "@/lib/datetime";
 import { buildMetadata, jsonLdJob, jsonLdBreadcrumb } from "@/lib/seo";
+import { applySeo } from "@/lib/seo-fields";
 import { JsonLd } from "@/components/common/JsonLd";
 
 export const dynamic = "force-dynamic";
@@ -32,14 +33,16 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const job = await getJobBySlug(slug);
   if (!job) return { title: "Không tìm thấy tin" };
   return buildMetadata({
-    title: `${job.title} — ${job.company}`,
-    description: stripHtml(job.description).slice(0, 160),
+    ...applySeo({
+      title: `${job.title} — ${job.company}`,
+      description: stripHtml(job.description).slice(0, 160),
+      image: job.images?.[0],
+    }, job.seo),
     path: `/viec-lam/${slug}`,
-    image: job.images?.[0],
     type: "article",
     publishedTime: job.createdAt?.toISOString(),
     modifiedTime: job.updatedAt?.toISOString(),
-    noindex: !job.approved,
+    noindex: !job.approved || job.seo?.noindex,   // chưa duyệt → luôn ẩn; admin có thể ẩn thêm
   });
 }
 

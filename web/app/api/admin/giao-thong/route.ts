@@ -2,6 +2,7 @@
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin-guard";
 import { listTransit, createTransit, toTransitRow, TRANSIT_TYPES, type TransitType } from "@/lib/transit";
+import { sanitizeSeoFields } from "@/lib/seo-fields";
 
 const TYPES = TRANSIT_TYPES.map((t) => t.slug) as TransitType[];
 
@@ -36,6 +37,7 @@ export async function POST(req: Request) {
     operator: b.operator, phone: b.phone, fare: b.fare,
     frequency: b.frequency, duration: b.duration, distance: b.distance, note: b.note,
     verified: !!b.verified, active: b.active !== false,
+    seo: sanitizeSeoFields(b.seo),
   });
   return NextResponse.json({ ok: true, item: toTransitRow(created) });
 }

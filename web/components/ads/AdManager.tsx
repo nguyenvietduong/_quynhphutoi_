@@ -6,11 +6,13 @@ import { ImageUploader } from "@/components/common/ImageUploader";
 import { RowActions } from "@/components/admin/RowActions";
 import { useToast } from "@/components/common/Toast";
 import { RichTextEditor } from "@/components/lostfound/RichTextEditor";
+import { SeoFieldsEditor } from "@/components/admin/SeoFieldsEditor";
+import type { SeoFields } from "@/lib/seo-fields";
 
 export type AdRow = {
   id: string; advertiser: string; title: string; description: string; imageDesktop: string; imageMobile: string;
   images: string[]; linkUrl: string; phone: string; address: string; mapUrl: string; placement: string; weight: number;
-  startDate: string; endDate: string; active: boolean; impressions: number; clicks: number;
+  startDate: string; endDate: string; active: boolean; seo?: SeoFields | null; impressions: number; clicks: number;
 };
 
 const PLACEMENTS = [
@@ -22,7 +24,7 @@ const PLACEMENTS = [
 ];
 const placeLabel = (s: string) => PLACEMENTS.find((p) => p.slug === s)?.label ?? s;
 
-const EMPTY: AdRow = { id: "", advertiser: "", title: "", description: "", imageDesktop: "", imageMobile: "", images: [], linkUrl: "", phone: "", address: "", mapUrl: "", placement: "home-banner", weight: 1, startDate: "", endDate: "", active: true, impressions: 0, clicks: 0 };
+const EMPTY: AdRow = { id: "", advertiser: "", title: "", description: "", imageDesktop: "", imageMobile: "", images: [], linkUrl: "", phone: "", address: "", mapUrl: "", placement: "home-banner", weight: 1, startDate: "", endDate: "", active: true, seo: null, impressions: 0, clicks: 0 };
 
 export function AdManager({ initial, adMaxImages = 6 }: { initial: AdRow[]; adMaxImages?: number }) {
   const [rows, setRows] = useState<AdRow[]>(initial);
@@ -58,6 +60,7 @@ export function AdManager({ initial, adMaxImages = 6 }: { initial: AdRow[]; adMa
         linkUrl: form.linkUrl, phone: form.phone, address: form.address, mapUrl: form.mapUrl,
         placement: form.placement, weight: Number(form.weight) || 1,
         startDate: form.startDate || null, endDate: form.endDate || null, active: form.active,
+        seo: form.seo ?? {},
       };
       const res = await fetch(editingId ? `/api/admin/ads/${editingId}` : "/api/admin/ads", {
         method: editingId ? "PATCH" : "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body),
@@ -159,6 +162,7 @@ export function AdManager({ initial, adMaxImages = 6 }: { initial: AdRow[]; adMa
               <input type="date" className="qp-input" value={form.endDate} onChange={(e) => set("endDate", e.target.value)} />
             </div>
           </div>
+          <SeoFieldsEditor value={form.seo ?? undefined} onChange={(seo) => set("seo", seo)} />
           <label className="qp-acc-pending-toggle" style={{ marginLeft: 0 }}>
             <input type="checkbox" checked={form.active} onChange={(e) => set("active", e.target.checked)} /> Đang chạy (hiển thị công khai)
           </label>

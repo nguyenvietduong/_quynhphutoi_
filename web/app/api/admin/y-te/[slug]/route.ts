@@ -2,6 +2,7 @@
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin-guard";
 import { updateHealth, deleteHealth, HEALTH_TYPES, type HealthInput, type HealthType, type HealthOwnership } from "@/lib/health";
+import { sanitizeSeoFields } from "@/lib/seo-fields";
 import { WARDS } from "@/lib/wards";
 
 const TYPES = HEALTH_TYPES.map((t) => t.slug) as HealthType[];
@@ -27,6 +28,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ slug: 
   if (typeof b.emergency === "boolean") patch.emergency = b.emergency;
   if (typeof b.verified === "boolean") patch.verified = b.verified;
   if (typeof b.active === "boolean") patch.active = b.active;
+  if ("seo" in b) patch.seo = sanitizeSeoFields(b.seo);
 
   const n = await updateHealth(slug, patch);
   if (!n) return NextResponse.json({ error: "Không tìm thấy." }, { status: 404 });

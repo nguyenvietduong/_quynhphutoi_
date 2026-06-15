@@ -27,6 +27,7 @@ export default async function AdminClassifiedsPage() {
       postedByName: d.postedByName, createdAt: d.createdAt.toISOString(),
       images: d.images ?? [], thumb: d.images?.[0],
       address: d.location.address ?? "", mapUrl: d.location.mapUrl ?? "",
+      seo: d.seo,
       specs: [
         ...spec("Danh mục", d.categoryLabel),
         ...spec("Giá", d.priceText),

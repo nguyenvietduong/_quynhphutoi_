@@ -7,6 +7,7 @@ import { isGoogleMapsUrl, resolveMapUrl } from "@/lib/map-embed";
 import { sanitizeHtml } from "@/lib/sanitize";
 import { stripHtml } from "@/lib/strip-html";
 import { getSettings } from "@/lib/settings";
+import { sanitizeSeoFields } from "@/lib/seo-fields";
 
 // Lọc mảng URL ảnh hợp lệ, cắt theo giới hạn settings.adMaxImages.
 function parseImages(raw: unknown, max: number): string[] {
@@ -33,7 +34,7 @@ export async function GET() {
       placement: a.placement, weight: a.weight,
       startDate: a.startDate ? a.startDate.toISOString().slice(0, 10) : null,
       endDate: a.endDate ? a.endDate.toISOString().slice(0, 10) : null,
-      active: a.active, impressions: a.impressions, clicks: a.clicks,
+      active: a.active, seo: a.seo ?? null, impressions: a.impressions, clicks: a.clicks,
     })),
   });
 }
@@ -81,6 +82,7 @@ export async function POST(req: Request) {
     startDate: b.startDate ? new Date(b.startDate) : null,
     endDate: b.endDate ? new Date(b.endDate) : null,
     active: b.active !== false,
+    seo: sanitizeSeoFields(b.seo),
   });
   return NextResponse.json({ ok: true, id: ad._id!.toString() });
 }

@@ -29,6 +29,7 @@ export default async function AdminLostFoundPage() {
       postedByName: d.postedByName, createdAt: d.createdAt.toISOString(),
       images: d.images ?? [], thumb: d.images?.[0],
       address: d.location.address ?? "", mapUrl: d.location.mapUrl ?? "",
+      seo: d.seo,
       specs: [
         ...spec("Loại tin", d.kind === "tim-do" ? "Tìm đồ thất lạc" : "Nhặt được đồ"),
         ...spec("Danh mục", d.categoryName),

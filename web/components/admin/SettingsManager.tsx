@@ -5,12 +5,13 @@ import { useState } from "react";
 import type { AppSettings } from "@/lib/settings";
 import { useToast } from "@/components/common/Toast";
 
-type Tab = "post" | "comment" | "security" | "contact" | "data";
+type Tab = "post" | "comment" | "security" | "contact" | "seo" | "data";
 const TABS: { key: Tab; label: string; icon: string }[] = [
   { key: "post", label: "Đăng tin", icon: "📝" },
   { key: "comment", label: "Bình luận & tương tác", icon: "💬" },
   { key: "security", label: "Bảo mật & tài khoản", icon: "🔒" },
   { key: "contact", label: "Liên hệ & chung", icon: "📞" },
+  { key: "seo", label: "SEO toàn site", icon: "🔎" },
   { key: "data", label: "Dữ liệu mẫu", icon: "🌱" },
 ];
 
@@ -124,8 +125,8 @@ export function SettingsManager({ initial }: { initial: AppSettings }) {
 
         {tab === "security" && (
           <Card title="Bảo mật & tài khoản">
-            <Field label="Ngưỡng điểm reCAPTCHA v3 (0 – 1)" hint="Dưới ngưỡng bị coi là bot và chặn. Khuyến nghị 0.5; tăng 0.7 để siết hơn.">
-              <input type="number" min={0} max={1} step={0.1} className="qp-input" value={form.recaptchaMinScore} onChange={num("recaptchaMinScore")} style={{ maxWidth: 200 }} />
+            <Field label={'reCAPTCHA v2 (ô tick "Tôi không phải robot")'} hint="Cấu hình bằng biến môi trường NEXT_PUBLIC_RECAPTCHA_SITE_KEY và RECAPTCHA_SECRET_KEY. Chưa đặt khóa thì các form vẫn gửi được (bỏ qua kiểm tra).">
+              <span className="type-body-small" style={{ opacity: 0.7 }}>Ô tick sẽ tự hiện trên các form khi đã cấu hình khóa.</span>
             </Field>
             <div style={{ marginTop: 8 }}>
               <Toggle k="registerEnabled" label="Cho phép đăng ký tài khoản mới" desc="Tắt để tạm dừng nhận tài khoản mới." />
@@ -148,6 +149,35 @@ export function SettingsManager({ initial }: { initial: AppSettings }) {
                 <Field label="Facebook URL"><input maxLength={200} className="qp-input" value={form.socialFacebook} onChange={txt("socialFacebook")} placeholder="https://facebook.com/..." /></Field>
                 <Field label="YouTube URL"><input maxLength={200} className="qp-input" value={form.socialYoutube} onChange={txt("socialYoutube")} placeholder="https://youtube.com/..." /></Field>
                 <Field label="Zalo URL"><input maxLength={200} className="qp-input" value={form.socialZalo} onChange={txt("socialZalo")} placeholder="https://zalo.me/..." /></Field>
+              </div>
+            </Card>
+          </>
+        )}
+
+        {tab === "seo" && (
+          <>
+            <Card title="Nhận diện & metadata" desc="Áp dụng cho thẻ <title>, mô tả và ảnh chia sẻ của TOÀN site. Để trống ô nào → dùng giá trị mặc định cài sẵn. Có hiệu lực ngay, không cần build lại.">
+              <Field label="Tên site" hint="Dùng cho tiêu đề mặc định và hậu tố mọi trang: “Tên trang · Tên site”. Trống = “Cổng thông tin Quỳnh Phụ”.">
+                <input maxLength={80} className="qp-input" value={form.seoSiteName} onChange={txt("seoSiteName")} placeholder="Cổng thông tin Quỳnh Phụ" />
+              </Field>
+              <Field label="Mô tả mặc định" hint="Hiển thị dưới tiêu đề trên Google cho trang chủ và trang không có mô tả riêng (≈ 160 ký tự).">
+                <textarea maxLength={300} className="qp-textarea" value={form.seoSiteDescription} onChange={(e) => set("seoSiteDescription", e.target.value as never)} placeholder="Cổng thông tin huyện Quỳnh Phụ — tin tức, việc làm, mua bán…" />
+              </Field>
+              <Field label="Từ khoá gốc (cách nhau dấu phẩy)" hint="Trống = bộ từ khoá mặc định về Quỳnh Phụ.">
+                <textarea maxLength={400} className="qp-textarea" value={form.seoDefaultKeywords} onChange={(e) => set("seoDefaultKeywords", e.target.value as never)} placeholder="Quỳnh Phụ, Thái Bình, tin tức Quỳnh Phụ, việc làm Quỳnh Phụ…" />
+              </Field>
+              <Field label="Ảnh OG mặc định (URL)" hint="Ảnh khi chia sẻ link lên Facebook/Zalo. Trống = ảnh OG động tự sinh (/opengraph-image). Khuyến nghị 1200×630.">
+                <input maxLength={500} className="qp-input" value={form.seoDefaultOgImage} onChange={txt("seoDefaultOgImage")} placeholder="/img/og-default.png hoặc https://…" />
+              </Field>
+            </Card>
+            <Card title="Xác minh quyền sở hữu" desc="Dán mã xác minh để kết nối công cụ quản trị tìm kiếm. Mã được chèn vào thẻ <meta> ở mọi trang.">
+              <div className="qp-acc-grid2">
+                <Field label="Google Search Console" hint="Chỉ dán phần content của thẻ google-site-verification.">
+                  <input maxLength={200} className="qp-input" value={form.seoVerificationGoogle} onChange={txt("seoVerificationGoogle")} placeholder="VD: abcDEF123…" />
+                </Field>
+                <Field label="Bing Webmaster" hint="Mã msvalidate.01.">
+                  <input maxLength={200} className="qp-input" value={form.seoVerificationBing} onChange={txt("seoVerificationBing")} placeholder="VD: 0123ABC…" />
+                </Field>
               </div>
             </Card>
           </>

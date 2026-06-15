@@ -2,6 +2,7 @@
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin-guard";
 import { listSchools, createSchool, toSchoolRow, SCHOOL_LEVELS, type SchoolLevel, type SchoolType } from "@/lib/schools";
+import { sanitizeSeoFields } from "@/lib/seo-fields";
 import { WARDS } from "@/lib/wards";
 
 const LEVELS = SCHOOL_LEVELS.map((l) => l.slug) as SchoolLevel[];
@@ -33,6 +34,7 @@ export async function POST(req: Request) {
     principal: b.principal, foundedYear: b.foundedYear ? Number(b.foundedYear) : undefined,
     description: b.description, sourceUrl: b.sourceUrl,
     verified: !!b.verified, active: b.active !== false,
+    seo: sanitizeSeoFields(b.seo),
   });
   return NextResponse.json({ ok: true, item: toSchoolRow(created) });
 }

@@ -7,6 +7,7 @@ import { isGoogleMapsUrl, resolveMapUrl } from "@/lib/map-embed";
 import { sanitizeHtml } from "@/lib/sanitize";
 import { stripHtml } from "@/lib/strip-html";
 import { getSettings } from "@/lib/settings";
+import { sanitizeSeoFields } from "@/lib/seo-fields";
 
 async function guard() {
   const user = await getCurrentUser();
@@ -54,6 +55,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   if (b.startDate !== undefined) patch.startDate = b.startDate ? new Date(b.startDate) : null;
   if (b.endDate !== undefined) patch.endDate = b.endDate ? new Date(b.endDate) : null;
   if (typeof b.active === "boolean") patch.active = b.active;
+  if ("seo" in b) patch.seo = sanitizeSeoFields(b.seo);
 
   await updateAd(id, patch);
   return NextResponse.json({ ok: true });

@@ -2,6 +2,7 @@
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin-guard";
 import { updateTransit, deleteTransit, TRANSIT_TYPES, type TransitInput, type TransitType } from "@/lib/transit";
+import { sanitizeSeoFields } from "@/lib/seo-fields";
 
 const TYPES = TRANSIT_TYPES.map((t) => t.slug) as TransitType[];
 
@@ -23,6 +24,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ slug: 
   if (b.stops !== undefined) patch.stops = toStops(b.stops);
   if (typeof b.verified === "boolean") patch.verified = b.verified;
   if (typeof b.active === "boolean") patch.active = b.active;
+  if ("seo" in b) patch.seo = sanitizeSeoFields(b.seo);
 
   const n = await updateTransit(slug, patch);
   if (!n) return NextResponse.json({ error: "Không tìm thấy." }, { status: 404 });

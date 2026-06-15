@@ -5,6 +5,8 @@ import { useMemo, useState } from "react";
 import { useModalDismiss } from "@/lib/use-modal-dismiss";
 import { WARDS } from "@/lib/wards";
 import { ImageUploader } from "@/components/common/ImageUploader";
+import { SeoFieldsEditor } from "@/components/admin/SeoFieldsEditor";
+import type { SeoFields } from "@/lib/seo-fields";
 import type { RelicRow } from "@/lib/relics";
 import { Pagination } from "@/components/common/Pagination";
 import { usePagination, PageSizeControl } from "@/components/admin/AdminPaging";
@@ -33,20 +35,20 @@ type Form = {
   slug: string; name: string; type: string; wardSlug: string; ranking: string;
   recognizedYear: string; era: string; worship: string; festival: string;
   address: string; description: string; images: string[];
-  verified: boolean; featured: boolean; active: boolean;
+  verified: boolean; featured: boolean; active: boolean; seo?: SeoFields;
 };
 const EMPTY: Form = {
   slug: "", name: "", type: "den", wardSlug: WARDS[0]?.slug ?? "", ranking: "",
   recognizedYear: "", era: "", worship: "", festival: "",
   address: "", description: "", images: [],
-  verified: false, featured: false, active: true,
+  verified: false, featured: false, active: true, seo: undefined,
 };
 const toForm = (r: RelicRow): Form => ({
   slug: r.slug, name: r.name, type: r.type, wardSlug: r.wardSlug, ranking: r.ranking ?? "",
   recognizedYear: r.recognizedYear ? String(r.recognizedYear) : "", era: r.era ?? "",
   worship: r.worship ?? "", festival: r.festival ?? "", address: r.address ?? "",
   description: r.description ?? "", images: r.images ?? [],
-  verified: r.verified ?? false, featured: r.featured ?? false, active: r.active ?? true,
+  verified: r.verified ?? false, featured: r.featured ?? false, active: r.active ?? true, seo: r.seo,
 });
 
 export function RelicsManager({ initial }: { initial: RelicRow[] }) {
@@ -86,6 +88,7 @@ export function RelicsManager({ initial }: { initial: RelicRow[] }) {
         era: form.era, worship: form.worship, festival: form.festival,
         address: form.address, description: form.description, images: form.images,
         verified: form.verified, featured: form.featured, active: form.active,
+        seo: form.seo ?? {},
       };
       const res = await fetch(editing ? `/api/admin/di-tich/${editing}` : "/api/admin/di-tich", {
         method: editing ? "PATCH" : "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body),
@@ -165,6 +168,7 @@ export function RelicsManager({ initial }: { initial: RelicRow[] }) {
                 <textarea className="qp-textarea" value={form.description} onChange={(e) => set("description", e.target.value)} /></div>
               <div className="qp-form-group"><label className="qp-label">Hình ảnh</label>
                 <ImageUploader value={form.images} onChange={(arr) => set("images", arr)} max={6} /></div>
+              <SeoFieldsEditor value={form.seo} onChange={(seo) => set("seo", seo)} />
               <div style={{ display: "flex", gap: 20 }}>
                 <label className="qp-check"><input type="checkbox" checked={form.verified} onChange={(e) => set("verified", e.target.checked)} /> Đã xác minh</label>
                 <label className="qp-check"><input type="checkbox" checked={form.featured} onChange={(e) => set("featured", e.target.checked)} /> Nổi bật</label>

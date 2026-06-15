@@ -3,6 +3,7 @@
 import { getDb, ensureIndexes } from "@/lib/db";
 import { type Filter } from "mongodb";
 import { slugify, uniqueSlug } from "@/lib/slug";
+import type { SeoFields } from "@/lib/seo-fields";
 
 export type RelicType = "dinh" | "chua" | "den" | "mieu" | "nha-tho" | "khac";
 export type RelicRanking = "quoc-gia" | "cap-tinh" | "kiem-ke";
@@ -42,6 +43,7 @@ export type RelicDoc = {
   recognizedYear?: number;      // năm được xếp hạng
 
   images: string[];
+  seo?: SeoFields;              // ghi đè SEO trang chi tiết (tuỳ chọn)
 
   verified: boolean;
   featured: boolean;
@@ -92,6 +94,7 @@ export type RelicInput = {
   era?: string; worship?: string; festival?: string;
   ranking?: RelicRanking; recognizedYear?: number; images?: string[];
   verified?: boolean; featured?: boolean; active?: boolean;
+  seo?: SeoFields;
 };
 
 export async function createRelic(input: RelicInput) {
@@ -103,6 +106,7 @@ export async function createRelic(input: RelicInput) {
     wardSlug: input.wardSlug, address: input.address, description: input.description,
     era: input.era, worship: input.worship, festival: input.festival,
     ranking: input.ranking, recognizedYear: input.recognizedYear, images: input.images ?? [],
+    seo: input.seo,
     verified: input.verified ?? false, featured: input.featured ?? false,
     active: input.active ?? true, createdAt: now, updatedAt: now,
   };
@@ -131,7 +135,7 @@ export function toRelicRow(d: RelicDoc): RelicRow {
     slug: d.slug, name: d.name, type: d.type, wardSlug: d.wardSlug, address: d.address,
     description: d.description, era: d.era, worship: d.worship, festival: d.festival,
     ranking: d.ranking, recognizedYear: d.recognizedYear, images: d.images ?? [],
-    verified: d.verified, featured: d.featured, active: d.active,
+    verified: d.verified, featured: d.featured, active: d.active, seo: d.seo,
   };
 }
 

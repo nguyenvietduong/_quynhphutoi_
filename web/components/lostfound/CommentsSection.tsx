@@ -1,10 +1,10 @@
 "use client";
 
 // Khu vực bình luận dưới tin — danh sách + ô soạn (cần đăng nhập).
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
 import { CharCount } from "@/components/common/CharCount";
-import { executeRecaptcha } from "@/components/common/recaptcha";
+import { Recaptcha, RECAPTCHA_SITE_KEY, type RecaptchaHandle } from "@/components/common/Recaptcha";
 import { TimeAgo } from "@/components/common/TimeAgo";
 import { useToast } from "@/components/common/Toast";
 
@@ -27,18 +27,24 @@ export function CommentsSection({ slug, initial, isLoggedIn, currentUserName, ap
   const [content, setContent] = useState("");
   const [busy, setBusy] = useState(false);
   const { toast } = useToast();
+  const captcha = useRef<RecaptchaHandle>(null);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     if (!content.trim() || busy) return;
+    const recaptchaToken = captcha.current?.getToken() ?? "";
+    if (RECAPTCHA_SITE_KEY && !recaptchaToken) {
+      toast.error('Vui lòng xác nhận "Tôi không phải robot".');
+      return;
+    }
     setBusy(true);
     try {
-      const recaptchaToken = await executeRecaptcha("comment");
       const res = await fetch(`${apiBase}/${slug}/comments`, {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ content, recaptchaToken }),
       });
       const data = await res.json().catch(() => ({}));
+      captcha.current?.reset();
       if (!res.ok) { toast.error(data.error || "Gửi bình luận thất bại."); return; }
       setItems((cur) => [data.item, ...cur]);
       setContent("");
@@ -63,6 +69,7 @@ export function CommentsSection({ slug, initial, isLoggedIn, currentUserName, ap
           <div className="qp-comment-form__main">
             <textarea className="qp-textarea qp-comment-form__input" rows={3} maxLength={1000}
               placeholder="Viết bình luận của bạn…" value={content} onChange={(e) => setContent(e.target.value)} />
+            <Recaptcha ref={captcha} className="qp-recaptcha" />
             <div className="qp-comment-form__foot">
               <span className="qp-comment-form__hint"><CharCount value={content} max={1000} /></span>
               <button type="submit" className="qp-btn-primary" disabled={busy || !content.trim()}>

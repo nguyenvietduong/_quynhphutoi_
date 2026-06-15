@@ -5,6 +5,7 @@ import { isAdmin } from "@/lib/users";
 import { deletePost, getPostBySlug, updatePost, type LostFoundPatch, type LostFoundStatus } from "@/lib/lostfound";
 import { notifyUser } from "@/lib/notifications";
 import { sanitizeHtml } from "@/lib/sanitize";
+import { sanitizeSeoFields } from "@/lib/seo-fields";
 import { isGoogleMapsUrl, resolveMapUrl } from "@/lib/map-embed";
 
 const LF_STATUSES: LostFoundStatus[] = ["open", "matched", "resolved", "closed"];
@@ -32,6 +33,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ slug: 
     }
     patch["location.mapUrl"] = raw ? await resolveMapUrl(raw) : "";
   }
+  if ("seo" in b) patch.seo = sanitizeSeoFields(b.seo);
 
   const n = await updatePost(slug, patch);
   if (!n) return NextResponse.json({ error: "Không tìm thấy tin." }, { status: 404 });

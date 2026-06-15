@@ -2,6 +2,7 @@
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin-guard";
 import { listRelics, createRelic, toRelicRow, type RelicType, type RelicRanking } from "@/lib/relics";
+import { sanitizeSeoFields } from "@/lib/seo-fields";
 import { WARDS } from "@/lib/wards";
 
 const TYPES: RelicType[] = ["den", "chua", "dinh", "mieu", "nha-tho", "khac"];
@@ -33,6 +34,7 @@ export async function POST(req: Request) {
     description: b.description, era: b.era, worship: b.worship, festival: b.festival,
     ranking: b.ranking || undefined, recognizedYear: b.recognizedYear ? Number(b.recognizedYear) : undefined,
     images, verified: !!b.verified, featured: !!b.featured, active: b.active !== false,
+    seo: sanitizeSeoFields(b.seo),
   });
   return NextResponse.json({ ok: true, item: toRelicRow(created) });
 }

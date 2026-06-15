@@ -10,6 +10,7 @@ import type { HealthDoc } from "@/lib/health";
 import type { TransitDoc } from "@/lib/transit";
 import type { RelicDoc } from "@/lib/relics";
 import type { MarketDoc } from "@/lib/market";
+import type { AdDoc } from "@/lib/ads";
 import type { AppSettings } from "@/lib/settings";
 
 export const SITE = {
@@ -293,6 +294,26 @@ export function jsonLdRelic(r: RelicDoc, descText: string, locality?: string) {
     ...(r.era ? { temporalCoverage: r.era } : {}),
     isAccessibleForFree: true,
     touristType: "Văn hoá · Lịch sử · Tâm linh",
+  };
+}
+
+// Quảng cáo (nhà tài trợ trực tiếp) — mô tả như một doanh nghiệp địa phương + nhãn tài trợ.
+export function jsonLdAd(a: AdDoc, descText: string) {
+  const imgs = (a.images?.length ? a.images : a.imageDesktop ? [a.imageDesktop] : []).map((i) => abs(i));
+  const id = a._id ? a._id.toString() : "";
+  return {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    name: a.advertiser,
+    slogan: a.title,
+    ...(descText ? { description: descText } : {}),
+    ...(imgs.length ? { image: imgs } : {}),
+    ...(a.phone ? { telephone: a.phone } : {}),
+    ...(a.address
+      ? { address: { "@type": "PostalAddress", streetAddress: a.address, addressRegion: SITE.province, addressCountry: "VN" } }
+      : {}),
+    ...(a.linkUrl ? { sameAs: [a.linkUrl] } : {}),
+    url: abs(`/quang-cao/${id}`),
   };
 }
 

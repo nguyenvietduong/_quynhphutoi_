@@ -11,6 +11,8 @@ import { usePagination, PageSizeControl } from "@/components/admin/AdminPaging";
 import { RowActions } from "@/components/admin/RowActions";
 import { RichTextEditor } from "@/components/lostfound/RichTextEditor";
 import { ImageUploader } from "@/components/common/ImageUploader";
+import { SeoFieldsEditor } from "@/components/admin/SeoFieldsEditor";
+import type { SeoFields } from "@/lib/seo-fields";
 import { useToast } from "@/components/common/Toast";
 
 export type ModRow = {
@@ -19,6 +21,7 @@ export type ModRow = {
   postedByName: string; createdAt: string;
   images?: string[]; thumb?: string;
   address?: string; mapUrl?: string;             // vị trí (sửa được như form client)
+  seo?: SeoFields;                               // ghi đè SEO trang chi tiết (tuỳ chọn)
   specs?: { label: string; value: string }[];   // thông số chi tiết hiển thị ở modal
 };
 
@@ -82,6 +85,7 @@ export function PostModerationManager({ initial, config }: { initial: ModRow[]; 
         title: edit.title, description: edit.description, featured: edit.featured,
         status: edit.status, approved: edit.approved,
         images: edit.images ?? [], address: edit.address ?? "", mapUrl: edit.mapUrl ?? "",
+        seo: edit.seo ?? {},
       };
       if (config.extraKey) body[config.extraKey] = edit.extra;
       const res = await fetch(`${config.apiBase}/${edit.slug}`, {
@@ -167,6 +171,9 @@ export function PostModerationManager({ initial, config }: { initial: ModRow[]; 
                   </span>
                 </label>
               </div>
+
+              <div className="qp-admin-section-title">Tối ưu SEO</div>
+              <SeoFieldsEditor value={edit.seo ?? undefined} onChange={(seo) => setEdit((cur) => (cur ? { ...cur, seo } : cur))} />
             </div>
             <div className="qp-modal__foot">
               <button type="button" className="qp-btn-outline" onClick={() => setEdit(null)}>Huỷ</button>

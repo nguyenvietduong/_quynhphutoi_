@@ -3,6 +3,7 @@
 import { getDb, ensureIndexes } from "@/lib/db";
 import { ObjectId, type Filter } from "mongodb";
 import { CLASSIFIED_CATEGORIES, categoryLabel, CONDITION_LABEL, type ClassifiedCategory, type ClassifiedCondition } from "@/lib/classified-categories";
+import type { SeoFields } from "@/lib/seo-fields";
 
 export { CLASSIFIED_CATEGORIES, categoryLabel, CONDITION_LABEL };
 export type { ClassifiedCategory, ClassifiedCondition };
@@ -34,6 +35,7 @@ export type ClassifiedDoc = {
   createdAt: Date;
   updatedAt: Date;
   soldAt: Date | null;
+  seo?: SeoFields;
 };
 
 const toId = (v: ObjectId | string): ObjectId => (typeof v === "string" ? new ObjectId(v) : v);
@@ -190,7 +192,7 @@ export type ClassifiedPatch = Partial<{
   title: string; category: ClassifiedCategory; description: string; images: string[];
   priceText: string; condition: ClassifiedCondition; location: ClassifiedLocation;
   contact: ClassifiedContact; status: ClassifiedStatus; approved: boolean; verified: boolean;
-  featured: boolean; active: boolean;
+  featured: boolean; active: boolean; seo: SeoFields;
 }> & { "location.address"?: string; "location.mapUrl"?: string };
 
 export async function updateClassified(slug: string, patch: ClassifiedPatch) {

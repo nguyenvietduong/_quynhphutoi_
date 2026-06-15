@@ -3,6 +3,7 @@
 import { getDb, ensureIndexes } from "@/lib/db";
 import { type Filter } from "mongodb";
 import { slugify, uniqueSlug } from "@/lib/slug";
+import type { SeoFields } from "@/lib/seo-fields";
 
 export type TransitType = "lien-tinh" | "noi-tinh" | "xe-buyt";
 
@@ -31,6 +32,7 @@ export type TransitDoc = {
   duration?: string;          // thời gian, vd "2 giờ"
   distance?: string;          // quãng đường, vd "110 km"
   note?: string;              // lưu ý
+  seo?: SeoFields;            // ghi đè SEO trang chi tiết (tuỳ chọn)
 
   verified: boolean;
   active: boolean;
@@ -79,6 +81,7 @@ export type TransitInput = {
   operator?: string; phone?: string; fare?: string;
   frequency?: string; duration?: string; distance?: string; note?: string;
   verified?: boolean; active?: boolean;
+  seo?: SeoFields;
 };
 
 export async function createTransit(input: TransitInput) {
@@ -90,6 +93,7 @@ export async function createTransit(input: TransitInput) {
     origin: input.origin, destination: input.destination, stops: input.stops ?? [],
     operator: input.operator, phone: input.phone, fare: input.fare,
     frequency: input.frequency, duration: input.duration, distance: input.distance, note: input.note,
+    seo: input.seo,
     verified: input.verified ?? false, active: input.active ?? true, createdAt: now, updatedAt: now,
   };
   const { insertedId } = await col.insertOne(doc);
@@ -118,6 +122,7 @@ export function toTransitRow(d: TransitDoc): TransitRow {
     origin: d.origin, destination: d.destination, stops: d.stops,
     operator: d.operator, phone: d.phone, fare: d.fare,
     frequency: d.frequency, duration: d.duration, distance: d.distance, note: d.note,
+    seo: d.seo,
     verified: d.verified, active: d.active,
   };
 }

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/admin";
 import { isAdmin } from "@/lib/users";
 import { deleteClassified, getClassifiedBySlug, updateClassified, type ClassifiedPatch, type ClassifiedStatus } from "@/lib/classifieds";
+import { sanitizeSeoFields } from "@/lib/seo-fields";
 import { notifyUser } from "@/lib/notifications";
 import { sanitizeHtml } from "@/lib/sanitize";
 import { isGoogleMapsUrl, resolveMapUrl } from "@/lib/map-embed";
@@ -31,6 +32,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ slug: 
     }
     patch["location.mapUrl"] = raw ? await resolveMapUrl(raw) : "";
   }
+  if ("seo" in b) patch.seo = sanitizeSeoFields(b.seo);
 
   const n = await updateClassified(slug, patch);
   if (!n) return NextResponse.json({ error: "Không tìm thấy tin." }, { status: 404 });

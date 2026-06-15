@@ -2014,8 +2014,8 @@ a.qp-school-card__name:hover { color: var(--color-teal-dark); }
 .qp-charcount { float: right; font-size: 11.5px; font-weight: 500; color: var(--color-gray-text); font-variant-numeric: tabular-nums; }
 .qp-charcount.is-max { color: var(--color-error); }
 
-/* Ẩn huy hiệu reCAPTCHA v3 (Google cho phép nếu có ghi chú attribution ở footer) */
-.grecaptcha-badge { visibility: hidden; }
+/* reCAPTCHA v2 — ô tick "Tôi không phải robot" trong form */
+.qp-recaptcha { margin: var(--space-4) 0; }
 
 /* Ghi chú attribution reCAPTCHA ở chân trang */
 .qp-footer__recaptcha { margin-top: 10px; font-size: 11.5px; opacity: 0.6; text-align: center; }

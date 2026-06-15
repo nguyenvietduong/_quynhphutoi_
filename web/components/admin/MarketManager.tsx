@@ -5,6 +5,8 @@ import { useMemo, useState } from "react";
 import { useModalDismiss } from "@/lib/use-modal-dismiss";
 import { WARDS } from "@/lib/wards";
 import type { MarketRow } from "@/lib/market";
+import { SeoFieldsEditor } from "@/components/admin/SeoFieldsEditor";
+import type { SeoFields } from "@/lib/seo-fields";
 import { Pagination } from "@/components/common/Pagination";
 import { usePagination, PageSizeControl } from "@/components/admin/AdminPaging";
 import { RowActions } from "@/components/admin/RowActions";
@@ -22,11 +24,13 @@ type Form = {
   slug: string; name: string; category: string; wardSlug: string;
   schedule: string; priceText: string; unit: string; contactName: string; contactPhone: string;
   address: string; description: string; verified: boolean; featured: boolean; active: boolean;
+  seo?: SeoFields;
 };
 const EMPTY: Form = {
   slug: "", name: "", category: "cho-phien", wardSlug: WARDS[0]?.slug ?? "",
   schedule: "", priceText: "", unit: "", contactName: "", contactPhone: "",
   address: "", description: "", verified: false, featured: false, active: true,
+  seo: undefined,
 };
 const toForm = (r: MarketRow): Form => ({
   slug: r.slug, name: r.name, category: r.category, wardSlug: r.wardSlug,
@@ -34,6 +38,7 @@ const toForm = (r: MarketRow): Form => ({
   contactName: r.contactName ?? "", contactPhone: r.contactPhone ?? "",
   address: r.address ?? "", description: r.description ?? "",
   verified: r.verified ?? false, featured: r.featured ?? false, active: r.active ?? true,
+  seo: r.seo,
 });
 
 export function MarketManager({ initial }: { initial: MarketRow[] }) {
@@ -71,6 +76,7 @@ export function MarketManager({ initial }: { initial: MarketRow[] }) {
         schedule: form.schedule, priceText: form.priceText, unit: form.unit,
         contactName: form.contactName, contactPhone: form.contactPhone,
         address: form.address, description: form.description,
+        seo: form.seo ?? {},
         verified: form.verified, featured: form.featured, active: form.active,
       };
       const res = await fetch(editing ? `/api/admin/cho/${editing}` : "/api/admin/cho", {
@@ -147,6 +153,7 @@ export function MarketManager({ initial }: { initial: MarketRow[] }) {
                 <input className="qp-input" value={form.address} onChange={(e) => set("address", e.target.value)} placeholder="Thôn/xóm, đường…" /></div>
               <div className="qp-form-group"><label className="qp-label">Mô tả</label>
                 <textarea className="qp-textarea" value={form.description} onChange={(e) => set("description", e.target.value)} /></div>
+              <SeoFieldsEditor value={form.seo} onChange={(seo) => set("seo", seo)} />
               <div style={{ display: "flex", gap: 20 }}>
                 <label className="qp-check"><input type="checkbox" checked={form.verified} onChange={(e) => set("verified", e.target.checked)} /> Đã xác minh</label>
                 <label className="qp-check"><input type="checkbox" checked={form.featured} onChange={(e) => set("featured", e.target.checked)} /> Nổi bật</label>

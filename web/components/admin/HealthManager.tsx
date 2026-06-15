@@ -5,6 +5,8 @@ import { useMemo, useState } from "react";
 import { useModalDismiss } from "@/lib/use-modal-dismiss";
 import { WARDS } from "@/lib/wards";
 import type { HealthRow } from "@/lib/health";
+import type { SeoFields } from "@/lib/seo-fields";
+import { SeoFieldsEditor } from "@/components/admin/SeoFieldsEditor";
 import { Pagination } from "@/components/common/Pagination";
 import { usePagination, PageSizeControl } from "@/components/admin/AdminPaging";
 import { RowActions } from "@/components/admin/RowActions";
@@ -30,19 +32,20 @@ type Form = {
   director: string; hours: string; beds: string; specialties: string;
   address: string; phone: string; email: string; website: string;
   foundedYear: string; description: string; emergency: boolean; verified: boolean; active: boolean;
+  seo?: SeoFields;
 };
 const EMPTY: Form = {
   slug: "", name: "", shortName: "", type: "tram-y-te", ownership: "cong-lap", wardSlug: WARDS[0]?.slug ?? "",
   director: "", hours: "", beds: "", specialties: "",
   address: "", phone: "", email: "", website: "", foundedYear: "", description: "",
-  emergency: false, verified: false, active: true,
+  emergency: false, verified: false, active: true, seo: {},
 };
 const toForm = (r: HealthRow): Form => ({
   slug: r.slug, name: r.name, shortName: r.shortName ?? "", type: r.type, ownership: r.ownership, wardSlug: r.wardSlug,
   director: r.director ?? "", hours: r.hours ?? "", beds: r.beds ? String(r.beds) : "", specialties: r.specialties ?? "",
   address: r.address ?? "", phone: r.phone ?? "", email: r.email ?? "", website: r.website ?? "",
   foundedYear: r.foundedYear ? String(r.foundedYear) : "", description: r.description ?? "",
-  emergency: r.emergency ?? false, verified: r.verified, active: r.active,
+  emergency: r.emergency ?? false, verified: r.verified, active: r.active, seo: r.seo ?? {},
 });
 
 export function HealthManager({ initial }: { initial: HealthRow[] }) {
@@ -81,6 +84,7 @@ export function HealthManager({ initial }: { initial: HealthRow[] }) {
         address: form.address, phone: form.phone, email: form.email, website: form.website,
         foundedYear: form.foundedYear ? Number(form.foundedYear) : undefined,
         description: form.description, emergency: form.emergency, verified: form.verified, active: form.active,
+        seo: form.seo ?? {},
       };
       const res = await fetch(editing ? `/api/admin/y-te/${editing}` : "/api/admin/y-te", {
         method: editing ? "PATCH" : "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body),
@@ -174,6 +178,7 @@ export function HealthManager({ initial }: { initial: HealthRow[] }) {
               </div>
               <div className="qp-form-group"><label className="qp-label">Mô tả</label>
                 <textarea className="qp-textarea" value={form.description} onChange={(e) => set("description", e.target.value)} /></div>
+              <SeoFieldsEditor value={form.seo} onChange={(seo) => set("seo", seo)} />
               <div style={{ display: "flex", gap: 20 }}>
                 <label className="qp-check"><input type="checkbox" checked={form.emergency} onChange={(e) => set("emergency", e.target.checked)} /> Có cấp cứu 24/7</label>
                 <label className="qp-check"><input type="checkbox" checked={form.verified} onChange={(e) => set("verified", e.target.checked)} /> Đã xác minh</label>

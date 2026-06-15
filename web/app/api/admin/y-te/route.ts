@@ -2,6 +2,7 @@
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin-guard";
 import { listHealth, createHealth, toHealthRow, HEALTH_TYPES, type HealthType, type HealthOwnership } from "@/lib/health";
+import { sanitizeSeoFields } from "@/lib/seo-fields";
 import { WARDS } from "@/lib/wards";
 
 const TYPES = HEALTH_TYPES.map((t) => t.slug) as HealthType[];
@@ -34,6 +35,7 @@ export async function POST(req: Request) {
     foundedYear: b.foundedYear ? Number(b.foundedYear) : undefined,
     description: b.description, sourceUrl: b.sourceUrl,
     verified: !!b.verified, active: b.active !== false,
+    seo: sanitizeSeoFields(b.seo),
   });
   return NextResponse.json({ ok: true, item: toHealthRow(created) });
 }

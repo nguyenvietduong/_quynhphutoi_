@@ -1,7 +1,7 @@
 "use client";
 
 // Modal đăng tin Mua bán — POST /api/mua-ban (cần đăng nhập). Tin chờ admin duyệt.
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { WARDS } from "@/lib/wards";
 import { CLASSIFIED_CATEGORIES, type ClassifiedCategory } from "@/lib/classified-categories";
@@ -9,7 +9,7 @@ import { Combobox } from "@/components/lostfound/Combobox";
 import { RichTextEditor } from "@/components/lostfound/RichTextEditor";
 import { ImageUploader } from "@/components/common/ImageUploader";
 import { CharCount } from "@/components/common/CharCount";
-import { executeRecaptcha } from "@/components/common/recaptcha";
+import { Recaptcha, RECAPTCHA_SITE_KEY, type RecaptchaHandle } from "@/components/common/Recaptcha";
 import { useToast } from "@/components/common/Toast";
 
 type Props = { open: boolean; onClose: () => void; isLoggedIn: boolean; defaultName?: string; onSuccess?: () => void; maxImages?: number };
@@ -32,6 +32,7 @@ export function ClassifiedPostModal({ open, onClose, isLoggedIn, defaultName = "
   const [loading, setLoading] = useState(false);
   const [doneSlug, setDoneSlug] = useState<string | null>(null);
   const { toast } = useToast();
+  const captcha = useRef<RecaptchaHandle>(null);
 
   useEffect(() => {
     if (!open) return;
@@ -62,9 +63,14 @@ export function ClassifiedPostModal({ open, onClose, isLoggedIn, defaultName = "
     if (!/^(?:0\d{9}|\+84\d{9})$/.test(phoneClean)) { toast.error("Số điện thoại không hợp lệ (VD: 0912345678)."); return; }
     if (!contactName.trim()) { toast.error("Vui lòng nhập tên liên hệ."); return; }
 
+    const recaptchaToken = captcha.current?.getToken() ?? "";
+    if (RECAPTCHA_SITE_KEY && !recaptchaToken) {
+      toast.error('Vui lòng xác nhận "Tôi không phải robot".');
+      return;
+    }
+
     setLoading(true);
     try {
-      const recaptchaToken = await executeRecaptcha("classified_post");
       const res = await fetch("/api/mua-ban", {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -76,6 +82,7 @@ export function ClassifiedPostModal({ open, onClose, isLoggedIn, defaultName = "
         }),
       });
       const data = await res.json().catch(() => ({}));
+      captcha.current?.reset();
       if (!res.ok) { toast.error(data.error || "Đăng tin thất bại."); return; }
       setDoneSlug(data.slug || ""); onSuccess?.();
     } catch { toast.error("Lỗi kết nối, vui lòng thử lại."); } finally { setLoading(false); }
@@ -181,6 +188,8 @@ export function ClassifiedPostModal({ open, onClose, isLoggedIn, defaultName = "
             <label className="qp-check">
               <input type="checkbox" checked={hidePhone} onChange={(e) => setHidePhone(e.target.checked)} /> Ẩn số điện thoại công khai
             </label>
+
+            <Recaptcha ref={captcha} className="qp-recaptcha" />
 
             <button className="qp-btn-primary qp-btn-block mt-6" type="submit" disabled={loading}>
               {loading ? "Đang gửi…" : <>Đăng tin <span className="qp-arrow">→</span></>}

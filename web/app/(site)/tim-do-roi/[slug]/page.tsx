@@ -14,6 +14,7 @@ import { ImageGallery } from "@/components/common/ImageGallery";
 import { MapEmbed } from "@/components/common/MapEmbed";
 import { formatDate } from "@/lib/datetime";
 import { buildMetadata, jsonLdLostFound, jsonLdBreadcrumb } from "@/lib/seo";
+import { applySeo } from "@/lib/seo-fields";
 import { JsonLd } from "@/components/common/JsonLd";
 
 export const dynamic = "force-dynamic";
@@ -37,14 +38,16 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const post = await getPostBySlug(slug);
   if (!post) return { title: "Không tìm thấy tin" };
   return buildMetadata({
-    title: `${post.title} — ${post.kind === "tim-do" ? "Tìm đồ" : "Nhặt được"}`,
-    description: stripHtml(post.description).slice(0, 160),
+    ...applySeo({
+      title: `${post.title} — ${post.kind === "tim-do" ? "Tìm đồ" : "Nhặt được"}`,
+      description: stripHtml(post.description).slice(0, 160),
+      image: post.images?.[0],
+    }, post.seo),
     path: `/tim-do-roi/${slug}`,
-    image: post.images?.[0],
     type: "article",
     publishedTime: post.createdAt?.toISOString(),
     modifiedTime: post.updatedAt?.toISOString(),
-    noindex: !post.approved,
+    noindex: !post.approved || post.seo?.noindex,
   });
 }
 

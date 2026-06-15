@@ -5,6 +5,7 @@ import { getHealthBySlug, listByWard, OWNERSHIP_LABEL } from "@/lib/health";
 import { getAdminUnitBySlug, fullOldAddress } from "@/lib/admin-units";
 import { DetailSocial } from "@/components/common/DetailSocial";
 import { buildMetadata, jsonLdHealth, jsonLdBreadcrumb } from "@/lib/seo";
+import { applySeo } from "@/lib/seo-fields";
 import { JsonLd } from "@/components/common/JsonLd";
 
 export const dynamic = "force-dynamic";
@@ -15,8 +16,10 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (!h) return { title: "Không tìm thấy cơ sở y tế" };
   const u = await getAdminUnitBySlug(h.wardSlug);
   return buildMetadata({
-    title: `${h.name} — Y tế Quỳnh Phụ`,
-    description: h.description || `${h.name} tại ${fullOldAddress(u ?? undefined, h.address)}.`,
+    ...applySeo({
+      title: `${h.name} — Y tế Quỳnh Phụ`,
+      description: h.description || `${h.name} tại ${fullOldAddress(u ?? undefined, h.address)}.`,
+    }, h.seo),
     path: `/y-te/${slug}`,
     modifiedTime: h.updatedAt?.toISOString(),
   });

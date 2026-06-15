@@ -6,6 +6,7 @@ import { getAdminUnitBySlug, fullOldAddress } from "@/lib/admin-units";
 import { ImageGallery } from "@/components/common/ImageGallery";
 import { DetailSocial } from "@/components/common/DetailSocial";
 import { buildMetadata, jsonLdRelic, jsonLdBreadcrumb } from "@/lib/seo";
+import { applySeo } from "@/lib/seo-fields";
 import { JsonLd } from "@/components/common/JsonLd";
 
 export const dynamic = "force-dynamic";
@@ -15,10 +16,12 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const r = await getRelicBySlug(slug);
   if (!r) return { title: "Không tìm thấy" };
   return buildMetadata({
-    title: `${r.name} — Di tích Quỳnh Phụ`,
-    description: r.description || `${r.name} (${r.typeLabel}) tại Quỳnh Phụ.`,
+    ...applySeo({
+      title: `${r.name} — Di tích Quỳnh Phụ`,
+      description: r.description || `${r.name} (${r.typeLabel}) tại Quỳnh Phụ.`,
+      image: r.images?.[0],
+    }, r.seo),
     path: `/di-tich/${slug}`,
-    image: r.images?.[0],
     modifiedTime: r.updatedAt?.toISOString(),
   });
 }

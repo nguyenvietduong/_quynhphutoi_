@@ -12,6 +12,7 @@ import { DetailSocial } from "@/components/common/DetailSocial";
 import { MapEmbed } from "@/components/common/MapEmbed";
 import { formatDate } from "@/lib/datetime";
 import { buildMetadata, jsonLdClassified, jsonLdBreadcrumb } from "@/lib/seo";
+import { applySeo } from "@/lib/seo-fields";
 import { JsonLd } from "@/components/common/JsonLd";
 
 export const dynamic = "force-dynamic";
@@ -27,14 +28,19 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const a = await getClassifiedBySlug(slug);
   if (!a) return { title: "Không tìm thấy tin" };
   return buildMetadata({
-    title: `${a.title} — ${a.priceText}`,
-    description: stripHtml(a.description).slice(0, 160),
+    ...applySeo(
+      {
+        title: `${a.title} — ${a.priceText}`,
+        description: stripHtml(a.description).slice(0, 160),
+        image: a.images?.[0],
+      },
+      a.seo,
+    ),
     path: `/mua-ban/${slug}`,
-    image: a.images?.[0],
     type: "article",
     publishedTime: a.createdAt?.toISOString(),
     modifiedTime: a.updatedAt?.toISOString(),
-    noindex: !a.approved,
+    noindex: !a.approved || a.seo?.noindex,
   });
 }
 

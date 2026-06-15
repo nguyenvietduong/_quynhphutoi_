@@ -1,14 +1,15 @@
 "use client";
 
 // Form đăng ký — gọi API /api/auth/register (MongoDB), gửi email xác nhận.
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
 import { CharCount } from "@/components/common/CharCount";
-import { executeRecaptcha } from "@/components/common/recaptcha";
+import { Recaptcha, RECAPTCHA_SITE_KEY, type RecaptchaHandle } from "@/components/common/Recaptcha";
 import { useToast } from "@/components/common/Toast";
 
 export function RegisterForm() {
   const { toast } = useToast();
+  const captcha = useRef<RecaptchaHandle>(null);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -32,14 +33,20 @@ export function RegisterForm() {
       return;
     }
 
+    const recaptchaToken = captcha.current?.getToken() ?? "";
+    if (RECAPTCHA_SITE_KEY && !recaptchaToken) {
+      toast.error('Vui lòng xác nhận "Tôi không phải robot".');
+      return;
+    }
+
     setLoading(true);
-    const recaptchaToken = await executeRecaptcha("register");
     const res = await fetch("/api/auth/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, email, password, recaptchaToken }),
     });
     const data = await res.json().catch(() => ({}));
+    captcha.current?.reset();
 
     if (!res.ok) {
       toast.error(data.error || "Đăng ký thất bại.");
@@ -147,6 +154,8 @@ export function RegisterForm() {
           <input type="checkbox" checked={agree} onChange={(e) => setAgree(e.target.checked)} /> Tôi đồng ý với điều khoản sử dụng
         </label>
       </div>
+
+      <Recaptcha ref={captcha} className="qp-recaptcha" />
 
       <button className="btn-login" type="submit" disabled={loading}>
         {loading ? "Đang tạo tài khoản…" : "Đăng ký"}

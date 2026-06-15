@@ -4,6 +4,7 @@
 import { getDb, ensureIndexes } from "@/lib/db";
 import { type Filter } from "mongodb";
 import { slugify, uniqueSlug } from "@/lib/slug";
+import type { SeoFields } from "@/lib/seo-fields";
 
 export type HealthType = "benh-vien" | "trung-tam-y-te" | "phong-kham" | "tram-y-te" | "nha-thuoc";
 export type HealthOwnership = "cong-lap" | "tu-nhan";
@@ -46,6 +47,7 @@ export type HealthDoc = {
   foundedYear?: number;
   description?: string;
   coords?: { lat: number; lng: number };
+  seo?: SeoFields;            // ghi đè SEO trang chi tiết (tuỳ chọn)
 
   active: boolean;
   createdAt: Date;
@@ -106,6 +108,7 @@ export type HealthInput = {
   hours?: string; emergency?: boolean; beds?: number; specialties?: string;
   foundedYear?: number; description?: string;
   verified?: boolean; active?: boolean; sourceUrl?: string;
+  seo?: SeoFields;
 };
 
 export async function createHealth(input: HealthInput) {
@@ -119,7 +122,7 @@ export async function createHealth(input: HealthInput) {
     wardSlug: input.wardSlug, address: input.address,
     phone: input.phone, email: input.email, website: input.website, director: input.director,
     hours: input.hours, emergency: input.emergency ?? false, beds: input.beds, specialties: input.specialties,
-    foundedYear: input.foundedYear, description: input.description,
+    foundedYear: input.foundedYear, description: input.description, seo: input.seo,
     active: input.active ?? true, createdAt: now, updatedAt: now,
   };
   const { insertedId } = await col.insertOne(doc);
@@ -148,7 +151,7 @@ export function toHealthRow(d: HealthDoc): HealthRow {
     wardSlug: d.wardSlug, address: d.address, phone: d.phone, email: d.email, website: d.website,
     director: d.director, hours: d.hours, emergency: d.emergency, beds: d.beds, specialties: d.specialties,
     foundedYear: d.foundedYear, description: d.description, sourceUrl: d.sourceUrl,
-    verified: d.verified, active: d.active,
+    verified: d.verified, active: d.active, seo: d.seo,
   };
 }
 

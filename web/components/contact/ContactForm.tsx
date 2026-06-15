@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { CharCount } from "@/components/common/CharCount";
-import { executeRecaptcha } from "@/components/common/recaptcha";
+import { Recaptcha, RECAPTCHA_SITE_KEY, type RecaptchaHandle } from "@/components/common/Recaptcha";
 import { useToast } from "@/components/common/Toast";
 
 const TYPES = ["Đặt quảng cáo", "Hợp tác / tài trợ", "Góp ý nội dung", "Báo lỗi / phản ánh", "Khác"];
@@ -10,6 +10,7 @@ const TYPES = ["Đặt quảng cáo", "Hợp tác / tài trợ", "Góp ý nội 
 export function ContactForm() {
   const [busy, setBusy] = useState(false);
   const { toast } = useToast();
+  const captcha = useRef<RecaptchaHandle>(null);
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -19,15 +20,22 @@ export function ContactForm() {
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+
+    const recaptchaToken = captcha.current?.getToken() ?? "";
+    if (RECAPTCHA_SITE_KEY && !recaptchaToken) {
+      toast.error('Vui lòng xác nhận "Tôi không phải robot".');
+      return;
+    }
+
     setBusy(true);
     try {
-      const recaptchaToken = await executeRecaptcha("contact");
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, email, phone, type, message, recaptchaToken }),
       });
       const data = await res.json().catch(() => ({}));
+      captcha.current?.reset();
       if (!res.ok) { toast.error(data.error || "Gửi liên hệ thất bại, vui lòng thử lại."); return; }
       setName(""); setEmail(""); setPhone(""); setType("Đặt quảng cáo"); setMessage("");
       toast.success("Đã gửi liên hệ! Mình sẽ phản hồi qua email sớm nhất.");
@@ -76,6 +84,8 @@ export function ContactForm() {
         <input type="checkbox" name="agree" required />
         Tôi đồng ý để được liên hệ lại qua email hoặc điện thoại.
       </label>
+
+      <Recaptcha ref={captcha} className="qp-recaptcha" />
 
       <button className="qp-btn-primary qp-btn-block mt-6" type="submit" disabled={busy}>
         {busy ? "Đang gửi…" : <>Gửi liên hệ <span className="qp-arrow">→</span></>}

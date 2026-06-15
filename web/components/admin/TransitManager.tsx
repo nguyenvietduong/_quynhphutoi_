@@ -7,6 +7,8 @@ import type { TransitRow } from "@/lib/transit";
 import { Pagination } from "@/components/common/Pagination";
 import { usePagination, PageSizeControl } from "@/components/admin/AdminPaging";
 import { RowActions } from "@/components/admin/RowActions";
+import { SeoFieldsEditor } from "@/components/admin/SeoFieldsEditor";
+import type { SeoFields } from "@/lib/seo-fields";
 import { useToast } from "@/components/common/Toast";
 
 const TYPES = [
@@ -19,19 +21,19 @@ const typeLabel = (s: string) => TYPES.find((x) => x.slug === s)?.label ?? s;
 type Form = {
   slug: string; name: string; type: string; origin: string; destination: string; stops: string;
   operator: string; phone: string; fare: string; frequency: string; duration: string; distance: string;
-  note: string; verified: boolean; active: boolean;
+  note: string; verified: boolean; active: boolean; seo?: SeoFields;
 };
 const EMPTY: Form = {
   slug: "", name: "", type: "lien-tinh", origin: "", destination: "", stops: "",
   operator: "", phone: "", fare: "", frequency: "", duration: "", distance: "",
-  note: "", verified: false, active: true,
+  note: "", verified: false, active: true, seo: undefined,
 };
 const toForm = (r: TransitRow): Form => ({
   slug: r.slug, name: r.name, type: r.type, origin: r.origin, destination: r.destination,
   stops: (r.stops ?? []).join("\n"),
   operator: r.operator ?? "", phone: r.phone ?? "", fare: r.fare ?? "", frequency: r.frequency ?? "",
   duration: r.duration ?? "", distance: r.distance ?? "", note: r.note ?? "",
-  verified: r.verified ?? false, active: r.active ?? true,
+  verified: r.verified ?? false, active: r.active ?? true, seo: r.seo,
 });
 
 export function TransitManager({ initial }: { initial: TransitRow[] }) {
@@ -70,6 +72,7 @@ export function TransitManager({ initial }: { initial: TransitRow[] }) {
         operator: form.operator, phone: form.phone, fare: form.fare, frequency: form.frequency,
         duration: form.duration, distance: form.distance, note: form.note,
         verified: form.verified, active: form.active,
+        seo: form.seo ?? {},
       };
       const res = await fetch(editing ? `/api/admin/giao-thong/${editing}` : "/api/admin/giao-thong", {
         method: editing ? "PATCH" : "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body),
@@ -151,6 +154,7 @@ export function TransitManager({ initial }: { initial: TransitRow[] }) {
               </div>
               <div className="qp-form-group"><label className="qp-label">Lưu ý</label>
                 <textarea className="qp-textarea" value={form.note} onChange={(e) => set("note", e.target.value)} /></div>
+              <SeoFieldsEditor value={form.seo} onChange={(seo) => set("seo", seo)} />
               <div style={{ display: "flex", gap: 20 }}>
                 <label className="qp-check"><input type="checkbox" checked={form.verified} onChange={(e) => set("verified", e.target.checked)} /> Đã xác minh</label>
                 <label className="qp-check"><input type="checkbox" checked={form.active} onChange={(e) => set("active", e.target.checked)} /> Hiển thị công khai</label>

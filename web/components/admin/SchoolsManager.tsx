@@ -8,6 +8,8 @@ import type { SchoolRow } from "@/lib/schools";
 import { Pagination } from "@/components/common/Pagination";
 import { usePagination, PageSizeControl } from "@/components/admin/AdminPaging";
 import { RowActions } from "@/components/admin/RowActions";
+import { SeoFieldsEditor } from "@/components/admin/SeoFieldsEditor";
+import type { SeoFields } from "@/lib/seo-fields";
 import { useToast } from "@/components/common/Toast";
 
 const LEVELS = [
@@ -29,18 +31,18 @@ const wardName = (s: string) => WARDS.find((w) => w.slug === s)?.name ?? s;
 type Form = {
   slug: string; name: string; shortName: string; level: string; type: string; wardSlug: string;
   address: string; phone: string; email: string; website: string; principal: string;
-  foundedYear: string; description: string; verified: boolean; active: boolean;
+  foundedYear: string; description: string; verified: boolean; active: boolean; seo?: SeoFields;
 };
 const EMPTY: Form = {
   slug: "", name: "", shortName: "", level: "thpt", type: "cong-lap", wardSlug: WARDS[0]?.slug ?? "",
   address: "", phone: "", email: "", website: "", principal: "", foundedYear: "", description: "",
-  verified: false, active: true,
+  verified: false, active: true, seo: undefined,
 };
 const toForm = (r: SchoolRow): Form => ({
   slug: r.slug, name: r.name, shortName: r.shortName ?? "", level: r.level, type: r.type, wardSlug: r.wardSlug,
   address: r.address ?? "", phone: r.phone ?? "", email: r.email ?? "", website: r.website ?? "",
   principal: r.principal ?? "", foundedYear: r.foundedYear ? String(r.foundedYear) : "", description: r.description ?? "",
-  verified: r.verified, active: r.active,
+  verified: r.verified, active: r.active, seo: r.seo,
 });
 
 export function SchoolsManager({ initial }: { initial: SchoolRow[] }) {
@@ -78,6 +80,7 @@ export function SchoolsManager({ initial }: { initial: SchoolRow[] }) {
         address: form.address, phone: form.phone, email: form.email, website: form.website,
         principal: form.principal, foundedYear: form.foundedYear ? Number(form.foundedYear) : undefined,
         description: form.description, verified: form.verified, active: form.active,
+        seo: form.seo ?? {},
       };
       const res = await fetch(editing ? `/api/admin/truong-hoc/${editing}` : "/api/admin/truong-hoc", {
         method: editing ? "PATCH" : "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body),
@@ -161,6 +164,7 @@ export function SchoolsManager({ initial }: { initial: SchoolRow[] }) {
                 <input className="qp-input" value={form.email} onChange={(e) => set("email", e.target.value)} /></div>
               <div className="qp-form-group"><label className="qp-label">Mô tả</label>
                 <textarea className="qp-textarea" value={form.description} onChange={(e) => set("description", e.target.value)} /></div>
+              <SeoFieldsEditor value={form.seo} onChange={(seo) => set("seo", seo)} />
               <div style={{ display: "flex", gap: 20 }}>
                 <label className="qp-check"><input type="checkbox" checked={form.verified} onChange={(e) => set("verified", e.target.checked)} /> Đã xác minh</label>
                 <label className="qp-check"><input type="checkbox" checked={form.active} onChange={(e) => set("active", e.target.checked)} /> Hiển thị công khai</label>

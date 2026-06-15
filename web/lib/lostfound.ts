@@ -19,6 +19,7 @@
 import { getDb, ensureIndexes } from "@/lib/db";
 import { categories, type CategoryDoc } from "@/lib/categories";
 import { ObjectId, type Filter } from "mongodb";
+import type { SeoFields } from "@/lib/seo-fields";
 
 export const LOSTFOUND_MODULE = "tim-do-roi";
 
@@ -58,6 +59,7 @@ export type LostFoundDoc = {
   occurredAt: Date;             // thời điểm mất / nhặt được
   contact: LostFoundContact;
   reward?: string;              // hậu tạ (thường cho tin "tim-do")
+  seo?: SeoFields;              // ghi đè SEO trang chi tiết (admin, tuỳ chọn)
 
   // ── Người đăng (users) ──
   postedBy: ObjectId;
@@ -301,7 +303,7 @@ export async function approvePost(slug: string, approved = true) {
 }
 
 // Admin sửa nội dung tin (description đã sanitize ở tầng route).
-export type LostFoundPatch = Partial<{ title: string; description: string; reward: string; featured: boolean; approved: boolean; status: LostFoundStatus; images: string[] }>
+export type LostFoundPatch = Partial<{ title: string; description: string; reward: string; featured: boolean; approved: boolean; status: LostFoundStatus; images: string[]; seo: SeoFields }>
   & { "location.address"?: string; "location.mapUrl"?: string };
 export async function updatePost(slug: string, patch: LostFoundPatch) {
   const set: Record<string, unknown> = { updatedAt: new Date() };

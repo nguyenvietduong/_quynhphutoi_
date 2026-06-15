@@ -2,6 +2,7 @@
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin-guard";
 import { updateMarket, deleteMarket, MARKET_CATEGORIES, type MarketInput, type MarketCategory } from "@/lib/market";
+import { sanitizeSeoFields } from "@/lib/seo-fields";
 import { WARDS } from "@/lib/wards";
 
 const CATEGORIES = MARKET_CATEGORIES.map((c) => c.slug) as MarketCategory[];
@@ -21,6 +22,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ slug: 
   if (typeof b.verified === "boolean") patch.verified = b.verified;
   if (typeof b.featured === "boolean") patch.featured = b.featured;
   if (typeof b.active === "boolean") patch.active = b.active;
+  if ("seo" in b) patch.seo = sanitizeSeoFields(b.seo);
 
   const n = await updateMarket(slug, patch);
   if (!n) return NextResponse.json({ error: "Không tìm thấy." }, { status: 404 });

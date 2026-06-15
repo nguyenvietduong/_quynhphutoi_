@@ -5,6 +5,7 @@ import { getSchoolBySlug, listByWard, SCHOOL_LEVELS, type SchoolDoc, type School
 import { getAdminUnitBySlug, fullOldAddress } from "@/lib/admin-units";
 import { DetailSocial } from "@/components/common/DetailSocial";
 import { buildMetadata, jsonLdSchool, jsonLdBreadcrumb } from "@/lib/seo";
+import { applySeo } from "@/lib/seo-fields";
 import { JsonLd } from "@/components/common/JsonLd";
 
 export const dynamic = "force-dynamic";
@@ -21,8 +22,10 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (!s) return { title: "Không tìm thấy trường" };
   const u = await getAdminUnitBySlug(s.wardSlug);
   return buildMetadata({
-    title: `${s.name} — Trường học Quỳnh Phụ`,
-    description: s.description || `${s.name} tại ${fullOldAddress(u ?? undefined, s.address)}.`,
+    ...applySeo({
+      title: `${s.name} — Trường học Quỳnh Phụ`,
+      description: s.description || `${s.name} tại ${fullOldAddress(u ?? undefined, s.address)}.`,
+    }, s.seo),
     path: `/truong-hoc/${slug}`,
     modifiedTime: s.updatedAt?.toISOString(),
   });

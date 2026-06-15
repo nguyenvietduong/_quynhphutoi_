@@ -21,7 +21,6 @@ export type AppSettings = {
   likesEnabled: boolean;           // bật/tắt nút thích
 
   // --- Bảo mật ---
-  recaptchaMinScore: number;       // ngưỡng điểm reCAPTCHA v3 (0..1)
   registerEnabled: boolean;        // cho phép đăng ký tài khoản mới
 
   // --- Liên hệ & thông tin chung ---
@@ -32,6 +31,14 @@ export type AppSettings = {
   socialFacebook: string;
   socialYoutube: string;
   socialZalo: string;
+
+  // --- SEO toàn site (để trống = dùng giá trị mặc định trong lib/seo.ts) ---
+  seoSiteName: string;            // tên site + hậu tố tiêu đề ("%s · <tên>")
+  seoSiteDescription: string;     // mô tả mặc định cho trang chủ & khi trang không có mô tả riêng
+  seoDefaultKeywords: string;     // từ khoá gốc, cách nhau dấu phẩy
+  seoDefaultOgImage: string;      // ảnh OG mặc định (URL) — trống = ảnh OG động /opengraph-image
+  seoVerificationGoogle: string;  // mã xác minh Google Search Console
+  seoVerificationBing: string;    // mã xác minh Bing Webmaster
 };
 
 const DEFAULTS: AppSettings = {
@@ -50,7 +57,6 @@ const DEFAULTS: AppSettings = {
   commentMaxPerMin: 6,
   likesEnabled: true,
 
-  recaptchaMinScore: Number(process.env.RECAPTCHA_MIN_SCORE || "0.5"),
   registerEnabled: true,
 
   contactEmail: "duongnv10504@gmail.com",
@@ -60,6 +66,13 @@ const DEFAULTS: AppSettings = {
   socialFacebook: "",
   socialYoutube: "",
   socialZalo: "",
+
+  seoSiteName: "",
+  seoSiteDescription: "",
+  seoDefaultKeywords: "",
+  seoDefaultOgImage: "",
+  seoVerificationGoogle: "",
+  seoVerificationBing: "",
 };
 
 type SettingsDoc = { _id: string; values: Partial<AppSettings> };
@@ -80,10 +93,6 @@ export async function getSettings(): Promise<AppSettings> {
 
 const int = (n: unknown, min: number, max: number, dflt: number) => {
   const v = Math.round(Number(n));
-  return Number.isFinite(v) ? Math.min(max, Math.max(min, v)) : dflt;
-};
-const float = (n: unknown, min: number, max: number, dflt: number) => {
-  const v = Number(n);
   return Number.isFinite(v) ? Math.min(max, Math.max(min, v)) : dflt;
 };
 const str = (s: unknown, max: number, dflt: string) =>
@@ -108,7 +117,6 @@ export async function updateSettings(patch: Partial<AppSettings>): Promise<AppSe
     commentMaxPerMin: int(patch.commentMaxPerMin ?? c.commentMaxPerMin, 1, 60, c.commentMaxPerMin),
     likesEnabled: bool(patch.likesEnabled, c.likesEnabled),
 
-    recaptchaMinScore: float(patch.recaptchaMinScore ?? c.recaptchaMinScore, 0, 1, c.recaptchaMinScore),
     registerEnabled: bool(patch.registerEnabled, c.registerEnabled),
 
     contactEmail: str(patch.contactEmail ?? c.contactEmail, 120, c.contactEmail),
@@ -118,6 +126,13 @@ export async function updateSettings(patch: Partial<AppSettings>): Promise<AppSe
     socialFacebook: str(patch.socialFacebook ?? c.socialFacebook, 200, c.socialFacebook),
     socialYoutube: str(patch.socialYoutube ?? c.socialYoutube, 200, c.socialYoutube),
     socialZalo: str(patch.socialZalo ?? c.socialZalo, 200, c.socialZalo),
+
+    seoSiteName: str(patch.seoSiteName ?? c.seoSiteName, 80, c.seoSiteName),
+    seoSiteDescription: str(patch.seoSiteDescription ?? c.seoSiteDescription, 300, c.seoSiteDescription),
+    seoDefaultKeywords: str(patch.seoDefaultKeywords ?? c.seoDefaultKeywords, 400, c.seoDefaultKeywords),
+    seoDefaultOgImage: str(patch.seoDefaultOgImage ?? c.seoDefaultOgImage, 500, c.seoDefaultOgImage),
+    seoVerificationGoogle: str(patch.seoVerificationGoogle ?? c.seoVerificationGoogle, 200, c.seoVerificationGoogle),
+    seoVerificationBing: str(patch.seoVerificationBing ?? c.seoVerificationBing, 200, c.seoVerificationBing),
   };
   if (next.postCooldownMax < next.postCooldownMin) next.postCooldownMax = next.postCooldownMin;
   await (await col()).updateOne({ _id: "app" }, { $set: { values: next } }, { upsert: true });
