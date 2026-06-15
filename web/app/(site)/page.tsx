@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { HeroSlider } from "@/components/home/HeroSlider";
-import { listArticles, toNewsCardArticle } from "@/lib/articles";
+import { HeroSlider, type HeroSlide } from "@/components/home/HeroSlider";
+import { listArticles, toNewsCardArticle, type ArticleDoc } from "@/lib/articles";
 import { NewsCard } from "@/components/news/NewsCard";
 import { SITE, buildMetadata, jsonLdWebSite, jsonLdOrganization } from "@/lib/seo";
 import { JsonLd } from "@/components/common/JsonLd";
@@ -118,13 +118,33 @@ function SectionHead({ eyebrow, title, href, linkLabel = "Xem tất cả", desc 
 
 export const dynamic = "force-dynamic";
 
+// Bài viết DB → slide hero. Slide mặc định đã có sẵn trong HeroSlider.
+function toHeroSlide(d: ArticleDoc): HeroSlide {
+  const initials = (d.author?.name || "QP").split(/\s+/).map((w) => w[0]).join("").slice(0, 2).toUpperCase();
+  return {
+    id: d.slug,
+    eyebrow: `${d.category} · Quỳnh Phụ`,
+    headline: d.title,
+    lead: d.excerpt,
+    image: d.coverImage,
+    imageAlt: d.coverAlt ?? "",
+    cta: { label: "Đọc bài viết", href: `/tin-tuc/${d.slug}` },
+    byline: { avatar: initials, role: d.author?.title || d.category, name: d.author?.name || "Ban biên tập", time: `${d.readingMinutes} phút đọc` },
+  };
+}
+
 export default async function HomePage() {
   // 4 bài viết mới nhất đã xuất bản (DB) cho section tin tức trang chủ.
   const latestNews = (await listArticles({ status: "published", limit: 4 }).catch(() => [])).map(toNewsCardArticle);
+
+  // Slide hero: ưu tiên bài "Nổi bật"; nếu chưa có bài nào tick → lấy 4 bài mới nhất.
+  const featuredDocs = await listArticles({ status: "published", featured: true, limit: 4 }).catch(() => []);
+  const heroDocs = featuredDocs.length ? featuredDocs : await listArticles({ status: "published", limit: 4 }).catch(() => []);
+  const heroSlides: HeroSlide[] = heroDocs.map(toHeroSlide);
   return (
     <>
       <JsonLd data={[jsonLdWebSite(), jsonLdOrganization()]} />
-      <HeroSlider />
+      <HeroSlider articleSlides={heroSlides} />
 
       {/* KPI STRIP */}
       <section className="qp-kpi-strip">

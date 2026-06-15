@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
-type Slide = {
+export type HeroSlide = {
   id: string;
   eyebrow: string;
   headline: string;
@@ -15,48 +15,18 @@ type Slide = {
   byline?: { avatar: string; role: string; name: string; time: string };
 };
 
-const SLIDES: Slide[] = [
-  {
-    id: "chao-mung",
-    eyebrow: "Chào mừng · Quỳnh Phụ",
-    headline: "Cổng thông tin huyện Quỳnh Phụ",
-    lead: "Một điểm đến số duy nhất cho người dân Quỳnh Phụ — tra cứu thông báo, việc làm, tin tức và kết nối cộng đồng nhanh chóng, thuận tiện.",
-    image: "/img/patterns/slider-default.png",
-    imageAlt: "",
-    cta: { label: "Khám phá cổng thông tin", href: "/gioi-thieu" },
-    byline: { avatar: "QP", role: "Cổng thông tin huyện", name: "Phục vụ người dân", time: "Trực tuyến 24/7" },
-  },
-  {
-    id: "viec-lam",
-    eyebrow: "Việc làm · Quỳnh Phụ",
-    headline: "Hơn 1.000 cơ hội việc làm ngay tại địa phương",
-    lead: "Tin tuyển dụng từ các cụm công nghiệp Quỳnh Côi, An Bài và doanh nghiệp trong huyện — lọc theo ngành nghề và mức lương.",
-    image: "/img/patterns/network-mesh.png",
-    imageAlt: "",
-    cta: { label: "Xem việc làm", href: "/viec-lam" },
-    byline: { avatar: "QP", role: "Phòng LĐ-TB&XH", name: "Cập nhật hằng tuần", time: "5 phút đọc" },
-  },
-  {
-    id: "thong-bao",
-    eyebrow: "Thông báo · Mới nhất",
-    headline: "Lịch tuyển sinh & sự kiện cộng đồng tháng này",
-    lead: "Cập nhật thông báo của huyện: tuyển sinh đầu cấp, lịch khám sức khoẻ, chợ phiên và các hoạt động tại địa phương.",
-    image: "/img/patterns/light-pillars.png",
-    imageAlt: "",
-    cta: { label: "Xem tin tức", href: "/tin-tuc" },
-    byline: { avatar: "VP", role: "Văn phòng UBND", name: "Thông báo chính thức", time: "3 phút đọc" },
-  },
-  {
-    id: "cong-dong",
-    eyebrow: "Cộng đồng · Kết nối",
-    headline: "Tìm đồ rơi & kết nối người dân Quỳnh Phụ",
-    lead: "Đăng tin nhặt được hoặc bị mất đồ, hỏi đáp và phản ánh tới chính quyền — một cộng đồng số gần gũi hơn.",
-    image: "/img/patterns/flow-waves.png",
-    imageAlt: "",
-    cta: { label: "Tìm đồ rơi", href: "/tim-do-roi" },
-    byline: { avatar: "CĐ", role: "Cộng đồng dân cư", name: "Người dân đóng góp", time: "2 phút đọc" },
-  },
-];
+// Slide mặc định luôn đứng đầu (không phụ thuộc dữ liệu). Các slide còn lại do
+// trang chủ truyền vào qua prop `articleSlides` (lấy từ bài viết "Nổi bật"/mới nhất).
+const DEFAULT_SLIDE: HeroSlide = {
+  id: "chao-mung",
+  eyebrow: "Chào mừng · Quỳnh Phụ",
+  headline: "Cổng thông tin huyện Quỳnh Phụ",
+  lead: "Một điểm đến số duy nhất cho người dân Quỳnh Phụ — tra cứu thông báo, việc làm, tin tức và kết nối cộng đồng nhanh chóng, thuận tiện.",
+  image: "/img/patterns/slider-default.png",
+  imageAlt: "",
+  cta: { label: "Khám phá cổng thông tin", href: "/gioi-thieu" },
+  byline: { avatar: "QP", role: "Cổng thông tin huyện", name: "Phục vụ người dân", time: "Trực tuyến 24/7" },
+};
 
 const FLOATS = [
   { top: "15%", left: "10%", size: 8, color: "is-teal", delay: "0s" },
@@ -71,7 +41,8 @@ const FLOATS = [
 
 const INTERVAL = 7000;
 
-export function HeroSlider() {
+export function HeroSlider({ articleSlides = [] }: { articleSlides?: HeroSlide[] }) {
+  const SLIDES: HeroSlide[] = [DEFAULT_SLIDE, ...articleSlides];
   const total = SLIDES.length;
   const [active, setActive] = useState(0);
   const [paused, setPaused] = useState(false);
