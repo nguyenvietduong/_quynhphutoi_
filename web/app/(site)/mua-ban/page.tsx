@@ -1,4 +1,4 @@
-import { buildMetadata } from "@/lib/seo";
+import { pageMetadata } from "@/lib/page-seo";
 import Link from "next/link";
 import { listClassifieds, listMyClassifieds, countClassifieds, CLASSIFIED_CATEGORIES, type ClassifiedDoc } from "@/lib/classifieds";
 import { getSession } from "@/lib/auth";
@@ -7,11 +7,13 @@ import { stripHtml } from "@/lib/strip-html";
 import { ClassifiedBrowser, type ClassifiedItem } from "@/components/classifieds/ClassifiedBrowser";
 import { getSettings } from "@/lib/settings";
 
-export const metadata = buildMetadata({
-  title: "Mua bán — Quỳnh Phụ",
-  description: "Rao vặt mua bán của người dân Quỳnh Phụ — xe cộ, nhà đất, điện tử, đồ gia dụng, nông sản… Đăng tin và tìm mua dễ dàng.",
-  path: "/mua-ban",
-});
+export async function generateMetadata() {
+  return pageMetadata({
+    key: "/mua-ban", path: "/mua-ban",
+    title: "Mua bán — Quỳnh Phụ",
+    description: "Rao vặt mua bán của người dân Quỳnh Phụ — xe cộ, nhà đất, điện tử, đồ gia dụng, nông sản… Đăng tin và tìm mua dễ dàng.",
+  });
+}
 
 export const dynamic = "force-dynamic";
 

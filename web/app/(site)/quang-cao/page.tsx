@@ -1,13 +1,15 @@
 import Link from "next/link";
 import { listAllActiveAds, PLACEMENT_LABEL } from "@/lib/ads";
-import { buildMetadata } from "@/lib/seo";
+import { pageMetadata } from "@/lib/page-seo";
 
-export const metadata = buildMetadata({
-  title: "Quảng cáo — Nhà tài trợ Quỳnh Phụ",
-  description: "Danh sách nhà tài trợ và quảng cáo của doanh nghiệp, cửa hàng trên địa bàn xã Quỳnh Phụ.",
-  path: "/quang-cao",
-  noindex: true,
-});
+export async function generateMetadata() {
+  return pageMetadata({
+    key: "/quang-cao", path: "/quang-cao",
+    title: "Quảng cáo — Nhà tài trợ Quỳnh Phụ",
+    description: "Danh sách nhà tài trợ và quảng cáo của doanh nghiệp, cửa hàng trên địa bàn xã Quỳnh Phụ.",
+    noindex: true,
+  });
+}
 
 export const dynamic = "force-dynamic";
 

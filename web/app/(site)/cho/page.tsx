@@ -1,14 +1,16 @@
-import { buildMetadata } from "@/lib/seo";
+import { pageMetadata } from "@/lib/page-seo";
 import Link from "next/link";
 import { listMarket, countByCategory, type MarketDoc } from "@/lib/market";
 import { getAdminUnitsMap } from "@/lib/admin-units";
 import { MarketBrowser, type MarketItem } from "@/components/market/MarketBrowser";
 
-export const metadata = buildMetadata({
-  title: "Chợ xã Quỳnh Phụ",
-  description: "Chợ phiên và đặc sản địa phương xã Quỳnh Phụ — lịch họp chợ, giá tham khảo theo từng xã, thị trấn.",
-  path: "/cho",
-});
+export async function generateMetadata() {
+  return pageMetadata({
+    key: "/cho", path: "/cho",
+    title: "Chợ xã Quỳnh Phụ",
+    description: "Chợ phiên và đặc sản địa phương xã Quỳnh Phụ — lịch họp chợ, giá tham khảo theo từng xã, thị trấn.",
+  });
+}
 
 export const dynamic = "force-dynamic";
 

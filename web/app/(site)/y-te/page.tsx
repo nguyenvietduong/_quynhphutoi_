@@ -1,14 +1,16 @@
-import { buildMetadata } from "@/lib/seo";
+import { pageMetadata } from "@/lib/page-seo";
 import Link from "next/link";
 import { listHealth, countByType, type HealthDoc } from "@/lib/health";
 import { getAdminUnitsMap } from "@/lib/admin-units";
 import { HealthBrowser, type HealthItem } from "@/components/health/HealthBrowser";
 
-export const metadata = buildMetadata({
-  title: "Y tế xã Quỳnh Phụ",
-  description: "Danh bạ cơ sở y tế xã Quỳnh Phụ — bệnh viện, trung tâm y tế, trạm y tế xã, phòng khám, nhà thuốc. Tra cứu theo loại và xã/thị trấn.",
-  path: "/y-te",
-});
+export async function generateMetadata() {
+  return pageMetadata({
+    key: "/y-te", path: "/y-te",
+    title: "Y tế xã Quỳnh Phụ",
+    description: "Danh bạ cơ sở y tế xã Quỳnh Phụ — bệnh viện, trung tâm y tế, trạm y tế xã, phòng khám, nhà thuốc. Tra cứu theo loại và xã/thị trấn.",
+  });
+}
 
 export const dynamic = "force-dynamic";
 

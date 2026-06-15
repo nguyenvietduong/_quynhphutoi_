@@ -43,6 +43,7 @@ const GROUPS: Group[] = [
     title: "Hệ thống",
     items: [
       { href: "/admin/trang-chu", label: "Trang chủ", icon: "layout" },
+      { href: "/admin/seo", label: "SEO từng trang", icon: "globe" },
       { href: "/admin/nguoi-dung", label: "Người dùng", icon: "users" },
       { href: "/admin/lien-he", label: "Liên hệ / Phản ánh", icon: "mail" },
       { href: "/admin/quang-cao", label: "Quảng cáo", icon: "megaphone" },
@@ -109,7 +110,7 @@ export function AdminSidebar({ counts }: { counts: AdminCounts }) {
 
 type IconName =
   | "home" | "briefcase" | "search" | "bag" | "news" | "cap" | "health"
-  | "store" | "bus" | "landmark" | "folder" | "map" | "users" | "megaphone" | "bell" | "mail" | "gear" | "layout";
+  | "store" | "bus" | "landmark" | "folder" | "map" | "users" | "megaphone" | "bell" | "mail" | "gear" | "layout" | "globe";
 
 function Icon({ name }: { name: IconName }) {
   const p = { fill: "none", stroke: "currentColor", strokeWidth: 2, strokeLinecap: "round" as const, strokeLinejoin: "round" as const, viewBox: "0 0 24 24", "aria-hidden": true };
@@ -131,6 +132,7 @@ function Icon({ name }: { name: IconName }) {
     case "bell": return <svg {...p}><path d="M6 9a6 6 0 0 1 12 0c0 5 2 6 2 6H4s2-1 2-6Z" /><path d="M10 20a2 2 0 0 0 4 0" /></svg>;
     case "mail": return <svg {...p}><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m3 7 9 6 9-6" /></svg>;
     case "layout": return <svg {...p}><rect x="3" y="4" width="18" height="16" rx="2" /><path d="M3 9h18M9 9v11" /></svg>;
+    case "globe": return <svg {...p}><circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18" /></svg>;
     case "gear": return <svg {...p}><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z" /></svg>;
   }
 }

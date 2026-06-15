@@ -1,13 +1,15 @@
-import { buildMetadata } from "@/lib/seo";
+import { pageMetadata } from "@/lib/page-seo";
 import Link from "next/link";
 import { listTransit, countByType, type TransitDoc } from "@/lib/transit";
 import { TransitBrowser, type TransitItem } from "@/components/transit/TransitBrowser";
 
-export const metadata = buildMetadata({
-  title: "Giao thông xã Quỳnh Phụ",
-  description: "Tuyến xe khách, xe buýt qua xã Quỳnh Phụ — liên tỉnh, nội tỉnh và nội huyện. Lộ trình, giá vé, giờ chạy và liên hệ đặt vé.",
-  path: "/giao-thong",
-});
+export async function generateMetadata() {
+  return pageMetadata({
+    key: "/giao-thong", path: "/giao-thong",
+    title: "Giao thông xã Quỳnh Phụ",
+    description: "Tuyến xe khách, xe buýt qua xã Quỳnh Phụ — liên tỉnh, nội tỉnh và nội huyện. Lộ trình, giá vé, giờ chạy và liên hệ đặt vé.",
+  });
+}
 
 export const dynamic = "force-dynamic";
 

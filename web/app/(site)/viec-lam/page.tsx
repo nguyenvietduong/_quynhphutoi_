@@ -1,4 +1,4 @@
-import { buildMetadata } from "@/lib/seo";
+import { pageMetadata } from "@/lib/page-seo";
 import Link from "next/link";
 import { listJobs, listMyJobs, countJobs, formatSalary, type JobDoc } from "@/lib/jobs";
 import { getSession } from "@/lib/auth";
@@ -8,11 +8,13 @@ import { getAdminUnitsMap, type AdminUnit } from "@/lib/admin-units";
 import { JobBrowser, type JobItem } from "@/components/jobs/JobBrowser";
 import { getSettings } from "@/lib/settings";
 
-export const metadata = buildMetadata({
-  title: "Việc làm Quỳnh Phụ",
-  description: "Tin tuyển dụng, việc làm tại xã Quỳnh Phụ — toàn thời gian, bán thời gian, thời vụ. Lọc theo ngành nghề và xã/thị trấn.",
-  path: "/viec-lam",
-});
+export async function generateMetadata() {
+  return pageMetadata({
+    key: "/viec-lam", path: "/viec-lam",
+    title: "Việc làm Quỳnh Phụ",
+    description: "Tin tuyển dụng, việc làm tại xã Quỳnh Phụ — toàn thời gian, bán thời gian, thời vụ. Lọc theo ngành nghề và xã/thị trấn.",
+  });
+}
 
 export const dynamic = "force-dynamic";
 

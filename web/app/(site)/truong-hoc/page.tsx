@@ -1,15 +1,17 @@
-import { buildMetadata } from "@/lib/seo";
+import { pageMetadata } from "@/lib/page-seo";
 import Link from "next/link";
 import { listSchools, countByLevel } from "@/lib/schools";
 import { getAdminUnitsMap } from "@/lib/admin-units";
 import { SchoolBrowser, type SchoolItem } from "@/components/schools/SchoolBrowser";
 
-export const metadata = buildMetadata({
-  title: "Trường học xã Quỳnh Phụ",
-  description:
-    "Danh bạ trường học xã Quỳnh Phụ, Thái Bình — mầm non, tiểu học, THCS, THPT và GDTX theo từng xã, thị trấn.",
-  path: "/truong-hoc",
-});
+export async function generateMetadata() {
+  return pageMetadata({
+    key: "/truong-hoc", path: "/truong-hoc",
+    title: "Trường học xã Quỳnh Phụ",
+    description:
+      "Danh bạ trường học xã Quỳnh Phụ, Thái Bình — mầm non, tiểu học, THCS, THPT và GDTX theo từng xã, thị trấn.",
+  });
+}
 
 // Đọc dữ liệu từ MongoDB tại thời điểm request.
 export const dynamic = "force-dynamic";

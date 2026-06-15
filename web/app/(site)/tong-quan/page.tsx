@@ -1,4 +1,4 @@
-import { buildMetadata } from "@/lib/seo";
+import { pageMetadata } from "@/lib/page-seo";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { listAdminUnits } from "@/lib/admin-units";
@@ -8,11 +8,13 @@ import { health } from "@/lib/health";
 import { transit } from "@/lib/transit";
 import { relics } from "@/lib/relics";
 
-export const metadata = buildMetadata({
-  title: "Tổng quan xã Quỳnh Phụ",
-  description: "Tổng quan xã Quỳnh Phụ (Thái Bình): vị trí địa lý, dân số, hành chính, kinh tế và sáp nhập đơn vị hành chính 2025.",
-  path: "/tong-quan",
-});
+export async function generateMetadata() {
+  return pageMetadata({
+    key: "/tong-quan", path: "/tong-quan",
+    title: "Tổng quan xã Quỳnh Phụ",
+    description: "Tổng quan xã Quỳnh Phụ (Thái Bình): vị trí địa lý, dân số, hành chính, kinh tế và sáp nhập đơn vị hành chính 2025.",
+  });
+}
 
 export const dynamic = "force-dynamic";
 

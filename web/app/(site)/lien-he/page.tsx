@@ -1,12 +1,16 @@
-import { buildMetadata } from "@/lib/seo";
+import { pageMetadata } from "@/lib/page-seo";
 import Link from "next/link";
 import { ContactForm } from "@/components/contact/ContactForm";
 
-export const metadata = buildMetadata({
-  title: "Liên hệ & đặt quảng cáo",
-  description: "Liên hệ với Cổng thông tin Quỳnh Phụ — góp ý, hợp tác và đặt quảng cáo.",
-  path: "/lien-he",
-});
+export const dynamic = "force-dynamic";
+
+export async function generateMetadata() {
+  return pageMetadata({
+    key: "/lien-he", path: "/lien-he",
+    title: "Liên hệ & đặt quảng cáo",
+    description: "Liên hệ với Cổng thông tin Quỳnh Phụ — góp ý, hợp tác và đặt quảng cáo.",
+  });
+}
 
 const EMAIL = "duongnv10504@gmail.com";
 

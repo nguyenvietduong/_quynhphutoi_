@@ -1,4 +1,4 @@
-import { buildMetadata } from "@/lib/seo";
+import { pageMetadata } from "@/lib/page-seo";
 import Link from "next/link";
 import { NewsBrowser } from "@/components/news/NewsBrowser";
 import { listArticles, listMyArticles, toNewsCardArticle } from "@/lib/articles";
@@ -6,11 +6,13 @@ import { getNewsPageConfig, resolveNewsBlocks } from "@/lib/news-page";
 import { getSession } from "@/lib/auth";
 import type { Article } from "@/lib/news";
 
-export const metadata = buildMetadata({
-  title: "Tin tức & thông báo",
-  description: "Tin tức, thông báo và hoạt động tại xã Quỳnh Phụ, Thái Bình.",
-  path: "/tin-tuc",
-});
+export async function generateMetadata() {
+  return pageMetadata({
+    key: "/tin-tuc", path: "/tin-tuc",
+    title: "Tin tức & thông báo",
+    description: "Tin tức, thông báo và hoạt động tại xã Quỳnh Phụ, Thái Bình.",
+  });
+}
 
 export const dynamic = "force-dynamic";
 
