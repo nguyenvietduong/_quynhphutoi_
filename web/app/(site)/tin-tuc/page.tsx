@@ -8,7 +8,7 @@ import type { Article } from "@/lib/news";
 
 export const metadata = buildMetadata({
   title: "Tin tức & thông báo",
-  description: "Tin tức, thông báo và hoạt động tại huyện Quỳnh Phụ, Thái Bình.",
+  description: "Tin tức, thông báo và hoạt động tại xã Quỳnh Phụ, Thái Bình.",
   path: "/tin-tuc",
 });
 
@@ -49,7 +49,7 @@ export default async function TinTucPage() {
           <span className="type-tag qp-pagehero__eyebrow">Tin tức · Quỳnh Phụ</span>
           <h1 id="news-title" className="type-h1">Tin tức &amp; thông báo</h1>
           <p className="qp-pagehero__lead">
-            Tổng hợp tin tức, thông báo và hoạt động tại huyện Quỳnh Phụ — cập nhật thường xuyên.
+            Tổng hợp tin tức, thông báo và hoạt động tại xã Quỳnh Phụ — cập nhật thường xuyên.
           </p>
           <span className="qp-pagehero__line" aria-hidden />
         </div>

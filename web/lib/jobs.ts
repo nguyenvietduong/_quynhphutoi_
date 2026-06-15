@@ -1,4 +1,4 @@
-// Việc làm — tin tuyển dụng địa phương huyện Quỳnh Phụ.
+// Việc làm — tin tuyển dụng địa phương xã Quỳnh Phụ.
 // Theo pattern repo (mongodb native, helper trong file). Quan hệ:
 //   - industry / jobType: slug từ lib/industries.ts (denormalize label để hiển thị).
 //   - location.wardSlug → đơn vị hành chính (lib/wards.ts).

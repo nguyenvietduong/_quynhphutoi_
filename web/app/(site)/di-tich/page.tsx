@@ -6,7 +6,7 @@ import { RelicBrowser, type RelicItem } from "@/components/relics/RelicBrowser";
 
 export const metadata = buildMetadata({
   title: "Di tích lịch sử - văn hoá Quỳnh Phụ",
-  description: "Đình, chùa, đền, miếu và các di tích lịch sử - văn hoá huyện Quỳnh Phụ — đền Đồng Bằng, đền A Sào… Tra cứu theo loại di tích và xã, thị trấn.",
+  description: "Đình, chùa, đền, miếu và các di tích lịch sử - văn hoá xã Quỳnh Phụ — đền Đồng Bằng, đền A Sào… Tra cứu theo loại di tích và xã, thị trấn.",
   path: "/di-tich",
 });
 

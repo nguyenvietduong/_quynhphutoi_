@@ -9,8 +9,8 @@ import { transit } from "@/lib/transit";
 import { relics } from "@/lib/relics";
 
 export const metadata = buildMetadata({
-  title: "Tổng quan huyện Quỳnh Phụ",
-  description: "Tổng quan huyện Quỳnh Phụ (Thái Bình): vị trí địa lý, dân số, hành chính, kinh tế và sáp nhập đơn vị hành chính 2025.",
+  title: "Tổng quan xã Quỳnh Phụ",
+  description: "Tổng quan xã Quỳnh Phụ (Thái Bình): vị trí địa lý, dân số, hành chính, kinh tế và sáp nhập đơn vị hành chính 2025.",
   path: "/tong-quan",
 });
 

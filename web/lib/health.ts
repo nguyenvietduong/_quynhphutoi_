@@ -1,4 +1,4 @@
-// Cơ sở y tế huyện Quỳnh Phụ — danh bạ: bệnh viện, trung tâm y tế, trạm y tế,
+// Cơ sở y tế xã Quỳnh Phụ — danh bạ: bệnh viện, trung tâm y tế, trạm y tế,
 // phòng khám, nhà thuốc. Mô hình giống lib/schools.ts; địa chỉ CHUẨN HÓA:
 // chỉ lưu khóa ngoại `wardSlug` → bảng admin_units.
 import { getDb, ensureIndexes } from "@/lib/db";

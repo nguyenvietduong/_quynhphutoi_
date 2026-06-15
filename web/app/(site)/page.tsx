@@ -34,7 +34,7 @@ const TILES = [
 const EVENTS = [
   { day: "12", month: "06", title: "Phiên chợ Quỳnh Côi", place: "TT Quỳnh Côi", time: "Cả ngày", type: "Chợ phiên" },
   { day: "15", month: "06", title: "Khám sức khoẻ miễn phí cho người cao tuổi", place: "TYT xã An Bài", time: "07:30 – 11:00", type: "Y tế" },
-  { day: "20", month: "06", title: "Ngày hội việc làm huyện Quỳnh Phụ", place: "Trung tâm VH huyện", time: "08:00 – 16:00", type: "Việc làm" },
+  { day: "20", month: "06", title: "Ngày hội việc làm xã Quỳnh Phụ", place: "Trung tâm VH huyện", time: "08:00 – 16:00", type: "Việc làm" },
 ];
 
 const SERVICES = [
@@ -248,7 +248,7 @@ export default async function HomePage() {
           <SectionHead
             eyebrow="Dịch vụ địa phương"
             title="Tiện ích & dịch vụ thiết yếu"
-            desc="Tra cứu nhanh trường học, cơ sở y tế và giao thông trên địa bàn huyện Quỳnh Phụ — kèm địa chỉ, số điện thoại và giờ làm việc."
+            desc="Tra cứu nhanh trường học, cơ sở y tế và giao thông trên địa bàn xã Quỳnh Phụ — kèm địa chỉ, số điện thoại và giờ làm việc."
           />
           <div className="grid grid-3">
             {SERVICES.map((s) => (

@@ -1,4 +1,4 @@
-// Hồ sơ tổng quan huyện Quỳnh Phụ — 1 document duy nhất (collection "district").
+// Hồ sơ tổng quan xã Quỳnh Phụ — 1 document duy nhất (collection "district").
 // Dữ liệu mô tả (địa lý, lịch sử, kinh tế, văn hoá) lấy từ DB thay vì hard-code.
 import { getDb, ensureIndexes } from "@/lib/db";
 
@@ -13,7 +13,7 @@ export type DistrictDoc = {
   key: string;                  // "quynh-phu" — duy nhất
 
   name: string;                 // "Quỳnh Phụ"
-  fullName: string;             // "Huyện Quỳnh Phụ"
+  fullName: string;             // "Xã Quỳnh Phụ"
   province: string;             // tỉnh (trước sáp nhập)
   region: string;               // vùng
   established?: string;         // lịch sử thành lập (1 câu)

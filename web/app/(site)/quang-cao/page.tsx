@@ -4,7 +4,7 @@ import { buildMetadata } from "@/lib/seo";
 
 export const metadata = buildMetadata({
   title: "Quảng cáo — Nhà tài trợ Quỳnh Phụ",
-  description: "Danh sách nhà tài trợ và quảng cáo của doanh nghiệp, cửa hàng trên địa bàn huyện Quỳnh Phụ.",
+  description: "Danh sách nhà tài trợ và quảng cáo của doanh nghiệp, cửa hàng trên địa bàn xã Quỳnh Phụ.",
   path: "/quang-cao",
   noindex: true,
 });

@@ -1,4 +1,4 @@
-// Trường học trên địa bàn huyện Quỳnh Phụ — schema chuyên nghiệp, đủ trường cho
+// Trường học trên địa bàn xã Quỳnh Phụ — schema chuyên nghiệp, đủ trường cho
 // một danh bạ giáo dục: định danh, cấp học, loại hình, địa chỉ hành chính, liên hệ
 // và toạ độ. `level` khớp slug danh mục dưới "Dịch vụ công > Trường học"
 // (mam-non | tieu-hoc | thcs | thpt) — xem lib/categories.ts.

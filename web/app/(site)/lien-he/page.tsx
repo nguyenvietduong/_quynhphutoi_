@@ -76,7 +76,7 @@ export default function LienHePage() {
                     <span className="qp-contactrow__icon"><Icon name="map-pin" /></span>
                     <span className="qp-contactrow__text">
                       <span className="qp-contactrow__label">Khu vực</span>
-                      <span className="qp-contactrow__value">Huyện Quỳnh Phụ · Thái Bình</span>
+                      <span className="qp-contactrow__value">Xã Quỳnh Phụ · Thái Bình</span>
                     </span>
                   </div>
                   <div className="qp-contactrow">

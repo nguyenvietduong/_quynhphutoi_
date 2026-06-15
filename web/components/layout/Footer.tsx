@@ -52,7 +52,7 @@ export async function Footer() {
               </span>
             </div>
             <p className="qp-footer__desc">
-              Một người yêu Thái Bình lập trang này để mọi người dễ nắm thông tin huyện Quỳnh Phụ.
+              Một người yêu Thái Bình lập trang này để mọi người dễ nắm thông tin xã Quỳnh Phụ.
               Đây là trang <b>cộng đồng</b>, không phải trang chính thức của nhà nước.
             </p>
             <div className="qp-footer__social">

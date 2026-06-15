@@ -5,9 +5,9 @@ import { getAdminUnitsMap } from "@/lib/admin-units";
 import { SchoolBrowser, type SchoolItem } from "@/components/schools/SchoolBrowser";
 
 export const metadata = buildMetadata({
-  title: "Trường học huyện Quỳnh Phụ",
+  title: "Trường học xã Quỳnh Phụ",
   description:
-    "Danh bạ trường học huyện Quỳnh Phụ, Thái Bình — mầm non, tiểu học, THCS, THPT và GDTX theo từng xã, thị trấn.",
+    "Danh bạ trường học xã Quỳnh Phụ, Thái Bình — mầm non, tiểu học, THCS, THPT và GDTX theo từng xã, thị trấn.",
   path: "/truong-hoc",
 });
 
@@ -79,7 +79,7 @@ export default async function TruongHocPage() {
             <span className="qp-breadcrumb__current">Trường học</span>
           </nav>
           <span className="type-tag qp-pagehero__eyebrow">Dịch vụ công · Giáo dục</span>
-          <h1 id="th-title" className="type-h1">Trường học huyện Quỳnh Phụ</h1>
+          <h1 id="th-title" className="type-h1">Trường học xã Quỳnh Phụ</h1>
           <p className="qp-pagehero__lead">
             Danh bạ trường học trên địa bàn huyện — từ mầm non, tiểu học, THCS đến THPT và GDTX,
             tra cứu theo cấp học và theo xã, thị trấn.

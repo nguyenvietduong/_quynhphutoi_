@@ -162,7 +162,7 @@ export function SettingsManager({ initial }: { initial: AppSettings }) {
                 <input maxLength={80} className="qp-input" value={form.seoSiteName} onChange={txt("seoSiteName")} placeholder="Cổng thông tin Quỳnh Phụ" />
               </Field>
               <Field label="Mô tả mặc định" hint="Hiển thị dưới tiêu đề trên Google cho trang chủ và trang không có mô tả riêng (≈ 160 ký tự).">
-                <textarea maxLength={300} className="qp-textarea" value={form.seoSiteDescription} onChange={(e) => set("seoSiteDescription", e.target.value as never)} placeholder="Cổng thông tin huyện Quỳnh Phụ — tin tức, việc làm, mua bán…" />
+                <textarea maxLength={300} className="qp-textarea" value={form.seoSiteDescription} onChange={(e) => set("seoSiteDescription", e.target.value as never)} placeholder="Cổng thông tin xã Quỳnh Phụ — tin tức, việc làm, mua bán…" />
               </Field>
               <Field label="Từ khoá gốc (cách nhau dấu phẩy)" hint="Trống = bộ từ khoá mặc định về Quỳnh Phụ.">
                 <textarea maxLength={400} className="qp-textarea" value={form.seoDefaultKeywords} onChange={(e) => set("seoDefaultKeywords", e.target.value as never)} placeholder="Quỳnh Phụ, Thái Bình, tin tức Quỳnh Phụ, việc làm Quỳnh Phụ…" />

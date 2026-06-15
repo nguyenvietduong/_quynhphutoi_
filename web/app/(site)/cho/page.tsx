@@ -5,8 +5,8 @@ import { getAdminUnitsMap } from "@/lib/admin-units";
 import { MarketBrowser, type MarketItem } from "@/components/market/MarketBrowser";
 
 export const metadata = buildMetadata({
-  title: "Chợ huyện Quỳnh Phụ",
-  description: "Chợ phiên và đặc sản địa phương huyện Quỳnh Phụ — lịch họp chợ, giá tham khảo theo từng xã, thị trấn.",
+  title: "Chợ xã Quỳnh Phụ",
+  description: "Chợ phiên và đặc sản địa phương xã Quỳnh Phụ — lịch họp chợ, giá tham khảo theo từng xã, thị trấn.",
   path: "/cho",
 });
 
@@ -52,9 +52,9 @@ export default async function ChoMuaBanPage() {
             <span className="qp-breadcrumb__current">Chợ</span>
           </nav>
           <span className="type-tag qp-pagehero__eyebrow">Dịch vụ công · Chợ</span>
-          <h1 id="cmb-title" className="type-h1">Chợ huyện Quỳnh Phụ</h1>
+          <h1 id="cmb-title" className="type-h1">Chợ xã Quỳnh Phụ</h1>
           <p className="qp-pagehero__lead">
-            Lịch chợ phiên và đặc sản địa phương tại huyện Quỳnh Phụ — tra cứu lịch họp,
+            Lịch chợ phiên và đặc sản địa phương tại xã Quỳnh Phụ — tra cứu lịch họp,
             giá tham khảo theo từng xã, thị trấn.
           </p>
           <span className="qp-pagehero__line" aria-hidden />

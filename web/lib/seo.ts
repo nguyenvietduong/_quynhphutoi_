@@ -18,10 +18,10 @@ export const SITE = {
   name: "Cổng thông tin Quỳnh Phụ",
   shortName: "Quỳnh Phụ Tôi",
   description:
-    "Cổng thông tin huyện Quỳnh Phụ (Thái Bình) — tin tức, việc làm, mua bán, tìm đồ rơi, trường học, y tế, giao thông, di tích và kết nối cộng đồng.",
+    "Cổng thông tin xã Quỳnh Phụ (Thái Bình) — tin tức, việc làm, mua bán, tìm đồ rơi, trường học, y tế, giao thông, di tích và kết nối cộng đồng.",
   locale: "vi_VN",
   logo: "/img/patterns/logo.png",
-  region: "Huyện Quỳnh Phụ",
+  region: "Xã Quỳnh Phụ",
   province: "Thái Bình",
 } as const;
 

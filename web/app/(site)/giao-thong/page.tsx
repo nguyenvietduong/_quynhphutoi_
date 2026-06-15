@@ -4,8 +4,8 @@ import { listTransit, countByType, type TransitDoc } from "@/lib/transit";
 import { TransitBrowser, type TransitItem } from "@/components/transit/TransitBrowser";
 
 export const metadata = buildMetadata({
-  title: "Giao thông huyện Quỳnh Phụ",
-  description: "Tuyến xe khách, xe buýt qua huyện Quỳnh Phụ — liên tỉnh, nội tỉnh và nội huyện. Lộ trình, giá vé, giờ chạy và liên hệ đặt vé.",
+  title: "Giao thông xã Quỳnh Phụ",
+  description: "Tuyến xe khách, xe buýt qua xã Quỳnh Phụ — liên tỉnh, nội tỉnh và nội huyện. Lộ trình, giá vé, giờ chạy và liên hệ đặt vé.",
   path: "/giao-thong",
 });
 

@@ -13,7 +13,7 @@ import type { CategoryOption } from "@/components/lostfound/PostModal";
 export const metadata = buildMetadata({
   title: "Tìm đồ rơi — Quỳnh Phụ",
   description:
-    "Bảng tin tìm đồ rơi huyện Quỳnh Phụ: đăng tin tìm đồ bị mất và tin nhặt được đồ để trả lại người mất. Lọc theo danh mục, xã/thị trấn.",
+    "Bảng tin tìm đồ rơi xã Quỳnh Phụ: đăng tin tìm đồ bị mất và tin nhặt được đồ để trả lại người mất. Lọc theo danh mục, xã/thị trấn.",
   path: "/tim-do-roi",
 });
 

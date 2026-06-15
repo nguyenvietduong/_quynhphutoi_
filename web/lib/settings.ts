@@ -63,7 +63,7 @@ const DEFAULTS: AppSettings = {
 
   contactEmail: "duongnv10504@gmail.com",
   contactHotline: "",
-  contactLocation: "Huyện Quỳnh Phụ · Thái Bình",
+  contactLocation: "Xã Quỳnh Phụ · Thái Bình",
   contactNote: "Nhận đặt quảng cáo & hợp tác",
   socialFacebook: "",
   socialYoutube: "",

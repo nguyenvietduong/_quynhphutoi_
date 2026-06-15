@@ -5,8 +5,8 @@ import { getAdminUnitsMap } from "@/lib/admin-units";
 import { HealthBrowser, type HealthItem } from "@/components/health/HealthBrowser";
 
 export const metadata = buildMetadata({
-  title: "Y tế huyện Quỳnh Phụ",
-  description: "Danh bạ cơ sở y tế huyện Quỳnh Phụ — bệnh viện, trung tâm y tế, trạm y tế xã, phòng khám, nhà thuốc. Tra cứu theo loại và xã/thị trấn.",
+  title: "Y tế xã Quỳnh Phụ",
+  description: "Danh bạ cơ sở y tế xã Quỳnh Phụ — bệnh viện, trung tâm y tế, trạm y tế xã, phòng khám, nhà thuốc. Tra cứu theo loại và xã/thị trấn.",
   path: "/y-te",
 });
 
@@ -59,7 +59,7 @@ export default async function YTePage() {
             <span className="qp-breadcrumb__current">Y tế</span>
           </nav>
           <span className="type-tag qp-pagehero__eyebrow">Dịch vụ công · Y tế</span>
-          <h1 id="yt-title" className="type-h1">Y tế huyện Quỳnh Phụ</h1>
+          <h1 id="yt-title" className="type-h1">Y tế xã Quỳnh Phụ</h1>
           <p className="qp-pagehero__lead">
             Danh bạ cơ sở y tế trên địa bàn huyện — bệnh viện, trung tâm y tế, trạm y tế các xã,
             phòng khám và nhà thuốc. Tra cứu theo loại cơ sở và theo xã, thị trấn.
@@ -72,7 +72,7 @@ export default async function YTePage() {
         <div className="container-wide">
           <div className="qp-alert is-info" role="note" style={{ marginTop: "var(--space-8)" }}>
             <svg className="qp-alert__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><circle cx="12" cy="12" r="9" /><path d="M12 11v5M12 8h.01" /></svg>
-            <div className="qp-alert__body"><strong>Cấp cứu: gọi 115.</strong> Bệnh viện Đa khoa huyện Quỳnh Phụ trực cấp cứu 24/7.</div>
+            <div className="qp-alert__body"><strong>Cấp cứu: gọi 115.</strong> Bệnh viện Đa khoa xã Quỳnh Phụ trực cấp cứu 24/7.</div>
           </div>
           <div className="qp-kpi-grid">
             <Kpi value={counts.all} unit="cơ sở" label="Tổng cơ sở y tế" />

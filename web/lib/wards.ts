@@ -1,4 +1,4 @@
-// Danh sách đơn vị hành chính huyện Quỳnh Phụ (xã / thị trấn) — dùng cho dropdown
+// Danh sách đơn vị hành chính xã Quỳnh Phụ (xã / thị trấn) — dùng cho dropdown
 // chọn địa điểm ở form. File client-safe: KHÔNG import MongoDB, chỉ là hằng số.
 // name        = nhãn đầy đủ (kèm "Xã"/"Thị trấn"); slug khớp wardSlug trong dữ liệu.
 // newCommune  = xã MỚI sau sáp nhập 1/7/2025 (35 đơn vị cũ → 9 xã, thuộc Hưng Yên).

@@ -189,7 +189,7 @@ function blockHtml(sec: number): string {
   <div class="wrap">
     <span class="brand">
       <img src="/img/patterns/logo.png" alt="Cổng thông tin Quỳnh Phụ" />
-      <span class="nm"><b>Cổng thông tin Quỳnh Phụ</b><small>Cộng đồng huyện Quỳnh Phụ · Thái Bình</small></span>
+      <span class="nm"><b>Cổng thông tin Quỳnh Phụ</b><small>Cộng đồng xã Quỳnh Phụ · Thái Bình</small></span>
     </span>
     <div class="eyebrow">Bảo vệ hệ thống</div>
     <div class="ring">

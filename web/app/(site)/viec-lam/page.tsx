@@ -10,7 +10,7 @@ import { getSettings } from "@/lib/settings";
 
 export const metadata = buildMetadata({
   title: "Việc làm Quỳnh Phụ",
-  description: "Tin tuyển dụng, việc làm tại huyện Quỳnh Phụ — toàn thời gian, bán thời gian, thời vụ. Lọc theo ngành nghề và xã/thị trấn.",
+  description: "Tin tuyển dụng, việc làm tại xã Quỳnh Phụ — toàn thời gian, bán thời gian, thời vụ. Lọc theo ngành nghề và xã/thị trấn.",
   path: "/viec-lam",
 });
 

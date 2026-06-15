@@ -1,4 +1,4 @@
-// Giao thông — tuyến xe khách / xe buýt qua huyện Quỳnh Phụ.
+// Giao thông — tuyến xe khách / xe buýt qua xã Quỳnh Phụ.
 // Tuyến đi qua nhiều xã nên KHÔNG gắn 1 wardSlug; lưu điểm đầu/cuối + điểm dừng dạng text.
 import { getDb, ensureIndexes } from "@/lib/db";
 import { type Filter } from "mongodb";
