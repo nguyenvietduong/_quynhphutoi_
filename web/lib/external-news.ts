@@ -35,7 +35,8 @@ async function resolveConfig() {
   const key = (s?.newsApiKey || process.env.NEWS_API_KEY || "").trim();
   const base = (s?.newsApiUrl || process.env.NEWS_API_URL || DEFAULT_URL).trim();
   const gnewsKey = (s?.newsGnewsKey || process.env.GNEWS_API_KEY || "").trim();
-  const query = (s?.newsApiQuery || process.env.NEWS_API_QUERY || DEFAULT_QUERY).trim();
+  // Để TRỐNG là hợp lệ: GNews sẽ lấy top-headlines VN. (NewsAPI mới cần fallback — xử lý ở dưới.)
+  const query = (s?.newsApiQuery || process.env.NEWS_API_QUERY || "").trim();
   const importOn = s ? s.newsImportEnabled : true;
   const hasSource =
     sourceType === "rss" ? feeds.length > 0 : sourceType === "gnews" ? !!gnewsKey : !!key;
@@ -74,8 +75,10 @@ async function fetchText(url: string): Promise<string> {
 export async function fetchExternalNews(q?: string, pageSize = 30): Promise<ExternalNewsItem[]> {
   const cfg = await resolveConfig();
   if (cfg.sourceType === "rss") return fetchFromRss(cfg.feeds, q, pageSize);
+  // GNews: query rỗng → top-headlines tin mới nhất VN (không ép từ khoá).
   if (cfg.sourceType === "gnews") return fetchFromGnews(cfg.gnewsKey, (q && q.trim()) || cfg.query, pageSize);
-  return fetchFromNewsApi(cfg.key, cfg.base, (q && q.trim()) || cfg.query, pageSize);
+  // NewsAPI /everything BẮT BUỘC có q → rỗng thì dùng từ khoá mặc định.
+  return fetchFromNewsApi(cfg.key, cfg.base, (q && q.trim()) || cfg.query || DEFAULT_QUERY, pageSize);
 }
 
 // ---- Nguồn RSS (báo VN) -----------------------------------------------------

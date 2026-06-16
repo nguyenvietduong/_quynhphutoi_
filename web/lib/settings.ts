@@ -105,7 +105,7 @@ const DEFAULTS: AppSettings = {
   ].join("\n"),
   newsApiKey: "",
   newsApiUrl: process.env.NEWS_API_URL || "",
-  newsApiQuery: process.env.NEWS_API_QUERY || "Quỳnh Phụ",
+  newsApiQuery: process.env.NEWS_API_QUERY || "", // trống = tin mới nhất VN (GNews top-headlines)
   newsGnewsKey: "",
 };
 

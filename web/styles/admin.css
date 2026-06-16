@@ -62,7 +62,7 @@
 .qp-admin-nav__link.is-active {
   background: rgba(255,255,255,.12);
   color: #fff;
-  border-left-color: var(--color-yellow); /* vàng chỉ dùng làm indicator */
+  border-left-color: var(--color-teal); /* xanh teal — đồng bộ với indicator active các tab khác */
 }
 .qp-admin-nav__link svg { width: 18px; height: 18px; flex: none; }
 .qp-admin-nav__count {
