@@ -74,6 +74,14 @@ export async function setPageSeoConfig(input: PageSeoConfig): Promise<PageSeoCon
   return next;
 }
 
+// Lưu override CHỈ cho 1 trang (gộp vào config hiện có) — dùng cho tab SEO trong từng
+// module, tránh ghi đè SEO của các trang khác.
+export async function setPageSeoOverride(key: string, override: PageSeoOverride): Promise<PageSeoConfig> {
+  if (!PAGE_SEO_KEYS.includes(key)) return getPageSeoConfig();
+  const cur = await getPageSeoConfig();
+  return setPageSeoConfig({ ...cur, [key]: override });
+}
+
 // Dựng Metadata cho 1 trang: mặc định inline + override từ admin (nếu có).
 export async function pageMetadata(o: {
   key: string;

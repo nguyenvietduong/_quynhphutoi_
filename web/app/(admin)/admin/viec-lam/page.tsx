@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { listJobs, formatSalary } from "@/lib/jobs";
 import { getAdminUnitsMap } from "@/lib/admin-units";
 import { PostModerationManager, type ModRow, type ModConfig } from "@/components/admin/PostModerationManager";
+import { getPageSeoConfig } from "@/lib/page-seo";
+import { ModuleTabs } from "@/components/admin/ModuleTabs";
 import { formatDate } from "@/lib/datetime";
 
 export const metadata: Metadata = { title: "Quản lý việc làm — Quản trị", robots: { index: false, follow: false } };
@@ -18,7 +20,7 @@ const spec = (label: string, value?: string | number | null) =>
   value || value === 0 ? [{ label, value: String(value) }] : [];
 
 export default async function AdminJobsPage() {
-  const [docs, units] = await Promise.all([listJobs({ approvedOnly: false, limit: 500 }), getAdminUnitsMap()]);
+  const [docs, units, pageSeo] = await Promise.all([listJobs({ approvedOnly: false, limit: 500 }), getAdminUnitsMap(), getPageSeoConfig()]);
   const rows: ModRow[] = docs.map((d) => {
     const ward = units.get(d.location.wardSlug)?.name ?? d.location.wardSlug;
     const place = [d.location.address, ward].filter(Boolean).join(", ");
@@ -52,7 +54,9 @@ export default async function AdminJobsPage() {
         <h1 className="type-h1">Quản lý việc làm</h1>
         <p className="qp-admin-head__desc">Duyệt, xem chi tiết, sửa, ẩn/hiện và xoá tin tuyển dụng do người dân đăng.</p>
       </div>
-      <PostModerationManager initial={rows} config={config} />
+      <ModuleTabs pageKey="/viec-lam" pageLabel="Việc làm" listLabel="Danh sách việc làm" seoInitial={pageSeo["/viec-lam"] ?? {}}>
+        <PostModerationManager initial={rows} config={config} />
+      </ModuleTabs>
     </>
   );
 }

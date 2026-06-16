@@ -43,7 +43,8 @@ const GROUPS: Group[] = [
   {
     title: "Hệ thống",
     items: [
-      { href: "/admin/trang", label: "Quản lý trang", icon: "layout" },
+      { href: "/admin/trang-chu", label: "Trang chủ", icon: "layout" },
+      { href: "/admin/seo", label: "SEO từng trang", icon: "globe" },
       { href: "/admin/affiliate", label: "Affiliate Shopee", icon: "cart" },
       { href: "/admin/nguoi-dung", label: "Người dùng", icon: "users" },
       { href: "/admin/lien-he", label: "Liên hệ / Phản ánh", icon: "mail" },

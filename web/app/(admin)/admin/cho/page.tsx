@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
 import { listMarket, toMarketRow } from "@/lib/market";
 import { MarketManager } from "@/components/admin/MarketManager";
+import { getPageSeoConfig } from "@/lib/page-seo";
+import { ModuleTabs } from "@/components/admin/ModuleTabs";
 
 export const metadata: Metadata = { title: "Chợ & Mua bán — Quản trị", robots: { index: false, follow: false } };
 export const dynamic = "force-dynamic";
 
 export default async function AdminMarketPage() {
-  const docs = await listMarket({});
+  const [docs, pageSeo] = await Promise.all([listMarket({}), getPageSeoConfig()]);
   const rows = docs.map(toMarketRow);
   return (
     <>
@@ -15,7 +17,9 @@ export default async function AdminMarketPage() {
         <h1 className="type-h1">Chợ & Mua bán</h1>
         <p className="qp-admin-head__desc">Quản lý chợ phiên, đặc sản địa phương và rao vặt trên địa bàn huyện — thêm, sửa, xoá và ẩn/hiện.</p>
       </div>
-      <MarketManager initial={rows} />
+      <ModuleTabs pageKey="/cho" pageLabel="Chợ" listLabel="Danh sách chợ & mua bán" seoInitial={pageSeo["/cho"] ?? {}}>
+        <MarketManager initial={rows} />
+      </ModuleTabs>
     </>
   );
 }

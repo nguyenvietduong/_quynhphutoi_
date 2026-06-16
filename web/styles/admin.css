@@ -327,19 +327,5 @@
   .qp-admin-burger, .qp-admin-backdrop { display: none; }
 }
 
-/* ---------- Quản lý trang: master–detail (danh sách trái + chi tiết phải) ---------- */
-.qp-pagehub { display: grid; grid-template-columns: 240px 1fr; gap: var(--space-5); align-items: start; }
-.qp-pagehub__list { display: flex; flex-direction: column; gap: 4px; position: sticky; top: var(--space-4); }
-.qp-pagehub__item { display: flex; align-items: center; gap: 8px; text-align: left; width: 100%; padding: 10px 12px; border: 1px solid var(--color-gray-border); border-radius: var(--radius-md); background: #fff; cursor: pointer; }
-.qp-pagehub__item:hover { border-color: var(--color-navy); }
-.qp-pagehub__item.is-active { background: var(--color-indigo-pale); border-color: var(--color-navy); font-weight: 600; }
-.qp-pagehub__item-label { flex: 1; }
-.qp-pagehub__item-key { font-size: 11px; opacity: .55; }
-.qp-pagehub__detail { min-width: 0; }
-.qp-pagehub__head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: var(--space-4); flex-wrap: wrap; }
-@media (max-width: 860px) {
-  .qp-pagehub { grid-template-columns: 1fr; }
-  .qp-pagehub__list { position: static; flex-direction: row; flex-wrap: wrap; }
-  .qp-pagehub__item { width: auto; }
-  .qp-pagehub__item-key { display: none; }
-}
+/* ---------- Tab "Quản lý trang" trong module: panel thông tin mặc định ---------- */
+.qp-pagepanel__actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }

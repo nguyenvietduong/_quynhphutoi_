@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { listPosts } from "@/lib/lostfound";
 import { getAdminUnitsMap } from "@/lib/admin-units";
 import { PostModerationManager, type ModRow, type ModConfig } from "@/components/admin/PostModerationManager";
+import { getPageSeoConfig } from "@/lib/page-seo";
+import { ModuleTabs } from "@/components/admin/ModuleTabs";
 import { formatDate } from "@/lib/datetime";
 
 export const metadata: Metadata = { title: "Quản lý tìm đồ rơi — Quản trị", robots: { index: false, follow: false } };
@@ -19,7 +21,7 @@ const spec = (label: string, value?: string | number | null) =>
   value || value === 0 ? [{ label, value: String(value) }] : [];
 
 export default async function AdminLostFoundPage() {
-  const [docs, units] = await Promise.all([listPosts({ approvedOnly: false, limit: 500 }), getAdminUnitsMap()]);
+  const [docs, units, pageSeo] = await Promise.all([listPosts({ approvedOnly: false, limit: 500 }), getAdminUnitsMap(), getPageSeoConfig()]);
   const rows: ModRow[] = docs.map((d) => {
     const ward = units.get(d.location.wardSlug)?.name ?? d.location.wardSlug;
     const place = [d.location.address, ward].filter(Boolean).join(", ");
@@ -49,7 +51,9 @@ export default async function AdminLostFoundPage() {
         <h1 className="type-h1">Quản lý tìm đồ rơi</h1>
         <p className="qp-admin-head__desc">Duyệt, xem chi tiết, sửa, ẩn/hiện và xoá tin tìm đồ / nhặt được đồ.</p>
       </div>
-      <PostModerationManager initial={rows} config={config} />
+      <ModuleTabs pageKey="/tim-do-roi" pageLabel="Tìm đồ rơi" listLabel="Danh sách tìm đồ rơi" seoInitial={pageSeo["/tim-do-roi"] ?? {}}>
+        <PostModerationManager initial={rows} config={config} />
+      </ModuleTabs>
     </>
   );
 }

@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { listClassifieds, CONDITION_LABEL } from "@/lib/classifieds";
 import { getAdminUnitsMap } from "@/lib/admin-units";
 import { PostModerationManager, type ModRow, type ModConfig } from "@/components/admin/PostModerationManager";
+import { getPageSeoConfig } from "@/lib/page-seo";
+import { ModuleTabs } from "@/components/admin/ModuleTabs";
 
 export const metadata: Metadata = { title: "Quản lý mua bán — Quản trị", robots: { index: false, follow: false } };
 export const dynamic = "force-dynamic";
@@ -17,7 +19,7 @@ const spec = (label: string, value?: string | number | null) =>
   value || value === 0 ? [{ label, value: String(value) }] : [];
 
 export default async function AdminClassifiedsPage() {
-  const [docs, units] = await Promise.all([listClassifieds({ approvedOnly: false, limit: 500 }), getAdminUnitsMap()]);
+  const [docs, units, pageSeo] = await Promise.all([listClassifieds({ approvedOnly: false, limit: 500 }), getAdminUnitsMap(), getPageSeoConfig()]);
   const rows: ModRow[] = docs.map((d) => {
     const ward = units.get(d.location.wardSlug)?.name ?? d.location.wardSlug;
     const place = [d.location.address, ward].filter(Boolean).join(", ");
@@ -46,7 +48,9 @@ export default async function AdminClassifiedsPage() {
         <h1 className="type-h1">Quản lý mua bán</h1>
         <p className="qp-admin-head__desc">Duyệt, xem chi tiết, sửa, ẩn/hiện và xoá tin rao vặt mua bán do người dân đăng.</p>
       </div>
-      <PostModerationManager initial={rows} config={config} />
+      <ModuleTabs pageKey="/mua-ban" pageLabel="Mua bán" listLabel="Danh sách mua bán" seoInitial={pageSeo["/mua-ban"] ?? {}}>
+        <PostModerationManager initial={rows} config={config} />
+      </ModuleTabs>
     </>
   );
 }

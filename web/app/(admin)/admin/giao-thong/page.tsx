@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
 import { listTransit, toTransitRow } from "@/lib/transit";
 import { TransitManager } from "@/components/admin/TransitManager";
+import { getPageSeoConfig } from "@/lib/page-seo";
+import { ModuleTabs } from "@/components/admin/ModuleTabs";
 
 export const metadata: Metadata = { title: "Giao thông — Quản trị", robots: { index: false, follow: false } };
 export const dynamic = "force-dynamic";
 
 export default async function AdminTransitPage() {
-  const docs = await listTransit({});
+  const [docs, pageSeo] = await Promise.all([listTransit({}), getPageSeoConfig()]);
   const rows = docs.map(toTransitRow);
   return (
     <>
@@ -15,7 +17,9 @@ export default async function AdminTransitPage() {
         <h1 className="type-h1">Giao thông</h1>
         <p className="qp-admin-head__desc">Quản lý các tuyến xe khách, xe buýt qua địa bàn huyện — thêm, sửa, xoá và ẩn/hiện.</p>
       </div>
-      <TransitManager initial={rows} />
+      <ModuleTabs pageKey="/giao-thong" pageLabel="Giao thông" listLabel="Danh sách tuyến giao thông" seoInitial={pageSeo["/giao-thong"] ?? {}}>
+        <TransitManager initial={rows} />
+      </ModuleTabs>
     </>
   );
 }
