@@ -10,10 +10,11 @@ import type { NewsPageConfig } from "@/lib/news-page";
 
 type Tab = "config" | "list";
 
-export function ArticlesAdmin({ rows, newsConfig, initialTitles }: {
+export function ArticlesAdmin({ rows, newsConfig, initialTitles, externalEnabled }: {
   rows: ArticleRow[];
   newsConfig: NewsPageConfig;
   initialTitles: Record<string, string>;
+  externalEnabled?: boolean;
 }) {
   const [tab, setTab] = useState<Tab>("list");
 
@@ -32,7 +33,7 @@ export function ArticlesAdmin({ rows, newsConfig, initialTitles }: {
 
       {tab === "list" && (
         <div role="tabpanel">
-          <ArticleManager initial={rows} />
+          <ArticleManager initial={rows} externalEnabled={externalEnabled} />
         </div>
       )}
 

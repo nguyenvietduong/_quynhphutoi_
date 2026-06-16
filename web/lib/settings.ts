@@ -41,6 +41,12 @@ export type AppSettings = {
   seoDefaultOgImage: string;      // ảnh OG mặc định (URL) — trống = ảnh OG động /opengraph-image
   seoVerificationGoogle: string;  // mã xác minh Google Search Console
   seoVerificationBing: string;    // mã xác minh Bing Webmaster
+
+  // --- Nguồn tin ngoài (nút "Tạo tin từ nguồn ngoài" ở admin Tin tức) ---
+  newsImportEnabled: boolean;     // bật tính năng import; cần có newsApiKey mới dùng được
+  newsApiKey: string;             // khoá API (NewsAPI). Để trống = lấy từ env NEWS_API_KEY
+  newsApiUrl: string;             // endpoint (để trống = NewsAPI mặc định)
+  newsApiQuery: string;           // từ khoá tìm mặc định khi mở modal
 };
 
 const DEFAULTS: AppSettings = {
@@ -77,6 +83,11 @@ const DEFAULTS: AppSettings = {
   seoDefaultOgImage: "",
   seoVerificationGoogle: "",
   seoVerificationBing: "",
+
+  newsImportEnabled: !!process.env.NEWS_API_KEY,
+  newsApiKey: "",
+  newsApiUrl: process.env.NEWS_API_URL || "",
+  newsApiQuery: process.env.NEWS_API_QUERY || "Quỳnh Phụ",
 };
 
 type SettingsDoc = { _id: string; values: Partial<AppSettings> };
@@ -86,13 +97,26 @@ async function col() {
   return db.collection<SettingsDoc>("settings");
 }
 
-export async function getSettings(): Promise<AppSettings> {
+async function readSettings(): Promise<AppSettings> {
   try {
     const doc = await (await col()).findOne({ _id: "app" });
     return { ...DEFAULTS, ...(doc?.values ?? {}) };
   } catch {
     return { ...DEFAULTS };
   }
+}
+
+// Che khoá bí mật trước khi đẩy ra ngoài (client / trang public truyền settings xuống).
+const redact = (s: AppSettings): AppSettings => ({ ...s, newsApiKey: "" });
+
+// Bản DÙNG CHUNG — đã che newsApiKey. Mọi trang/route public dùng hàm này (an toàn).
+export async function getSettings(): Promise<AppSettings> {
+  return redact(await readSettings());
+}
+
+// Bản ĐẦY ĐỦ gồm khoá bí mật — CHỈ gọi ở server tin cậy (gọi API ngoài, gộp khi lưu).
+export async function getSettingsRaw(): Promise<AppSettings> {
+  return readSettings();
 }
 
 const int = (n: unknown, min: number, max: number, dflt: number) => {
@@ -104,7 +128,7 @@ const str = (s: unknown, max: number, dflt: string) =>
 const bool = (b: unknown, dflt: boolean) => (typeof b === "boolean" ? b : dflt);
 
 export async function updateSettings(patch: Partial<AppSettings>): Promise<AppSettings> {
-  const c = await getSettings();
+  const c = await getSettingsRaw();
   const next: AppSettings = {
     postDailyMax: int(patch.postDailyMax ?? c.postDailyMax, 1, 100, c.postDailyMax),
     postCooldownMin: int(patch.postCooldownMin ?? c.postCooldownMin, 0, 1440, c.postCooldownMin),
@@ -139,8 +163,15 @@ export async function updateSettings(patch: Partial<AppSettings>): Promise<AppSe
     seoDefaultOgImage: str(patch.seoDefaultOgImage ?? c.seoDefaultOgImage, 500, c.seoDefaultOgImage),
     seoVerificationGoogle: str(patch.seoVerificationGoogle ?? c.seoVerificationGoogle, 200, c.seoVerificationGoogle),
     seoVerificationBing: str(patch.seoVerificationBing ?? c.seoVerificationBing, 200, c.seoVerificationBing),
+
+    newsImportEnabled: bool(patch.newsImportEnabled, c.newsImportEnabled),
+    // Ô khoá để TRỐNG = giữ khoá hiện tại (không bao giờ gửi khoá thật xuống client).
+    newsApiKey: typeof patch.newsApiKey === "string" && patch.newsApiKey.trim()
+      ? patch.newsApiKey.trim().slice(0, 200) : c.newsApiKey,
+    newsApiUrl: str(patch.newsApiUrl ?? c.newsApiUrl, 300, c.newsApiUrl),
+    newsApiQuery: str(patch.newsApiQuery ?? c.newsApiQuery, 120, c.newsApiQuery),
   };
   if (next.postCooldownMax < next.postCooldownMin) next.postCooldownMax = next.postCooldownMin;
   await (await col()).updateOne({ _id: "app" }, { $set: { values: next } }, { upsert: true });
-  return next;
+  return redact(next);
 }

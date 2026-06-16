@@ -5,13 +5,14 @@ import { useState } from "react";
 import type { AppSettings } from "@/lib/settings";
 import { useToast } from "@/components/common/Toast";
 
-type Tab = "post" | "comment" | "security" | "contact" | "seo" | "data";
+type Tab = "post" | "comment" | "security" | "contact" | "seo" | "news" | "data";
 const TABS: { key: Tab; label: string; icon: string }[] = [
   { key: "post", label: "Đăng tin", icon: "📝" },
   { key: "comment", label: "Bình luận & tương tác", icon: "💬" },
   { key: "security", label: "Bảo mật & tài khoản", icon: "🔒" },
   { key: "contact", label: "Liên hệ & chung", icon: "📞" },
   { key: "seo", label: "SEO toàn site", icon: "🔎" },
+  { key: "news", label: "Nguồn tin ngoài", icon: "🌐" },
   { key: "data", label: "Dữ liệu mẫu", icon: "🌱" },
 ];
 
@@ -189,6 +190,28 @@ export function SettingsManager({ initial }: { initial: AppSettings }) {
               </div>
             </Card>
           </>
+        )}
+
+        {tab === "news" && (
+          <Card title="Tạo tin từ nguồn ngoài" desc="Bật để hiện nút “Tạo tin từ nguồn ngoài” ở trang quản trị Tin tức. Tin kéo về luôn ở trạng thái Bản nháp để bạn chỉnh sửa rồi mới xuất bản. Mặc định dùng NewsAPI.org — lấy khoá miễn phí tại newsapi.org/register.">
+            <Toggle k="newsImportEnabled" label="Bật tạo tin từ nguồn ngoài" desc="Cần điền Khoá API bên dưới mới dùng được." />
+            <div style={{ marginTop: 16 }}>
+              <Field label="Khoá API (NewsAPI key)" hint="Khoá lưu phía máy chủ và KHÔNG gửi lại về trình duyệt vì lý do bảo mật. Để trống = giữ khoá đã lưu (hoặc dùng env NEWS_API_KEY nếu chưa lưu). Nhập khoá mới để thay.">
+                <input type="password" autoComplete="off" maxLength={200} className="qp-input" value={form.newsApiKey} onChange={txt("newsApiKey")} placeholder="Để trống = giữ khoá hiện tại • nhập để thay" />
+              </Field>
+              <div className="qp-acc-grid2">
+                <Field label="Từ khoá tìm mặc định" hint="Hiển thị sẵn khi mở modal chọn tin.">
+                  <input maxLength={120} className="qp-input" value={form.newsApiQuery} onChange={txt("newsApiQuery")} placeholder="Quỳnh Phụ" />
+                </Field>
+                <Field label="Endpoint (tuỳ chọn)" hint="Để trống = NewsAPI mặc định. Chỉ đổi nếu dùng proxy/API tương thích.">
+                  <input maxLength={300} className="qp-input" value={form.newsApiUrl} onChange={txt("newsApiUrl")} placeholder="https://newsapi.org/v2/everything" />
+                </Field>
+              </div>
+              <p className="qp-form-tip" style={{ marginTop: 12 }}>
+                Lưu ý: gói miễn phí (Developer) của NewsAPI chỉ chạy ở môi trường localhost/dev, không dùng được trên domain production.
+              </p>
+            </div>
+          </Card>
         )}
 
         {tab === "data" && (

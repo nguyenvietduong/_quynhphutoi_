@@ -9,6 +9,7 @@ import type { ArticleRow } from "@/lib/articles";
 import { Pagination } from "@/components/common/Pagination";
 import { usePagination, PageSizeControl } from "@/components/admin/AdminPaging";
 import { RowActions } from "@/components/admin/RowActions";
+import { ExternalNewsImport } from "@/components/admin/ExternalNewsImport";
 import { useToast } from "@/components/common/Toast";
 
 const CATEGORIES = ["Thông báo", "Đời sống", "Kinh tế", "Giáo dục"];
@@ -32,7 +33,7 @@ const toForm = (r: ArticleRow): Form => ({
   seoKeywords: (r.seo.keywords ?? []).join(", "), seoOgImage: r.seo.ogImage ?? "", seoNoindex: !!r.seo.noindex,
 });
 
-export function ArticleManager({ initial }: { initial: ArticleRow[] }) {
+export function ArticleManager({ initial, externalEnabled }: { initial: ArticleRow[]; externalEnabled?: boolean }) {
   const [rows, setRows] = useState<ArticleRow[]>(initial);
   const [q, setQ] = useState("");
   const [fStatus, setFStatus] = useState("");
@@ -123,6 +124,9 @@ export function ArticleManager({ initial }: { initial: ArticleRow[] }) {
         </select>
         <span className="qp-admin-toolbar__spacer" />
         <PageSizeControl value={pg.pageSize} onChange={pg.setPageSize} total={filtered.length} />
+        {externalEnabled && (
+          <ExternalNewsImport onImported={(items) => setRows((cur) => [...items, ...cur])} />
+        )}
         <button type="button" className="qp-btn-primary" onClick={startNew}>+ Viết bài mới</button>
       </div>
 
