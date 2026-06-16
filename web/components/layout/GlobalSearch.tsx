@@ -3,6 +3,7 @@
 // Tìm kiếm toàn cục — gõ là hiện kết quả mọi phân hệ (gợi ý nhanh), Enter mở trang kết quả.
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { cldUrl } from "@/lib/cloudinary-url";
 
 type Hit = { module: string; moduleLabel: string; title: string; subtitle: string; href: string; image: string | null };
 type Group = { module: string; moduleLabel: string; hits: Hit[] };
@@ -91,7 +92,7 @@ export function GlobalSearch() {
                           <span className="qp-search-hit__media">
                             {h.image
                               // eslint-disable-next-line @next/next/no-img-element
-                              ? <img src={h.image} alt="" loading="lazy" />
+                              ? <img src={cldUrl(h.image, { w: 120 })} alt="" loading="lazy" />
                               : <span className="qp-search-hit__ph">{g.moduleLabel[0]}</span>}
                           </span>
                           <span className="qp-search-hit__text">

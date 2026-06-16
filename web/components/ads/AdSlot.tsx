@@ -4,6 +4,7 @@
 // Có nhãn "Quảng cáo", đếm impression (khi lọt màn hình) + click (qua /api/ads/.../click).
 import { useEffect, useRef, useState } from "react";
 import { AdSenseUnit } from "./AdSenseUnit";
+import { cldUrl } from "@/lib/cloudinary-url";
 
 type Ad = { id: string; advertiser: string; title: string; imageDesktop: string; imageMobile: string | null; weight: number };
 type Placement = "home-banner" | "detail-aside" | "in-feed" | "footer";
@@ -57,7 +58,7 @@ export function AdSlot({ placement, className }: { placement: Placement; classNa
       <article ref={ref} className={`qp-newscard qp-ad-native ${className ?? ""}`}>
         <a className="qp-newscard__media" href={href} rel="nofollow" aria-label={ad.title}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={ad.imageDesktop} alt="" loading="lazy" />
+          <img src={cldUrl(ad.imageDesktop, { w: 800 })} alt="" loading="lazy" />
           <span className="qp-ad__label">Tài trợ</span>
         </a>
         <div className="qp-newscard__body">
@@ -72,8 +73,8 @@ export function AdSlot({ placement, className }: { placement: Placement; classNa
     <div ref={ref} className={`qp-ad qp-ad--${variant} ${className ?? ""}`}>
       <a href={href} rel="nofollow" aria-label={`Quảng cáo: ${ad.advertiser}`}>
         <picture>
-          {ad.imageMobile && <source media="(max-width: 640px)" srcSet={ad.imageMobile} />}
-          <img src={ad.imageDesktop} alt={ad.title} loading="lazy" />
+          {ad.imageMobile && <source media="(max-width: 640px)" srcSet={cldUrl(ad.imageMobile, { w: 640 })} />}
+          <img src={cldUrl(ad.imageDesktop, { w: 1200 })} alt={ad.title} loading="lazy" />
         </picture>
         <span className="qp-ad__label">Quảng cáo</span>
       </a>

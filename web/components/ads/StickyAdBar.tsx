@@ -6,6 +6,7 @@
 // Nếu để yên (không reload), sau REAPPEAR_MS (mặc định 5 phút) thanh sẽ TỰ BUNG lại.
 // Vòng xoay TÔN TRỌNG TRỌNG SỐ ƯU TIÊN (weight): ad trọng số cao hiện trước + nhiều hơn.
 import { useEffect, useMemo, useRef, useState } from "react";
+import { cldUrl } from "@/lib/cloudinary-url";
 
 type Ad = { id: string; advertiser: string; title: string; imageDesktop: string; imageMobile: string | null; weight?: number };
 
@@ -92,7 +93,7 @@ export function StickyAdBar() {
       <a className="qp-stickybar__main" key={ad.id} href={`/api/ads/${ad.id}/click`} rel="nofollow">
         <span className="qp-stickybar__media">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={ad.imageDesktop} alt="" loading="lazy" />
+          <img src={cldUrl(ad.imageDesktop, { w: 200 })} alt="" loading="lazy" />
         </span>
         <span className="qp-stickybar__text">
           <span className="qp-stickybar__label">Quảng cáo</span>

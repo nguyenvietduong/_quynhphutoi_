@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Pagination } from "@/components/common/Pagination";
 import type { MyPost } from "@/lib/my-posts";
 import { formatDate } from "@/lib/datetime";
+import { cldUrl } from "@/lib/cloudinary-url";
 
 const TABS = [
   { key: "all", label: "Tất cả" },
@@ -71,7 +72,7 @@ export function MyPosts({ items }: { items: MyPost[] }) {
                 <Link href={p.href} className="qp-acc-list__media" aria-hidden tabIndex={-1}>
                   {p.image
                     // eslint-disable-next-line @next/next/no-img-element
-                    ? <img src={p.image} alt="" loading="lazy" />
+                    ? <img src={cldUrl(p.image, { w: 160 })} alt="" loading="lazy" />
                     : <span className="qp-acc-list__ph">{p.sectionLabel[0]}</span>}
                 </Link>
                 <div className="qp-acc-list__main">

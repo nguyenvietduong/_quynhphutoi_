@@ -3,6 +3,7 @@
 // Thư viện ảnh trang chi tiết: 1 ảnh lớn + dải ảnh nhỏ bên dưới.
 // Bấm vào ảnh nhỏ thì ảnh lớn đổi theo. 1 ảnh thì ẩn dải thumbnail.
 import { useState } from "react";
+import { cldUrl } from "@/lib/cloudinary-url";
 
 export function ImageGallery({ images, alt = "" }: { images: string[]; alt?: string }) {
   const [active, setActive] = useState(0);
@@ -13,7 +14,7 @@ export function ImageGallery({ images, alt = "" }: { images: string[]; alt?: str
     <div className="qp-gallery">
       <div className="qp-gallery__main">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={images[idx]} alt={alt || `Ảnh ${idx + 1}`} />
+        <img src={cldUrl(images[idx], { w: 1200 })} alt={alt || `Ảnh ${idx + 1}`} />
         {images.length > 1 && (
           <span className="qp-gallery__counter" aria-hidden>{idx + 1}/{images.length}</span>
         )}
@@ -31,7 +32,7 @@ export function ImageGallery({ images, alt = "" }: { images: string[]; alt?: str
               onClick={() => setActive(i)}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={src} alt="" loading="lazy" />
+              <img src={cldUrl(src, { w: 160 })} alt="" loading="lazy" />
             </button>
           ))}
         </div>

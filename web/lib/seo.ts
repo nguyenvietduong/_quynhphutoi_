@@ -14,7 +14,7 @@ import type { AdDoc } from "@/lib/ads";
 import type { AppSettings } from "@/lib/settings";
 
 export const SITE = {
-  url: (process.env.NEXT_PUBLIC_SITE_URL || "https://quynhphutoi.com").replace(/\/$/, ""),
+  url: (process.env.NEXT_PUBLIC_SITE_URL || "https://www.quynhphutoi.io.vn").replace(/\/$/, ""),
   name: "Cổng thông tin Quỳnh Phụ",
   shortName: "Quỳnh Phụ Tôi",
   description:

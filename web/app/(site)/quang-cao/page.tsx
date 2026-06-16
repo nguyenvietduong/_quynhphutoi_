@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { listAllActiveAds, PLACEMENT_LABEL } from "@/lib/ads";
 import { pageMetadata } from "@/lib/page-seo";
+import { cldUrl } from "@/lib/cloudinary-url";
 
 export async function generateMetadata() {
   return pageMetadata({
@@ -51,7 +52,7 @@ export default async function QuangCaoPage() {
                 <Link key={a._id!.toString()} href={`/quang-cao/${a._id!.toString()}`} className="qp-newscard qp-ad-native">
                   <span className="qp-newscard__media">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={a.imageDesktop} alt={a.title} loading="lazy" />
+                    <img src={cldUrl(a.imageDesktop, { w: 600 })} alt={a.title} loading="lazy" />
                     <span className="qp-ad__label">Tài trợ</span>
                   </span>
                   <div className="qp-newscard__body">
