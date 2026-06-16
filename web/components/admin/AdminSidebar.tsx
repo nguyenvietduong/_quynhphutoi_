@@ -34,10 +34,11 @@ const GROUPS: Group[] = [
     ],
   },
   {
-    title: "Trang giới thiệu",
+    title: "Trang khác",
     items: [
       { href: "/admin/tong-quan", label: "Tổng quan", icon: "globe" },
       { href: "/admin/sap-nhap", label: "Sáp nhập 2025", icon: "map" },
+      { href: "/admin/tim-kiem", label: "Tìm kiếm", icon: "search" },
     ],
   },
   {

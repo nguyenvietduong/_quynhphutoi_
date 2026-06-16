@@ -32,6 +32,7 @@ export const PAGE_SEO_DEFS: { key: string; label: string }[] = [
   { key: "/sap-nhap", label: "Sáp nhập 2025" },
   { key: "/lien-he", label: "Liên hệ" },
   { key: "/quang-cao", label: "Quảng cáo" },
+  { key: "/tim-kiem", label: "Tìm kiếm" },
 ];
 export const PAGE_SEO_KEYS = PAGE_SEO_DEFS.map((d) => d.key);
 

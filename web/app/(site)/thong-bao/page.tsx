@@ -5,7 +5,7 @@ import { getSession } from "@/lib/auth";
 import { listNotifications } from "@/lib/notifications";
 import { NotifList, type NotifItem } from "@/components/account/NotifList";
 
-export const metadata: Metadata = { title: "Thông báo — Quỳnh Phụ Tôi" };
+export const metadata: Metadata = { title: "Thông báo — Quỳnh Phụ Tôi", robots: { index: false, follow: false } };
 export const dynamic = "force-dynamic";
 
 export default async function ThongBaoPage() {

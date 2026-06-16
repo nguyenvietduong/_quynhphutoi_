@@ -7,6 +7,7 @@ import { ForgotPasswordForm } from "@/components/auth/ForgotPasswordForm";
 export const metadata: Metadata = {
   title: "Quên mật khẩu",
   description: "Khôi phục mật khẩu tài khoản Cổng thông tin Quỳnh Phụ.",
+  robots: { index: false, follow: false },
 };
 
 export default function QuenMatKhauPage() {

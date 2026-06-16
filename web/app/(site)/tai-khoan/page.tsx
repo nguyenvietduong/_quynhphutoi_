@@ -6,7 +6,7 @@ import { isAdmin } from "@/lib/users";
 import { getMyPosts, type MyPost } from "@/lib/my-posts";
 import { formatDate } from "@/lib/datetime";
 
-export const metadata: Metadata = { title: "Trang cá nhân — Quỳnh Phụ Tôi" };
+export const metadata: Metadata = { title: "Trang cá nhân — Quỳnh Phụ Tôi", robots: { index: false, follow: false } };
 export const dynamic = "force-dynamic";
 
 

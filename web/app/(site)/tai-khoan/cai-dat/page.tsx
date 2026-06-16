@@ -4,7 +4,7 @@ import { getCurrentUser } from "@/lib/admin";
 import { ProfileForm } from "@/components/account/ProfileForm";
 import { PasswordForm } from "@/components/account/PasswordForm";
 
-export const metadata: Metadata = { title: "Cài đặt tài khoản — Quỳnh Phụ Tôi" };
+export const metadata: Metadata = { title: "Cài đặt tài khoản — Quỳnh Phụ Tôi", robots: { index: false, follow: false } };
 export const dynamic = "force-dynamic";
 
 export default async function AccountSettingsPage() {

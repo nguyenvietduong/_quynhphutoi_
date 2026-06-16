@@ -4,7 +4,7 @@ import { getCurrentUser } from "@/lib/admin";
 import { getMyPosts } from "@/lib/my-posts";
 import { MyPosts } from "@/components/account/MyPosts";
 
-export const metadata: Metadata = { title: "Bài đăng của tôi — Quỳnh Phụ Tôi" };
+export const metadata: Metadata = { title: "Bài đăng của tôi — Quỳnh Phụ Tôi", robots: { index: false, follow: false } };
 export const dynamic = "force-dynamic";
 
 export default async function MyPostsPage() {

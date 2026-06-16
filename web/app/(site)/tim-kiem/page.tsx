@@ -1,13 +1,16 @@
 import Link from "next/link";
 import { searchAll, SEARCH_MODULES, MODULE_ICON } from "@/lib/search";
-import { buildMetadata } from "@/lib/seo";
+import { pageMetadata } from "@/lib/page-seo";
 
-export const metadata = buildMetadata({
-  title: "Tìm kiếm",
-  description: "Tìm kiếm tin tức, việc làm, mua bán, tìm đồ rơi, trường học, y tế, giao thông và di tích trên Cổng thông tin Quỳnh Phụ.",
-  path: "/tim-kiem",
-  noindex: true,
-});
+export async function generateMetadata() {
+  return pageMetadata({
+    key: "/tim-kiem",
+    path: "/tim-kiem",
+    title: "Tìm kiếm",
+    description: "Tìm kiếm tin tức, việc làm, mua bán, tìm đồ rơi, trường học, y tế, giao thông và di tích trên Cổng thông tin Quỳnh Phụ.",
+    noindex: true,
+  });
+}
 export const dynamic = "force-dynamic";
 
 export default async function SearchPage({ searchParams }: { searchParams: Promise<{ q?: string; type?: string }> }) {
