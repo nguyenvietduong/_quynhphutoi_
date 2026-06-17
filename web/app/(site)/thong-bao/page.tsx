@@ -43,7 +43,7 @@ export default async function ThongBaoPage() {
       </section>
 
       <section className="qp-newsmain">
-        <div className="container-wide" style={{ maxWidth: 760 }}>
+        <div className="container-wide" style={{ maxWidth: 860 }}>
           <NotifList initial={items} />
         </div>
       </section>
