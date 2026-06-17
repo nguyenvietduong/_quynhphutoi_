@@ -592,8 +592,8 @@
 /* Thanh tiến trình */
 .qp-hero__progress { position: absolute; bottom: 0; left: 0; right: 0; height: 4px; z-index: 6; background: rgba(255,255,255,0.08); overflow: hidden; }
 .qp-hero__progress-bar {
-  height: 100%; width: 0; background: var(--gradient-g4);
-  box-shadow: 0 0 12px rgba(252,211,77,0.4);
+  height: 100%; width: 0; background: var(--gradient-g2);
+  box-shadow: 0 0 12px rgba(0,169,143,0.4);
   animation-name: qp-hero-progress; animation-timing-function: linear; animation-fill-mode: forwards; animation-iteration-count: 1;
 }
 @keyframes qp-hero-progress { from { width: 0; } to { width: 100%; } }
