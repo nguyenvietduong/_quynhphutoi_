@@ -230,6 +230,74 @@
 /* ---------- Modal form admin (tái dùng qp-modal nhưng rộng hơn) ---------- */
 .qp-admin-modal { width: min(720px, 100%); }
 
+/* ========== Article Editor — trang soạn bài đầy đủ (thay modal) ========== */
+.qp-ae { display: flex; flex-direction: column; gap: 0; }
+
+/* Thanh header sticky: breadcrumb + nút lưu */
+.qp-ae__topbar {
+  position: sticky; top: 58px; z-index: 4;
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--space-3);
+  background: #fff; border: 1px solid var(--color-gray-border); border-radius: var(--radius-card) var(--radius-card) 0 0;
+  padding: 14px var(--space-5);
+}
+.qp-ae__breadcrumb { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.qp-ae__back {
+  font-size: 12.5px; font-weight: 600; color: var(--color-teal-dark);
+  text-decoration: none; display: inline-flex; align-items: center; gap: 4px;
+}
+.qp-ae__back:hover { text-decoration: underline; }
+.qp-ae__pagetitle { font-weight: 700; color: var(--color-navy-deep); font-size: 15px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.qp-ae__headeractions { display: flex; gap: var(--space-2); align-items: center; flex-wrap: wrap; flex-shrink: 0; }
+
+/* Tab bar nằm giữa header và body */
+.qp-ae__card { display: flex; flex-direction: column; }
+.qp-ae__tabbar {
+  display: flex; gap: 0;
+  background: var(--color-navy-pale); border-left: 1px solid var(--color-gray-border); border-right: 1px solid var(--color-gray-border);
+  padding: 0 var(--space-3);
+}
+.qp-ae__tab {
+  appearance: none; background: none; border: 0; cursor: pointer; font: inherit;
+  padding: 11px 18px; font-size: 14px; font-weight: 600; color: var(--color-gray-text);
+  border-bottom: 3px solid transparent; margin-bottom: -1px;
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  transition: color var(--duration-fast), background var(--duration-fast);
+}
+.qp-ae__tab:hover { color: var(--color-navy); background: rgba(255,255,255,.6); }
+.qp-ae__tab.is-active {
+  color: var(--color-navy-deep); background: #fff;
+  border-bottom-color: var(--color-teal);
+  box-shadow: 0 -1px 0 var(--color-gray-border) inset, 1px 0 0 var(--color-gray-border) inset, -1px 0 0 var(--color-gray-border) inset;
+}
+
+/* Vùng nội dung của từng tab */
+.qp-ae__body {
+  background: #fff; border: 1px solid var(--color-gray-border);
+  border-radius: 0 0 var(--radius-card) var(--radius-card);
+  padding: var(--space-6) var(--space-7);
+}
+.qp-ae__panel { max-width: 900px; }
+.qp-ae__panel .qp-form-group { margin-bottom: 18px; }
+.qp-ae__panel .qp-acc-grid2 { margin-bottom: 18px; }
+.qp-ae__panel .qp-acc-grid2 > .qp-form-group { margin-bottom: 0; }
+
+/* Tab Nội dung: ảnh bìa bên trái, rich text bên phải (trên màn rộng) */
+.qp-ae__content-layout { display: grid; grid-template-columns: 300px 1fr; gap: var(--space-6); align-items: start; }
+.qp-ae__cover-col { display: flex; flex-direction: column; gap: 0; }
+.qp-ae__cover-hint { font-size: 12.5px; color: var(--color-gray-text); margin: 4px 0 0; }
+.qp-ae__body-col { min-width: 0; }
+
+/* Tab SEO: hàng xuất bản */
+.qp-ae__publish-row { display: flex; align-items: center; gap: var(--space-5); flex-wrap: wrap; margin-bottom: var(--space-4); }
+
+/* Responsive */
+@media (max-width: 900px) {
+  .qp-ae__content-layout { grid-template-columns: 1fr; }
+  .qp-ae__body { padding: var(--space-5); }
+  .qp-ae__topbar { position: static; border-radius: var(--radius-card); margin-bottom: var(--space-3); }
+  .qp-ae__tabbar { border-radius: var(--radius-card) var(--radius-card) 0 0; border-top: 1px solid var(--color-gray-border); margin-top: 0; }
+}
+
 /* Form sửa tin: khoảng cách đều giữa các trường + tiêu đề mục tách nhóm rõ */
 .qp-editform .qp-form-group { margin-bottom: 14px; }
 .qp-editform .qp-acc-grid2 { margin-bottom: 14px; }
