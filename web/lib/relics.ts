@@ -1,34 +1,17 @@
 // Di tích lịch sử - văn hoá Quỳnh Phụ: đình, chùa, đền, miếu, nhà thờ…
 // Địa điểm CHUẨN HÓA: chỉ lưu wardSlug → bảng admin_units.
+// Phân loại (loại + xếp hạng) đọc từ categories: module "di-tich" & "xep-hang-di-tich".
 import { getDb, ensureIndexes } from "@/lib/db";
 import { type Filter } from "mongodb";
 import { slugify, uniqueSlug } from "@/lib/slug";
+import { categoryName } from "@/lib/categories";
 import type { SeoFields } from "@/lib/seo-fields";
-
-export type RelicType = "dinh" | "chua" | "den" | "mieu" | "nha-tho" | "khac";
-export type RelicRanking = "quoc-gia" | "cap-tinh" | "kiem-ke";
-
-export const RELIC_TYPES: { slug: RelicType; label: string; order: number }[] = [
-  { slug: "den", label: "Đền", order: 1 },
-  { slug: "chua", label: "Chùa", order: 2 },
-  { slug: "dinh", label: "Đình", order: 3 },
-  { slug: "mieu", label: "Miếu", order: 4 },
-  { slug: "nha-tho", label: "Nhà thờ", order: 5 },
-  { slug: "khac", label: "Khác", order: 6 },
-];
-export const typeLabel = (t: RelicType) => RELIC_TYPES.find((x) => x.slug === t)?.label ?? t;
-
-export const RANKING_LABEL: Record<RelicRanking, string> = {
-  "quoc-gia": "Di tích quốc gia",
-  "cap-tinh": "Di tích cấp tỉnh",
-  "kiem-ke": "Trong danh mục kiểm kê",
-};
 
 export type RelicDoc = {
   _id?: import("mongodb").ObjectId;
   slug: string;
   name: string;                 // tên di tích
-  type: RelicType;
+  type: string;                 // slug loại — danh mục module "di-tich"
   typeLabel: string;            // denormalize
 
   wardSlug: string;             // FK → admin_units.slug
@@ -39,7 +22,7 @@ export type RelicDoc = {
   worship?: string;             // thờ ai / sự tích
   festival?: string;            // lễ hội chính
 
-  ranking?: RelicRanking;       // xếp hạng di tích
+  ranking?: string;             // slug xếp hạng — danh mục module "xep-hang-di-tich"
   recognizedYear?: number;      // năm được xếp hạng
 
   images: string[];
@@ -63,7 +46,7 @@ export async function relics() {
   return col;
 }
 
-export type RelicListOpts = { type?: RelicType; ward?: string; search?: string; activeOnly?: boolean; limit?: number; skip?: number };
+export type RelicListOpts = { type?: string; ward?: string; search?: string; activeOnly?: boolean; limit?: number; skip?: number };
 
 export async function listRelics(opts: RelicListOpts = {}) {
   const col = await relics();
@@ -82,17 +65,17 @@ export async function getRelicBySlug(slug: string) {
   return (await relics()).findOne({ slug });
 }
 
-export async function relatedRelics(slug: string, type: RelicType, n = 3) {
+export async function relatedRelics(slug: string, type: string, n = 3) {
   const col = await relics();
   return col.find({ slug: { $ne: slug }, type, active: true }).sort({ name: 1 }).limit(n).toArray();
 }
 
 // ---- Admin CRUD ----
 export type RelicInput = {
-  name: string; type: RelicType;
+  name: string; type: string;
   wardSlug: string; address?: string; description?: string;
   era?: string; worship?: string; festival?: string;
-  ranking?: RelicRanking; recognizedYear?: number; images?: string[];
+  ranking?: string; recognizedYear?: number; images?: string[];
   verified?: boolean; featured?: boolean; active?: boolean;
   seo?: SeoFields;
 };
@@ -102,7 +85,7 @@ export async function createRelic(input: RelicInput) {
   const now = new Date();
   const slug = await uniqueSlug(col, slugify(input.name), "di-tich");
   const doc: RelicDoc = {
-    slug, name: input.name.trim(), type: input.type, typeLabel: typeLabel(input.type),
+    slug, name: input.name.trim(), type: input.type, typeLabel: await categoryName("di-tich", input.type),
     wardSlug: input.wardSlug, address: input.address, description: input.description,
     era: input.era, worship: input.worship, festival: input.festival,
     ranking: input.ranking, recognizedYear: input.recognizedYear, images: input.images ?? [],
@@ -118,7 +101,7 @@ export async function updateRelic(slug: string, patch: Partial<RelicInput>) {
   const set: Record<string, unknown> = { updatedAt: new Date() };
   for (const [k, v] of Object.entries(patch)) if (v !== undefined) set[k] = v;
   if (patch.name) set.name = patch.name.trim();
-  if (patch.type) set.typeLabel = typeLabel(patch.type);
+  if (patch.type) set.typeLabel = await categoryName("di-tich", patch.type);
   const res = await (await relics()).updateOne({ slug }, { $set: set });
   return res.matchedCount;
 }
@@ -139,10 +122,11 @@ export function toRelicRow(d: RelicDoc): RelicRow {
   };
 }
 
-export async function countByType(): Promise<Record<RelicType, number>> {
+// Đếm số di tích theo từng slug loại (build động — không hằng số).
+export async function countByType(): Promise<Record<string, number>> {
   const col = await relics();
-  const rows = await col.aggregate<{ _id: RelicType; n: number }>([{ $group: { _id: "$type", n: { $sum: 1 } } }]).toArray();
-  const out = { den: 0, chua: 0, dinh: 0, mieu: 0, "nha-tho": 0, khac: 0 } as Record<RelicType, number>;
+  const rows = await col.aggregate<{ _id: string; n: number }>([{ $group: { _id: "$type", n: { $sum: 1 } } }]).toArray();
+  const out: Record<string, number> = {};
   for (const r of rows) out[r._id] = r.n;
   return out;
 }

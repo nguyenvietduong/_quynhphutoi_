@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getClassifiedBySlug, incrementViews, relatedClassifieds, CONDITION_LABEL } from "@/lib/classifieds";
+import { getClassifiedBySlug, incrementViews, relatedClassifieds } from "@/lib/classifieds";
+import { categoryLabelMap } from "@/lib/categories";
 import { getCurrentUser } from "@/lib/admin";
 import { isStaff } from "@/lib/users";
 import { stripHtml } from "@/lib/strip-html";
@@ -56,9 +57,10 @@ export default async function ClassifiedDetailPage({ params }: { params: Promise
   if (a.approved && !isOwner) await incrementViews(slug);
 
   const showPhone = !a.contact.hidePhone || isOwner;
-  const [related, units] = await Promise.all([
+  const [related, units, condMap] = await Promise.all([
     a.approved ? relatedClassifieds(slug, a.category, 3) : Promise.resolve([]),
     getAdminUnitsMap(),
+    categoryLabelMap("tinh-trang"),
   ]);
   const unit = units.get(a.location.wardSlug);
   const wardName = unit?.name ?? a.location.wardSlug;
@@ -93,7 +95,7 @@ export default async function ClassifiedDetailPage({ params }: { params: Promise
           </nav>
           <div className="qp-lf-detail__badges">
             <span className="qp-tag-cat">{a.categoryLabel}</span>
-            {a.condition && <span className="qp-job-type">{CONDITION_LABEL[a.condition]}</span>}
+            {a.condition && <span className="qp-job-type">{condMap[a.condition] ?? a.condition}</span>}
             {a.status !== "open" && <span className="qp-lf-status">{STATUS[a.status]}</span>}
             {a.featured && <span className="qp-badge-g4">NỔI BẬT</span>}
             {!a.approved && <span className="qp-lf-status is-pending">⏳ Chờ duyệt</span>}
@@ -148,7 +150,7 @@ export default async function ClassifiedDetailPage({ params }: { params: Promise
               <div className="qp-lf-infocard__title">Chi tiết</div>
               <div className="qp-lf-spec">
                 <div className="qp-lf-spec__row"><span>Danh mục</span><b>{a.categoryLabel}</b></div>
-                {a.condition && <div className="qp-lf-spec__row"><span>Tình trạng</span><b>{CONDITION_LABEL[a.condition]}</b></div>}
+                {a.condition && <div className="qp-lf-spec__row"><span>Tình trạng</span><b>{condMap[a.condition] ?? a.condition}</b></div>}
                 <div className="qp-lf-spec__row"><span>Địa điểm</span><b>{wardName}{a.location.address && `, ${a.location.address}`}{unit?.newCommune && <><br /><span className="qp-lf-spec__sub">(Xã mới: {unit.newCommune})</span></>}</b></div>
                 <div className="qp-lf-spec__row"><span>Trạng thái</span><b>{STATUS[a.status]}</b></div>
               </div>

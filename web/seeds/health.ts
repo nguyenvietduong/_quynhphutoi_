@@ -2,12 +2,13 @@
 // Idempotent: xóa sạch rồi insert lại. Chạy: npm run seed:health
 import { MongoClient } from "mongodb";
 import { isCli } from "./_cli";
-import type { HealthDoc, HealthType } from "../lib/health";
+import type { HealthDoc } from "../lib/health";
 
 const uri = process.env.MONGODB_URI || "mongodb://localhost:27017";
 const dbName = process.env.MONGODB_DB || "quynhphu";
 
-const TLABEL: Record<HealthType, string> = {
+// typeLabel denormalize — khớp slug danh mục module "y-te" (xem seeds/categories.ts).
+const TLABEL: Record<string, string> = {
   "benh-vien": "Bệnh viện", "trung-tam-y-te": "Trung tâm y tế",
   "phong-kham": "Phòng khám", "tram-y-te": "Trạm y tế", "nha-thuoc": "Nhà thuốc",
 };
@@ -99,7 +100,7 @@ async function main() {
     const now = new Date();
     await col.insertMany(out.map((s) => ({ ...s, createdAt: now, updatedAt: now })));
 
-    const cnt = (t: HealthType) => out.filter((s) => s.type === t).length;
+    const cnt = (t: string) => out.filter((s) => s.type === t).length;
     console.log(`✓ Bệnh viện       : ${cnt("benh-vien")}`);
     console.log(`✓ Trung tâm y tế  : ${cnt("trung-tam-y-te")}`);
     console.log(`✓ Phòng khám      : ${cnt("phong-kham")}`);

@@ -1,12 +1,11 @@
 // Admin: cập nhật (PATCH) & xoá (DELETE) một cơ sở y tế.
 import { NextResponse } from "next/server";
 import { requireStaff } from "@/lib/admin-guard";
-import { updateHealth, deleteHealth, HEALTH_TYPES, type HealthInput, type HealthType, type HealthOwnership } from "@/lib/health";
+import { updateHealth, deleteHealth, type HealthInput } from "@/lib/health";
+import { listActiveCategoryOptions } from "@/lib/categories";
 import { sanitizeSeoFields } from "@/lib/seo-fields";
 import { WARDS } from "@/lib/wards";
 
-const TYPES = HEALTH_TYPES.map((t) => t.slug) as HealthType[];
-const OWNERSHIPS: HealthOwnership[] = ["cong-lap", "tu-nhan"];
 const WARD_SET = new Set(WARDS.map((w) => w.slug));
 
 export async function PATCH(req: Request, { params }: { params: Promise<{ slug: string }> }) {
@@ -18,8 +17,14 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ slug: 
   const patch: Partial<HealthInput> = {};
   if (typeof b.name === "string") patch.name = b.name;
   if (typeof b.shortName === "string") patch.shortName = b.shortName;
-  if (b.type !== undefined) { if (!TYPES.includes(b.type)) return NextResponse.json({ error: "Loại cơ sở không hợp lệ." }, { status: 400 }); patch.type = b.type; }
-  if (b.ownership !== undefined) { if (!OWNERSHIPS.includes(b.ownership)) return NextResponse.json({ error: "Loại sở hữu không hợp lệ." }, { status: 400 }); patch.ownership = b.ownership; }
+  if (b.type !== undefined) {
+    const TYPES = new Set((await listActiveCategoryOptions("y-te")).map((t) => t.slug));
+    if (!TYPES.has(b.type)) return NextResponse.json({ error: "Loại cơ sở không hợp lệ." }, { status: 400 }); patch.type = b.type;
+  }
+  if (b.ownership !== undefined) {
+    const OWNERSHIPS = new Set((await listActiveCategoryOptions("so-huu-y-te")).map((o) => o.slug));
+    if (!OWNERSHIPS.has(b.ownership)) return NextResponse.json({ error: "Loại sở hữu không hợp lệ." }, { status: 400 }); patch.ownership = b.ownership;
+  }
   if (b.wardSlug !== undefined) { if (!WARD_SET.has(String(b.wardSlug))) return NextResponse.json({ error: "Xã/thị trấn không hợp lệ." }, { status: 400 }); patch.wardSlug = b.wardSlug; }
   for (const k of ["address", "phone", "email", "website", "director", "hours", "specialties", "description", "sourceUrl"] as const)
     if (typeof b[k] === "string") patch[k] = b[k];

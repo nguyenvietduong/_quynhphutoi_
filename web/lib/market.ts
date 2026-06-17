@@ -4,21 +4,16 @@ import { getDb, ensureIndexes } from "@/lib/db";
 import { type Filter } from "mongodb";
 import { slugify, uniqueSlug } from "@/lib/slug";
 import type { SeoFields } from "@/lib/seo-fields";
+import { categoryName } from "@/lib/categories";
 
-export type MarketCategory = "cho-phien" | "dac-san" | "rao-vat";
-
-export const MARKET_CATEGORIES: { slug: MarketCategory; label: string; order: number }[] = [
-  { slug: "cho-phien", label: "Chợ phiên", order: 1 },
-  { slug: "dac-san", label: "Đặc sản", order: 2 },
-  { slug: "rao-vat", label: "Rao vặt", order: 3 },
-];
-export const categoryLabel = (c: MarketCategory) => MARKET_CATEGORIES.find((x) => x.slug === c)?.label ?? c;
+// Module danh mục dùng cho phân hệ Chợ & Mua bán (đọc từ collection `categories`).
+const MODULE = "cho";
 
 export type MarketDoc = {
   _id?: import("mongodb").ObjectId;
   slug: string;
   name: string;                 // tên chợ / tên đặc sản / tiêu đề rao vặt
-  category: MarketCategory;
+  category: string;             // slug danh mục (module "cho")
   categoryLabel: string;        // denormalize
 
   wardSlug: string;             // FK → admin_units.slug
@@ -57,7 +52,7 @@ export async function market() {
   return col;
 }
 
-export type MarketListOpts = { category?: MarketCategory; ward?: string; search?: string; activeOnly?: boolean; limit?: number; skip?: number };
+export type MarketListOpts = { category?: string; ward?: string; search?: string; activeOnly?: boolean; limit?: number; skip?: number };
 
 export async function listMarket(opts: MarketListOpts = {}) {
   const col = await market();
@@ -76,14 +71,14 @@ export async function getMarketBySlug(slug: string) {
   return (await market()).findOne({ slug });
 }
 
-export async function relatedMarket(slug: string, category: MarketCategory, n = 3) {
+export async function relatedMarket(slug: string, category: string, n = 3) {
   const col = await market();
   return col.find({ slug: { $ne: slug }, category, active: true }).sort({ name: 1 }).limit(n).toArray();
 }
 
 // ---- Admin CRUD ----
 export type MarketInput = {
-  name: string; category: MarketCategory;
+  name: string; category: string;
   wardSlug: string; address?: string; description?: string;
   schedule?: string; priceText?: string; unit?: string;
   contactName?: string; contactPhone?: string;
@@ -96,7 +91,7 @@ export async function createMarket(input: MarketInput) {
   const now = new Date();
   const slug = await uniqueSlug(col, slugify(input.name), "muc-cho");
   const doc: MarketDoc = {
-    slug, name: input.name.trim(), category: input.category, categoryLabel: categoryLabel(input.category),
+    slug, name: input.name.trim(), category: input.category, categoryLabel: await categoryName(MODULE, input.category),
     wardSlug: input.wardSlug, address: input.address, description: input.description,
     schedule: input.schedule, priceText: input.priceText, unit: input.unit,
     contactName: input.contactName, contactPhone: input.contactPhone,
@@ -112,7 +107,7 @@ export async function updateMarket(slug: string, patch: Partial<MarketInput>) {
   const set: Record<string, unknown> = { updatedAt: new Date() };
   for (const [k, v] of Object.entries(patch)) if (v !== undefined) set[k] = v;
   if (patch.name) set.name = patch.name.trim();
-  if (patch.category) set.categoryLabel = categoryLabel(patch.category);
+  if (patch.category) set.categoryLabel = await categoryName(MODULE, patch.category);
   const res = await (await market()).updateOne({ slug }, { $set: set });
   return res.matchedCount;
 }
@@ -135,10 +130,10 @@ export function toMarketRow(d: MarketDoc): MarketRow {
   };
 }
 
-export async function countByCategory(): Promise<Record<MarketCategory, number>> {
+export async function countByCategory(): Promise<Record<string, number>> {
   const col = await market();
-  const rows = await col.aggregate<{ _id: MarketCategory; n: number }>([{ $group: { _id: "$category", n: { $sum: 1 } } }]).toArray();
-  const out = { "cho-phien": 0, "dac-san": 0, "rao-vat": 0 } as Record<MarketCategory, number>;
-  for (const r of rows) out[r._id] = r.n;
+  const rows = await col.aggregate<{ _id: string; n: number }>([{ $group: { _id: "$category", n: { $sum: 1 } } }]).toArray();
+  const out: Record<string, number> = {};
+  for (const r of rows) if (r._id) out[r._id] = r.n;
   return out;
 }

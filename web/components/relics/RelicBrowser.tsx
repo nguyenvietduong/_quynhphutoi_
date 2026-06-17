@@ -14,7 +14,7 @@ const PAGE_SIZE = 9;
 export type RelicItem = {
   slug: string;
   name: string;
-  type: "dinh" | "chua" | "den" | "mieu" | "nha-tho" | "khac";
+  type: string;
   typeLabel: string;
   images: string[];
   ward: string;
@@ -22,21 +22,11 @@ export type RelicItem = {
   newCommune: string | null;
   era: string | null;
   rankingLabel: string | null;
-  ranking: "quoc-gia" | "cap-tinh" | "kiem-ke" | null;
+  ranking: string | null;
   featured: boolean;
 };
 
-type Counts = { all: number } & Record<RelicItem["type"], number>;
-
-const TABS = [
-  { key: "all", label: "Tất cả" },
-  { key: "den", label: "Đền" },
-  { key: "chua", label: "Chùa" },
-  { key: "dinh", label: "Đình" },
-  { key: "mieu", label: "Miếu" },
-  { key: "nha-tho", label: "Nhà thờ" },
-] as const;
-type TabKey = (typeof TABS)[number]["key"];
+type Counts = Record<string, number>;
 
 function IcLandmark() { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M3 21h18M4 21V10l8-5 8 5v11M9 21v-6h6v6M7 10v3M12 10v3M17 10v3" /></svg>; }
 function IcPin() { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z" /><circle cx="12" cy="10" r="2.5" /></svg>; }
@@ -72,13 +62,15 @@ function RelicCard({ r }: { r: RelicItem }) {
 }
 
 export function RelicBrowser({
-  items, wards, counts,
+  items, wards, counts, typeOptions,
 }: {
   items: RelicItem[];
   wards: { slug: string; name: string; newCommune?: string }[];
   counts: Counts;
+  typeOptions: { slug: string; name: string }[];
 }) {
-  const [tab, setTab] = useState<TabKey>("all");
+  const tabs = useMemo(() => [{ key: "all", label: "Tất cả" }, ...typeOptions.map((t) => ({ key: t.slug, label: t.name }))], [typeOptions]);
+  const [tab, setTab] = useState<string>("all");
   const [ward, setWard] = useState("all");
   const [query, setQuery] = useState("");
 
@@ -101,10 +93,10 @@ export function RelicBrowser({
   return (
     <>
       <div className="qp-tabs" role="tablist" aria-label="Lọc theo loại di tích">
-        {TABS.map((t) => (
+        {tabs.map((t) => (
           <button key={t.key} type="button" role="tab" aria-selected={tab === t.key}
             className={`qp-tab${tab === t.key ? " is-active" : ""}`} onClick={() => { setTab(t.key); reset(); }}>
-            {t.label} <span className="qp-tab__count">{counts[t.key]}</span>
+            {t.label} <span className="qp-tab__count">{counts[t.key] ?? 0}</span>
           </button>
         ))}
       </div>

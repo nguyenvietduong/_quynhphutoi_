@@ -11,7 +11,7 @@ const PAGE_SIZE = 9;
 export type TransitItem = {
   slug: string;
   name: string;
-  type: "lien-tinh" | "noi-tinh" | "xe-buyt";
+  type: string;
   typeLabel: string;
   origin: string;
   destination: string;
@@ -22,15 +22,8 @@ export type TransitItem = {
   phone: string | null;
 };
 
-type Counts = { all: number } & Record<TransitItem["type"], number>;
-
-const TABS = [
-  { key: "all", label: "Tất cả" },
-  { key: "lien-tinh", label: "Liên tỉnh" },
-  { key: "noi-tinh", label: "Nội tỉnh" },
-  { key: "xe-buyt", label: "Xe buýt" },
-] as const;
-type TabKey = (typeof TABS)[number]["key"];
+export type TransitTypeOption = { slug: string; name: string };
+type Counts = Record<string, number>;
 
 function Bus() { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden><rect x="4" y="4" width="16" height="13" rx="2" /><path d="M4 11h16M8 17v2M16 17v2" /><circle cx="8.5" cy="14" r="1" /><circle cx="15.5" cy="14" r="1" /></svg>; }
 
@@ -62,8 +55,12 @@ function TransitCard({ t }: { t: TransitItem }) {
   );
 }
 
-export function TransitBrowser({ items, counts }: { items: TransitItem[]; counts: Counts }) {
-  const [tab, setTab] = useState<TabKey>("all");
+export function TransitBrowser({ items, counts, typeOptions }: { items: TransitItem[]; counts: Counts; typeOptions: TransitTypeOption[] }) {
+  const tabs = useMemo(
+    () => [{ key: "all", label: "Tất cả" }, ...typeOptions.map((t) => ({ key: t.slug, label: t.name }))],
+    [typeOptions],
+  );
+  const [tab, setTab] = useState<string>("all");
   const [query, setQuery] = useState("");
 
   const filtered = useMemo(() => {
@@ -83,10 +80,10 @@ export function TransitBrowser({ items, counts }: { items: TransitItem[]; counts
     <>
       <div className="qp-lf-head">
         <div className="qp-tabs" role="tablist" aria-label="Lọc theo loại tuyến">
-          {TABS.map((t) => (
+          {tabs.map((t) => (
             <button key={t.key} type="button" role="tab" aria-selected={tab === t.key}
               className={`qp-tab${tab === t.key ? " is-active" : ""}`} onClick={() => { setTab(t.key); reset(); }}>
-              {t.label} <span className="qp-tab__count">{counts[t.key]}</span>
+              {t.label} <span className="qp-tab__count">{t.key === "all" ? (counts.all ?? items.length) : (counts[t.key] ?? 0)}</span>
             </button>
           ))}
         </div>

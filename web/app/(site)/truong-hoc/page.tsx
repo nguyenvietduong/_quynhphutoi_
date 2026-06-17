@@ -3,6 +3,7 @@ import { JsonLd } from "@/components/common/JsonLd";
 import { jsonLdBreadcrumb } from "@/lib/seo";
 import Link from "next/link";
 import { listSchools, countByLevel } from "@/lib/schools";
+import { listActiveCategoryOptions, categoryLabelMap } from "@/lib/categories";
 import { getAdminUnitsMap } from "@/lib/admin-units";
 import { SchoolBrowser, type SchoolItem } from "@/components/schools/SchoolBrowser";
 
@@ -18,11 +19,20 @@ export async function generateMetadata() {
 // Đọc dữ liệu từ MongoDB tại thời điểm request.
 export const dynamic = "force-dynamic";
 
-// Thứ tự bậc học để sắp xếp hiển thị.
-const LEVEL_ORDER: Record<string, number> = { "mam-non": 1, "tieu-hoc": 2, thcs: 3, thpt: 4 };
-
 export default async function TruongHocPage() {
-  const [docs, byLevel, units] = await Promise.all([listSchools({}), countByLevel(), getAdminUnitsMap()]);
+  const [docs, byLevel, units, levelOptions, typeOptions, typeLabels] = await Promise.all([
+    listSchools({}),
+    countByLevel(),
+    getAdminUnitsMap(),
+    listActiveCategoryOptions("truong-hoc"),
+    listActiveCategoryOptions("loai-hinh-truong"),
+    categoryLabelMap("loai-hinh-truong"),
+  ]);
+
+  // Thứ tự bậc học để sắp xếp hiển thị — theo thứ tự danh mục đang bật.
+  const levelOrder: Record<string, number> = {};
+  levelOptions.forEach((l, i) => { levelOrder[l.slug] = i; });
+  const orderOf = (slug: string) => levelOrder[slug] ?? Number.MAX_SAFE_INTEGER;
 
   // Map sang DTO thuần (bỏ ObjectId/Date) — resolve địa chỉ từ admin_units qua wardSlug.
   const items: SchoolItem[] = docs
@@ -35,6 +45,7 @@ export default async function TruongHocPage() {
         levels: d.levels,
         levelLabel: d.levelLabel,
         type: d.type,
+        typeLabel: typeLabels[d.type] ?? d.type,
         ward: u?.name ?? d.wardSlug,
         wardSlug: d.wardSlug,
         newCommune: u?.newCommune ?? null,
@@ -45,7 +56,7 @@ export default async function TruongHocPage() {
         verified: d.verified,
       };
     })
-    .sort((a, b) => (LEVEL_ORDER[a.level] - LEVEL_ORDER[b.level]) || a.ward.localeCompare(b.ward, "vi") || a.name.localeCompare(b.name, "vi"));
+    .sort((a, b) => (orderOf(a.level) - orderOf(b.level)) || a.ward.localeCompare(b.ward, "vi") || a.name.localeCompare(b.name, "vi"));
 
   // Danh sách xã/thị trấn (duy nhất) cho bộ lọc.
   const wardMap = new Map<string, string>();
@@ -61,13 +72,9 @@ export default async function TruongHocPage() {
     .map(([slug, name]) => ({ slug, name }))
     .sort((a, b) => a.name.localeCompare(b.name, "vi"));
 
-  const counts = {
-    all: items.length,
-    "mam-non": byLevel["mam-non"],
-    "tieu-hoc": byLevel["tieu-hoc"],
-    thcs: byLevel.thcs,
-    thpt: byLevel.thpt,
-  };
+  // Đếm theo slug cấp học (động) + tổng "all".
+  const counts: Record<string, number> = { all: items.length };
+  for (const l of levelOptions) counts[l.slug] = byLevel[l.slug] ?? 0;
 
   return (
     <>
@@ -93,21 +100,20 @@ export default async function TruongHocPage() {
         </div>
       </section>
 
-      {/* KPI: số trường theo bậc học */}
+      {/* KPI: số trường theo bậc học (động theo danh mục) */}
       <section className="qp-kpi-strip">
         <div className="container-wide">
           <div className="qp-kpi-grid">
-            <Kpi value={counts["mam-non"]} unit="trường" label="Mầm non" />
-            <Kpi value={counts["tieu-hoc"]} unit="trường" label="Tiểu học" />
-            <Kpi value={counts.thcs} unit="trường" label="Trung học cơ sở" />
-            <Kpi value={counts.thpt} unit="cơ sở" label="THPT & GDTX" />
+            {levelOptions.map((l) => (
+              <Kpi key={l.slug} value={counts[l.slug] ?? 0} unit="trường" label={l.name} />
+            ))}
           </div>
         </div>
       </section>
 
       <section className="qp-newsmain">
         <div className="container-wide">
-          <SchoolBrowser items={items} wards={wards} newCommunes={newCommunes} counts={counts} />
+          <SchoolBrowser items={items} wards={wards} newCommunes={newCommunes} counts={counts} levelOptions={levelOptions} typeOptions={typeOptions} />
         </div>
       </section>
     </>

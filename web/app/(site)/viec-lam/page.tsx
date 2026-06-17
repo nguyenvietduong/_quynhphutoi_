@@ -4,7 +4,7 @@ import { jsonLdBreadcrumb } from "@/lib/seo";
 import Link from "next/link";
 import { listJobs, listMyJobs, countJobs, formatSalary, formatAge, type JobDoc } from "@/lib/jobs";
 import { getSession } from "@/lib/auth";
-import { INDUSTRIES } from "@/lib/industries";
+import { listActiveCategoryOptions } from "@/lib/categories";
 import { WARDS } from "@/lib/wards";
 import { getAdminUnitsMap, type AdminUnit } from "@/lib/admin-units";
 import { JobBrowser, type JobItem } from "@/components/jobs/JobBrowser";
@@ -28,6 +28,7 @@ function toJobItem(d: JobDoc, units: Map<string, AdminUnit>, showPhone = false):
     company: d.company,
     industry: d.industry,
     industryLabel: d.industryLabel,
+    jobType: d.jobType,
     jobTypeLabel: d.jobTypeLabel,
     images: d.images ?? [],
     salaryText: formatSalary(d.salary),
@@ -48,13 +49,15 @@ function toJobItem(d: JobDoc, units: Map<string, AdminUnit>, showPhone = false):
 }
 
 export default async function ViecLamPage() {
-  const [docs, session, total, units, settings] = await Promise.all([listJobs({ limit: 500 }), getSession(), countJobs(), getAdminUnitsMap(), getSettings()]);
+  const [docs, session, total, units, settings, industries, jobTypes] = await Promise.all([
+    listJobs({ limit: 500 }), getSession(), countJobs(), getAdminUnitsMap(), getSettings(),
+    listActiveCategoryOptions("viec-lam"), listActiveCategoryOptions("loai-hinh-cong-viec"),
+  ]);
   const items = docs.map((d) => toJobItem(d, units));
   const pendingItems: JobItem[] = session
     ? (await listMyJobs(session.id)).filter((d) => !d.approved && d.active).map((d) => toJobItem(d, units, true))
     : [];
 
-  const industries = INDUSTRIES.map((i) => ({ slug: i.slug, name: i.name }));
   const wards = WARDS.map((w) => ({ slug: w.slug, name: w.name, newCommune: w.newCommune }));
   const featuredCount = items.filter((i) => i.featured).length;
 
@@ -94,7 +97,7 @@ export default async function ViecLamPage() {
 
       <section className="qp-newsmain">
         <div className="container-wide">
-          <JobBrowser items={items} pendingItems={pendingItems} industries={industries} wards={wards} isLoggedIn={!!session} defaultName={session?.name ?? ""} maxImages={settings.postMaxImages} />
+          <JobBrowser items={items} pendingItems={pendingItems} industries={industries} jobTypes={jobTypes} wards={wards} isLoggedIn={!!session} defaultName={session?.name ?? ""} maxImages={settings.postMaxImages} />
         </div>
       </section>
     </>

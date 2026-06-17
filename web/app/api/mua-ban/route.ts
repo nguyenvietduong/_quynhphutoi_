@@ -9,9 +9,9 @@ import { checkPostQuota, recordPost } from "@/lib/post-quota";
 import { getSettings } from "@/lib/settings";
 import { scanProfanity, getActiveProfanityWords } from "@/lib/profanity";
 import { isGoogleMapsUrl, resolveMapUrl } from "@/lib/map-embed";
-import { createClassified, listClassifieds, countClassifieds, CLASSIFIED_CATEGORIES, type ClassifiedCategory, type ClassifiedStatus, type ClassifiedCondition } from "@/lib/classifieds";
+import { createClassified, listClassifieds, countClassifieds, type ClassifiedStatus, type ClassifiedCondition } from "@/lib/classifieds";
+import { listActiveCategoryOptions, categoryLabelMap } from "@/lib/categories";
 
-const CATS = CLASSIFIED_CATEGORIES.map((c) => c.slug);
 const STATUSES: ClassifiedStatus[] = ["open", "sold", "closed"];
 
 export async function GET(req: Request) {
@@ -19,7 +19,7 @@ export async function GET(req: Request) {
   const cat = sp.get("category");
   const status = sp.get("status");
   const opts = {
-    category: cat && CATS.includes(cat as ClassifiedCategory) ? (cat as ClassifiedCategory) : undefined,
+    category: cat || undefined,
     wardSlug: sp.get("ward") || undefined,
     status: status && STATUSES.includes(status as ClassifiedStatus) ? (status as ClassifiedStatus) : undefined,
     search: sp.get("search") || undefined,
@@ -48,7 +48,8 @@ export async function POST(req: Request) {
 
   if (!title) return NextResponse.json({ error: "Vui lòng nhập tiêu đề." }, { status: 400 });
   if (title.length > 160) return NextResponse.json({ error: "Tiêu đề quá dài (tối đa 160 ký tự)." }, { status: 400 });
-  if (!CATS.includes(category)) return NextResponse.json({ error: "Vui lòng chọn danh mục." }, { status: 400 });
+  const catSlugs = (await listActiveCategoryOptions("mua-ban")).map((c) => c.slug);
+  if (typeof category !== "string" || !catSlugs.includes(category)) return NextResponse.json({ error: "Vui lòng chọn danh mục." }, { status: 400 });
 
   const cleanDescription = sanitizeHtml(typeof description === "string" ? description : "");
   if (!stripHtml(cleanDescription)) return NextResponse.json({ error: "Vui lòng nhập mô tả." }, { status: 400 });
@@ -62,7 +63,10 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Một số trường nhập quá dài, vui lòng rút gọn." }, { status: 400 });
   }
 
-  const cond: ClassifiedCondition | undefined = condition === "moi" || condition === "da-dung" ? condition : undefined;
+  // Tình trạng: tuỳ chọn — nhận slug hợp lệ trong danh mục "tinh-trang" (DB quản lý).
+  const condSlugs = condition ? await categoryLabelMap("tinh-trang") : {};
+  const cond: ClassifiedCondition | undefined =
+    typeof condition === "string" && condition in condSlugs ? condition : undefined;
 
   // Link Google Maps (tuỳ chọn): validate + resolve link rút gọn → lưu link đầy đủ có toạ độ.
   let mapUrl: string | undefined;

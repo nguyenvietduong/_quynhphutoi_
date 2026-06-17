@@ -20,7 +20,7 @@ export type ClassifiedItem = {
   images: string[];
   excerpt: string;
   priceText: string;
-  condition: "moi" | "da-dung" | null;
+  condition: string | null;
   ward: string;
   wardSlug: string;
   newCommune: string | null;
@@ -32,7 +32,6 @@ export type ClassifiedItem = {
 };
 
 const PAGE_SIZE = 12;
-const COND_LABEL = { moi: "Mới", "da-dung": "Đã dùng" } as const;
 
 function Tag() { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M20.6 13.4 12 22l-9-9V3h10l8.6 8.6a2 2 0 0 1 0 2.8z" /><circle cx="7.5" cy="7.5" r="1.5" /></svg>; }
 function Pin() { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z" /><circle cx="12" cy="10" r="2.5" /></svg>; }
@@ -40,7 +39,7 @@ function Eye() { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColo
 function Cal() { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" /></svg>; }
 
 
-function AdCard({ a, pending = false }: { a: ClassifiedItem; pending?: boolean }) {
+function AdCard({ a, pending = false, condMap }: { a: ClassifiedItem; pending?: boolean; condMap: Record<string, string> }) {
   const href = `/mua-ban/${a.slug}`;
   return (
     <article className={`qp-newscard${pending ? " is-pending" : ""}`}>
@@ -56,7 +55,7 @@ function AdCard({ a, pending = false }: { a: ClassifiedItem; pending?: boolean }
         {a.excerpt && <p className="qp-newscard__excerpt">{a.excerpt}</p>}
         <div className="qp-newscard__price">
           <span className="qp-newscard__price-val">{a.priceText}</span>
-          {a.condition && <span className="qp-newscard__price-cond">{COND_LABEL[a.condition]}</span>}
+          {a.condition && <span className="qp-newscard__price-cond">{condMap[a.condition] ?? a.condition}</span>}
         </div>
         <div className="qp-newscard__meta qp-lf-meta">
           <div className="qp-lf-meta__loc">
@@ -73,11 +72,12 @@ function AdCard({ a, pending = false }: { a: ClassifiedItem; pending?: boolean }
 }
 
 export function ClassifiedBrowser({
-  items, pendingItems, categories, wards, isLoggedIn, defaultName, maxImages,
+  items, pendingItems, categories, conditions, wards, isLoggedIn, defaultName, maxImages,
 }: {
   items: ClassifiedItem[];
   pendingItems: ClassifiedItem[];
   categories: { slug: string; name: string }[];
+  conditions: { slug: string; name: string }[];
   wards: { slug: string; name: string; newCommune?: string }[];
   isLoggedIn: boolean;
   defaultName: string;
@@ -91,6 +91,7 @@ export function ClassifiedBrowser({
   const router = useRouter();
   const isPending = view === "cho-duyet";
 
+  const condMap = useMemo(() => Object.fromEntries(conditions.map((c) => [c.slug, c.name])), [conditions]);
   const catOptions = useMemo(() => [{ value: "all", label: `Tất cả danh mục (${categories.length})` }, ...categories.map((c) => ({ value: c.slug, label: c.name }))], [categories]);
   const wardOptions = useMemo(() => [{ value: "all", label: `Tất cả xã/thị trấn (${wards.length})` }, ...wards.map((w) => ({ value: w.slug, label: w.name, hint: w.newCommune ? `Xã mới: ${w.newCommune}` : undefined }))], [wards]);
 
@@ -152,12 +153,12 @@ export function ClassifiedBrowser({
           <p className="type-body-small">{isPending ? "Bấm “+ Đăng tin mua bán” để gửi tin." : "Thử đổi danh mục, xã hoặc từ khoá."}</p>
         </div>
       ) : (
-        <div className="qp-grid-news">{pageItems.map((a) => <AdCard key={a.slug} a={a} pending={isPending} />)}</div>
+        <div className="qp-grid-news">{pageItems.map((a) => <AdCard key={a.slug} a={a} pending={isPending} condMap={condMap} />)}</div>
       )}
 
       <ListPager pager={pager} />
 
-      {postOpen && <ClassifiedPostModal open onClose={() => setPostOpen(false)} isLoggedIn={isLoggedIn} defaultName={defaultName} maxImages={maxImages} categories={categories} onSuccess={() => router.refresh()} />}
+      {postOpen && <ClassifiedPostModal open onClose={() => setPostOpen(false)} isLoggedIn={isLoggedIn} defaultName={defaultName} maxImages={maxImages} categories={categories} conditions={conditions} onSuccess={() => router.refresh()} />}
     </>
   );
 }

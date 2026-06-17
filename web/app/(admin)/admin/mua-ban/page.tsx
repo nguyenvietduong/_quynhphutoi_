@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
-import { listClassifieds, CONDITION_LABEL } from "@/lib/classifieds";
+import { listClassifieds } from "@/lib/classifieds";
 import { getAdminUnitsMap } from "@/lib/admin-units";
+import { categoryLabelMap } from "@/lib/categories";
 import { PostModerationManager, type ModRow, type ModConfig } from "@/components/admin/PostModerationManager";
 import { getPageSeoConfig } from "@/lib/page-seo";
 import { ModuleTabs } from "@/components/admin/ModuleTabs";
@@ -19,7 +20,7 @@ const spec = (label: string, value?: string | number | null) =>
   value || value === 0 ? [{ label, value: String(value) }] : [];
 
 export default async function AdminClassifiedsPage() {
-  const [docs, units, pageSeo] = await Promise.all([listClassifieds({ approvedOnly: false, limit: 500 }), getAdminUnitsMap(), getPageSeoConfig()]);
+  const [docs, units, pageSeo, condMap] = await Promise.all([listClassifieds({ approvedOnly: false, limit: 500 }), getAdminUnitsMap(), getPageSeoConfig(), categoryLabelMap("tinh-trang")]);
   const rows: ModRow[] = docs.map((d) => {
     const ward = units.get(d.location.wardSlug)?.name ?? d.location.wardSlug;
     const place = [d.location.address, ward].filter(Boolean).join(", ");
@@ -33,7 +34,7 @@ export default async function AdminClassifiedsPage() {
       specs: [
         ...spec("Danh mục", d.categoryLabel),
         ...spec("Giá", d.priceText),
-        ...spec("Tình trạng", d.condition ? CONDITION_LABEL[d.condition] : undefined),
+        ...spec("Tình trạng", d.condition ? (condMap[d.condition] ?? d.condition) : undefined),
         ...spec("Địa điểm", place),
         ...spec("Người liên hệ", d.contact?.name),
         ...spec("Điện thoại", d.contact?.phone),

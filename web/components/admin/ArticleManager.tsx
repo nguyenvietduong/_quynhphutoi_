@@ -13,8 +13,6 @@ import { RowActions } from "@/components/admin/RowActions";
 import { ExternalNewsImport } from "@/components/admin/ExternalNewsImport";
 import { useToast } from "@/components/common/Toast";
 
-const CATEGORIES = ["Thông báo", "Đời sống", "Kinh tế", "Giáo dục"];
-
 type Form = {
   slug: string; title: string; excerpt: string; category: string; scope: ArticleScope; tags: string;
   coverImage: string; coverAlt: string; authorName: string; authorTitle: string;
@@ -22,7 +20,7 @@ type Form = {
   seoMetaTitle: string; seoMetaDescription: string; seoKeywords: string; seoOgImage: string; seoNoindex: boolean;
 };
 const EMPTY: Form = {
-  slug: "", title: "", excerpt: "", category: "Thông báo", scope: "trong-xa", tags: "", coverImage: "", coverAlt: "",
+  slug: "", title: "", excerpt: "", category: "", scope: "trong-xa", tags: "", coverImage: "", coverAlt: "",
   authorName: "Ban biên tập", authorTitle: "", bodyHtml: "", featured: false, status: "draft",
   seoMetaTitle: "", seoMetaDescription: "", seoKeywords: "", seoOgImage: "", seoNoindex: false,
 };
@@ -47,10 +45,10 @@ export function ArticleManager({ initial, externalEnabled, categories }: { initi
 
   function set<K extends keyof Form>(k: K, v: Form[K]) { setForm((f) => ({ ...f, [k]: v })); }
 
-  // Danh mục: ưu tiên list từ DB (prop, admin quản lý), fallback list cố định.
+  // Danh mục: 100% từ DB (prop, admin quản lý ở /admin/danh-muc — không còn fallback cứng).
   // Luôn gồm cả danh mục đang chọn (kể cả bài cũ có danh mục không còn trong list) để không mất lựa chọn.
   const catList = useMemo(() => {
-    const base = categories?.length ? categories : CATEGORIES;
+    const base = categories ?? [];
     return form.category && !base.includes(form.category) ? [...base, form.category] : base;
   }, [categories, form.category]);
 
@@ -73,7 +71,7 @@ export function ArticleManager({ initial, externalEnabled, categories }: { initi
 
   const pg = usePagination(filtered, 20);
 
-  function startNew() { setForm({ ...EMPTY }); setEditing(null); setShow(true); }
+  function startNew() { setForm({ ...EMPTY, category: categories?.[0] ?? "" }); setEditing(null); setShow(true); }
   function startEdit(r: ArticleRow) { setForm(toForm(r)); setEditing(r.slug); setShow(true); }
 
   function payload(f: Form) {

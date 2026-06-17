@@ -1,10 +1,9 @@
 // Admin: liệt kê (GET) & tạo (POST) tuyến giao thông.
 import { NextResponse } from "next/server";
 import { requireStaff } from "@/lib/admin-guard";
-import { listTransit, createTransit, toTransitRow, TRANSIT_TYPES, type TransitType } from "@/lib/transit";
+import { listTransit, createTransit, toTransitRow } from "@/lib/transit";
+import { listActiveCategoryOptions } from "@/lib/categories";
 import { sanitizeSeoFields } from "@/lib/seo-fields";
-
-const TYPES = TRANSIT_TYPES.map((t) => t.slug) as TransitType[];
 
 // Chấp nhận stops dạng mảng chuỗi HOẶC chuỗi (tách theo xuống dòng/dấu phẩy) → string[].
 function toStops(v: unknown): string[] {
@@ -26,7 +25,8 @@ export async function POST(req: Request) {
 
   const name = String(b.name || "").trim();
   if (!name) return NextResponse.json({ error: "Nhập tên tuyến." }, { status: 400 });
-  if (!TYPES.includes(b.type)) return NextResponse.json({ error: "Loại tuyến không hợp lệ." }, { status: 400 });
+  const types = (await listActiveCategoryOptions("giao-thong")).map((t) => t.slug);
+  if (!types.includes(b.type)) return NextResponse.json({ error: "Loại tuyến không hợp lệ." }, { status: 400 });
   const origin = String(b.origin || "").trim();
   if (!origin) return NextResponse.json({ error: "Nhập điểm đầu." }, { status: 400 });
   const destination = String(b.destination || "").trim();

@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getSchoolBySlug, listByWard, SCHOOL_LEVELS, type SchoolDoc, type SchoolLevel } from "@/lib/schools";
+import { getSchoolBySlug, listByWard } from "@/lib/schools";
+import { categoryLabelMap } from "@/lib/categories";
 import { getAdminUnitBySlug, fullOldAddress } from "@/lib/admin-units";
 import { DetailSocial } from "@/components/common/DetailSocial";
 import { buildMetadata, jsonLdSchool, jsonLdBreadcrumb } from "@/lib/seo";
@@ -11,11 +12,8 @@ import { AffiliateCTA } from "@/components/common/AffiliateCTA";
 
 export const dynamic = "force-dynamic";
 
-const TYPE_LABEL: Record<SchoolDoc["type"], string> = {
-  "cong-lap": "Công lập", "dan-lap": "Dân lập", "tu-thuc": "Tư thục", "gdnn-gdtx": "GDNN-GDTX",
-};
-const levelsText = (levels: SchoolLevel[]) =>
-  levels.map((l) => SCHOOL_LEVELS.find((x) => x.slug === l)?.label ?? l).join(", ");
+const levelsText = (levels: string[], labels: Record<string, string>) =>
+  levels.map((l) => labels[l] ?? l).join(", ");
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
@@ -37,10 +35,16 @@ export default async function SchoolDetailPage({ params }: { params: Promise<{ s
   const s = await getSchoolBySlug(slug);
   if (!s || !s.active) notFound();
 
-  const unit = await getAdminUnitBySlug(s.wardSlug);
+  const [unit, related, levelLabels, typeLabels] = await Promise.all([
+    getAdminUnitBySlug(s.wardSlug),
+    listByWard(s.wardSlug),
+    categoryLabelMap("truong-hoc"),
+    categoryLabelMap("loai-hinh-truong"),
+  ]);
   const oldAddress = fullOldAddress(unit ?? undefined, s.address);
   const newAddress = unit ? `Xã ${unit.newCommune}, ${unit.newProvince}` : "";
-  const related = (await listByWard(s.wardSlug)).filter((x) => x.slug !== s.slug);
+  const relatedList = related.filter((x) => x.slug !== s.slug);
+  const typeName = (t: string) => typeLabels[t] ?? t;
 
   return (
     <article>
@@ -69,7 +73,7 @@ export default async function SchoolDetailPage({ params }: { params: Promise<{ s
           </nav>
           <div className="qp-lf-detail__badges">
             <span className="qp-tag-cat">{s.levelLabel}</span>
-            <span className={`qp-school-type is-${s.type}`}>{TYPE_LABEL[s.type]}</span>
+            <span className={`qp-school-type is-${s.type}`}>{typeName(s.type)}</span>
             {s.verified && <span className="qp-lf-status" style={{ background: "rgba(0,169,143,0.13)", color: "var(--color-teal-dark)" }}>✓ Đã xác minh</span>}
           </div>
           <h1 id="sc-title" className="type-h1" style={{ margin: "var(--space-3) 0 var(--space-2)" }}>{s.name}</h1>
@@ -82,7 +86,7 @@ export default async function SchoolDetailPage({ params }: { params: Promise<{ s
           <div className="qp-lf-main">
             <div className="qp-prose">
               <h2>Giới thiệu</h2>
-              <p>{s.description || `${s.name} là cơ sở giáo dục cấp ${s.levelLabel.toLowerCase()} thuộc ${unit?.name ?? s.wardSlug}, ${unit?.district ?? ""}. Trường giảng dạy: ${levelsText(s.levels)}.`}</p>
+              <p>{s.description || `${s.name} là cơ sở giáo dục cấp ${s.levelLabel.toLowerCase()} thuộc ${unit?.name ?? s.wardSlug}, ${unit?.district ?? ""}. Trường giảng dạy: ${levelsText(s.levels, levelLabels)}.`}</p>
               <h2>Địa chỉ</h2>
               <p><b>Địa chỉ cũ:</b> {oldAddress}</p>
               {newAddress && <p><b>Địa chỉ mới (sau sáp nhập 2025):</b> {newAddress}</p>}
@@ -98,8 +102,8 @@ export default async function SchoolDetailPage({ params }: { params: Promise<{ s
             <div className="qp-lf-infocard qp-lf-infocard--cta">
               <div className="qp-lf-infocard__title">Thông tin trường</div>
               <div className="qp-lf-spec">
-                <div className="qp-lf-spec__row"><span>Cấp học</span><b>{levelsText(s.levels)}</b></div>
-                <div className="qp-lf-spec__row"><span>Loại hình</span><b>{TYPE_LABEL[s.type]}</b></div>
+                <div className="qp-lf-spec__row"><span>Cấp học</span><b>{levelsText(s.levels, levelLabels)}</b></div>
+                <div className="qp-lf-spec__row"><span>Loại hình</span><b>{typeName(s.type)}</b></div>
                 <div className="qp-lf-spec__row"><span>Địa điểm</span><b>{unit?.name ?? s.wardSlug}{unit?.newCommune && <><br /><span className="qp-lf-spec__sub">(Xã mới: {unit.newCommune})</span></>}</b></div>
                 {s.principal && <div className="qp-lf-spec__row"><span>Hiệu trưởng</span><b>{s.principal}</b></div>}
                 {s.foundedYear && <div className="qp-lf-spec__row"><span>Thành lập</span><b>{s.foundedYear}</b></div>}
@@ -111,19 +115,19 @@ export default async function SchoolDetailPage({ params }: { params: Promise<{ s
           </aside>
         </div>
 
-        {related.length > 0 && (
+        {relatedList.length > 0 && (
           <div className="qp-lf-related">
             <header className="qp-newsgrid-head">
               <span className="type-tag qp-sechead__eyebrow">Cùng {unit?.name ?? "xã"}</span>
               <h2 className="type-h2">Trường khác trong xã</h2>
             </header>
             <div className="qp-school-grid">
-              {related.map((r) => (
+              {relatedList.map((r) => (
                 <article className="qp-mesh-card qp-mesh-card--text qp-school-card" key={r.slug}>
                   <div className="qp-mesh-card__body">
                     <div className="qp-school-card__top">
                       <span className="qp-tag-cat">{r.levelLabel}</span>
-                      <span className={`qp-school-type is-${r.type}`}>{TYPE_LABEL[r.type]}</span>
+                      <span className={`qp-school-type is-${r.type}`}>{typeName(r.type)}</span>
                     </div>
                     <Link className="qp-school-card__name" href={`/truong-hoc/${r.slug}`}>{r.name}</Link>
                   </div>

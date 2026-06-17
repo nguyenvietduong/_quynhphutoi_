@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getHealthBySlug, listByWard, OWNERSHIP_LABEL } from "@/lib/health";
+import { getHealthBySlug, listByWard } from "@/lib/health";
+import { categoryLabelMap } from "@/lib/categories";
 import { getAdminUnitBySlug, fullOldAddress } from "@/lib/admin-units";
 import { DetailSocial } from "@/components/common/DetailSocial";
 import { buildMetadata, jsonLdHealth, jsonLdBreadcrumb } from "@/lib/seo";
@@ -31,7 +32,7 @@ export default async function HealthDetailPage({ params }: { params: Promise<{ s
   const h = await getHealthBySlug(slug);
   if (!h || !h.active) notFound();
 
-  const unit = await getAdminUnitBySlug(h.wardSlug);
+  const [unit, ownMap] = await Promise.all([getAdminUnitBySlug(h.wardSlug), categoryLabelMap("so-huu-y-te")]);
   const oldAddress = fullOldAddress(unit ?? undefined, h.address);
   const newAddress = unit ? `Xã ${unit.newCommune}, ${unit.newProvince}` : "";
   const related = (await listByWard(h.wardSlug)).filter((x) => x.slug !== h.slug);
@@ -63,7 +64,7 @@ export default async function HealthDetailPage({ params }: { params: Promise<{ s
           </nav>
           <div className="qp-lf-detail__badges">
             <span className="qp-tag-cat">{h.typeLabel}</span>
-            <span className={`qp-health-own is-${h.ownership}`}>{OWNERSHIP_LABEL[h.ownership]}</span>
+            <span className={`qp-health-own is-${h.ownership}`}>{ownMap[h.ownership] ?? h.ownership}</span>
             {h.emergency && <span className="qp-health-emergency">Cấp cứu 24/7</span>}
             {h.verified && <span className="qp-lf-status" style={{ background: "rgba(0,169,143,0.13)", color: "var(--color-teal-dark)" }}>✓ Đã xác minh</span>}
           </div>
@@ -94,7 +95,7 @@ export default async function HealthDetailPage({ params }: { params: Promise<{ s
               <div className="qp-lf-infocard__title">Thông tin & liên hệ</div>
               <div className="qp-lf-spec">
                 <div className="qp-lf-spec__row"><span>Loại cơ sở</span><b>{h.typeLabel}</b></div>
-                <div className="qp-lf-spec__row"><span>Loại hình</span><b>{OWNERSHIP_LABEL[h.ownership]}</b></div>
+                <div className="qp-lf-spec__row"><span>Loại hình</span><b>{ownMap[h.ownership] ?? h.ownership}</b></div>
                 <div className="qp-lf-spec__row"><span>Địa điểm</span><b>{unit?.name ?? h.wardSlug}{unit?.newCommune && <><br /><span className="qp-lf-spec__sub">(Xã mới: {unit.newCommune})</span></>}</b></div>
                 {h.hours && <div className="qp-lf-spec__row"><span>Giờ làm việc</span><b>{h.hours}</b></div>}
                 {h.beds ? <div className="qp-lf-spec__row"><span>Quy mô</span><b>{h.beds} giường</b></div> : null}
@@ -116,7 +117,7 @@ export default async function HealthDetailPage({ params }: { params: Promise<{ s
               {related.map((r) => (
                 <article className="qp-mesh-card qp-mesh-card--text qp-school-card" key={r.slug}>
                   <div className="qp-mesh-card__body">
-                    <div className="qp-school-card__top"><span className="qp-tag-cat">{r.typeLabel}</span><span className={`qp-health-own is-${r.ownership}`}>{OWNERSHIP_LABEL[r.ownership]}</span></div>
+                    <div className="qp-school-card__top"><span className="qp-tag-cat">{r.typeLabel}</span><span className={`qp-health-own is-${r.ownership}`}>{ownMap[r.ownership] ?? r.ownership}</span></div>
                     <Link className="qp-school-card__name" href={`/y-te/${r.slug}`}>{r.name}</Link>
                     {r.phone && <div className="qp-school-card__row" style={{ marginTop: 6 }}>☎ {r.phone}</div>}
                   </div>

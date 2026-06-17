@@ -3,6 +3,7 @@ import { JsonLd } from "@/components/common/JsonLd";
 import { jsonLdBreadcrumb } from "@/lib/seo";
 import Link from "next/link";
 import { listMarket, countByCategory, type MarketDoc } from "@/lib/market";
+import { listActiveCategoryOptions } from "@/lib/categories";
 import { getAdminUnitsMap } from "@/lib/admin-units";
 import { MarketBrowser, type MarketItem } from "@/components/market/MarketBrowser";
 
@@ -17,7 +18,7 @@ export async function generateMetadata() {
 export const dynamic = "force-dynamic";
 
 export default async function ChoMuaBanPage() {
-  const [docs, byCat, units] = await Promise.all([listMarket({}), countByCategory(), getAdminUnitsMap()]);
+  const [docs, byCat, units, categoryOptions] = await Promise.all([listMarket({}), countByCategory(), getAdminUnitsMap(), listActiveCategoryOptions("cho")]);
 
   const items: MarketItem[] = docs.map((d: MarketDoc) => {
     const u = units.get(d.wardSlug);
@@ -40,7 +41,7 @@ export default async function ChoMuaBanPage() {
   const wards = [...new Map(items.map((i) => [i.wardSlug, { slug: i.wardSlug, name: i.ward, newCommune: i.newCommune ?? undefined }])).values()]
     .sort((a, b) => a.name.localeCompare(b.name, "vi"));
 
-  const counts = { all: items.length, "cho-phien": byCat["cho-phien"], "dac-san": byCat["dac-san"], "rao-vat": byCat["rao-vat"] };
+  const counts: Record<string, number> & { all: number } = { all: items.length, ...byCat };
 
   return (
     <>
@@ -69,8 +70,9 @@ export default async function ChoMuaBanPage() {
       <section className="qp-kpi-strip">
         <div className="container-wide">
           <div className="qp-kpi-grid">
-            <Kpi value={counts["cho-phien"]} unit="chợ" label="Chợ phiên" />
-            <Kpi value={counts["dac-san"]} unit="mặt hàng" label="Đặc sản địa phương" />
+            {categoryOptions.map((c) => (
+              <Kpi key={c.slug} value={counts[c.slug] ?? 0} unit="mục" label={c.name} />
+            ))}
             <Kpi value={wards.length} unit="xã/TT" label="Có chợ/đặc sản" />
           </div>
         </div>
@@ -78,7 +80,7 @@ export default async function ChoMuaBanPage() {
 
       <section className="qp-newsmain">
         <div className="container-wide">
-          <MarketBrowser items={items} wards={wards} counts={counts} />
+          <MarketBrowser items={items} wards={wards} counts={counts} categoryOptions={categoryOptions} />
         </div>
       </section>
     </>

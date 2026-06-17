@@ -10,7 +10,8 @@ import type { Collection, Document, Filter, Sort } from "mongodb";
 import { articles, type ArticleDoc, toNewsCardArticle } from "@/lib/articles";
 import { jobs, formatSalary, type JobDoc } from "@/lib/jobs";
 import { lostFound, type LostFoundDoc } from "@/lib/lostfound";
-import { classifieds, CONDITION_LABEL, type ClassifiedDoc } from "@/lib/classifieds";
+import { classifieds, type ClassifiedDoc } from "@/lib/classifieds";
+import { categoryLabelMap } from "@/lib/categories";
 import type { Article } from "@/lib/news";
 import { formatDate } from "@/lib/datetime";
 
@@ -153,10 +154,10 @@ const lostfoundCard = (d: LostFoundDoc): HomeCard => ({
   badgeTone: d.kind === "tim-do" ? "lost" : "found",
   excerpt: d.categoryName, meta: formatDate(d.occurredAt ?? d.createdAt),
 });
-const classifiedCard = (d: ClassifiedDoc): HomeCard => ({
+const classifiedCard = (d: ClassifiedDoc, condMap: Record<string, string>): HomeCard => ({
   slug: d.slug, href: `/mua-ban/${d.slug}`, title: d.title,
   image: d.images?.[0] ?? null, badge: d.categoryLabel, badgeTone: "",
-  excerpt: d.priceText, meta: d.condition ? CONDITION_LABEL[d.condition] : formatDate(d.createdAt),
+  excerpt: d.priceText, meta: d.condition ? (condMap[d.condition] ?? d.condition) : formatDate(d.createdAt),
 });
 
 export type HomeSectionsData = {
@@ -180,7 +181,10 @@ export async function loadHomeSections(): Promise<HomeSectionsData> {
       ? pickDocs(await lostFound(), approved as Filter<LostFoundDoc>, config["tim-do-roi"]).then((ds) => ds.map(lostfoundCard))
       : Promise.resolve([] as HomeCard[]),
     config["mua-ban"].enabled
-      ? pickDocs(await classifieds(), approved as Filter<ClassifiedDoc>, config["mua-ban"]).then((ds) => ds.map(classifiedCard))
+      ? Promise.all([
+          pickDocs(await classifieds(), approved as Filter<ClassifiedDoc>, config["mua-ban"]),
+          categoryLabelMap("tinh-trang"),
+        ]).then(([ds, condMap]) => ds.map((d) => classifiedCard(d, condMap)))
       : Promise.resolve([] as HomeCard[]),
   ]);
   return { config, news, jobs: jobCards, lostfound: lfCards, classifieds: clCards };

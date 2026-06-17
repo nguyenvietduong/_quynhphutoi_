@@ -3,6 +3,7 @@ import { JsonLd } from "@/components/common/JsonLd";
 import { jsonLdBreadcrumb } from "@/lib/seo";
 import Link from "next/link";
 import { listTransit, countByType, type TransitDoc } from "@/lib/transit";
+import { listActiveCategoryOptions } from "@/lib/categories";
 import { TransitBrowser, type TransitItem } from "@/components/transit/TransitBrowser";
 
 export async function generateMetadata() {
@@ -16,7 +17,11 @@ export async function generateMetadata() {
 export const dynamic = "force-dynamic";
 
 export default async function GiaoThongPage() {
-  const [docs, byType] = await Promise.all([listTransit({}), countByType()]);
+  const [docs, byType, typeOptions] = await Promise.all([
+    listTransit({}),
+    countByType(),
+    listActiveCategoryOptions("giao-thong"),
+  ]);
 
   const items: TransitItem[] = docs.map((d: TransitDoc) => ({
     slug: d.slug,
@@ -32,12 +37,7 @@ export default async function GiaoThongPage() {
     phone: d.phone ?? null,
   }));
 
-  const counts = {
-    all: items.length,
-    "lien-tinh": byType["lien-tinh"],
-    "noi-tinh": byType["noi-tinh"],
-    "xe-buyt": byType["xe-buyt"],
-  };
+  const counts: Record<string, number> = { all: items.length, ...byType };
 
   return (
     <>
@@ -71,15 +71,16 @@ export default async function GiaoThongPage() {
           </div>
           <div className="qp-kpi-grid">
             <Kpi value={counts.all} unit="tuyến" label="Tổng số tuyến" />
-            <Kpi value={counts["lien-tinh"]} unit="tuyến" label="Liên tỉnh" />
-            <Kpi value={counts["noi-tinh"] + counts["xe-buyt"]} unit="tuyến" label="Nội tỉnh & buýt" />
+            {typeOptions.map((t) => (
+              <Kpi key={t.slug} value={counts[t.slug] ?? 0} unit="tuyến" label={t.name} />
+            ))}
           </div>
         </div>
       </section>
 
       <section className="qp-newsmain">
         <div className="container-wide">
-          <TransitBrowser items={items} counts={counts} />
+          <TransitBrowser items={items} counts={counts} typeOptions={typeOptions} />
         </div>
       </section>
     </>

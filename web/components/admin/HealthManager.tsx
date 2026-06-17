@@ -12,19 +12,7 @@ import { usePagination, PageSizeControl } from "@/components/admin/AdminPaging";
 import { RowActions } from "@/components/admin/RowActions";
 import { useToast } from "@/components/common/Toast";
 
-const TYPES = [
-  { slug: "benh-vien", label: "Bệnh viện" },
-  { slug: "trung-tam-y-te", label: "Trung tâm y tế" },
-  { slug: "phong-kham", label: "Phòng khám" },
-  { slug: "tram-y-te", label: "Trạm y tế" },
-  { slug: "nha-thuoc", label: "Nhà thuốc" },
-] as const;
-const OWNERSHIP = [
-  { slug: "cong-lap", label: "Công lập" },
-  { slug: "tu-nhan", label: "Tư nhân" },
-] as const;
-const typeLabel = (s: string) => TYPES.find((x) => x.slug === s)?.label ?? s;
-const ownershipLabel = (s: string) => OWNERSHIP.find((x) => x.slug === s)?.label ?? s;
+type Option = { slug: string; name: string };
 const wardName = (s: string) => WARDS.find((w) => w.slug === s)?.name ?? s;
 
 type Form = {
@@ -34,12 +22,13 @@ type Form = {
   foundedYear: string; description: string; emergency: boolean; verified: boolean; active: boolean;
   seo?: SeoFields;
 };
-const EMPTY: Form = {
-  slug: "", name: "", shortName: "", type: "tram-y-te", ownership: "cong-lap", wardSlug: WARDS[0]?.slug ?? "",
+const emptyForm = (typeOptions: Option[], ownershipOptions: Option[]): Form => ({
+  slug: "", name: "", shortName: "",
+  type: typeOptions[0]?.slug ?? "", ownership: ownershipOptions[0]?.slug ?? "", wardSlug: WARDS[0]?.slug ?? "",
   director: "", hours: "", beds: "", specialties: "",
   address: "", phone: "", email: "", website: "", foundedYear: "", description: "",
   emergency: false, verified: false, active: true, seo: {},
-};
+});
 const toForm = (r: HealthRow): Form => ({
   slug: r.slug, name: r.name, shortName: r.shortName ?? "", type: r.type, ownership: r.ownership, wardSlug: r.wardSlug,
   director: r.director ?? "", hours: r.hours ?? "", beds: r.beds ? String(r.beds) : "", specialties: r.specialties ?? "",
@@ -48,16 +37,23 @@ const toForm = (r: HealthRow): Form => ({
   emergency: r.emergency ?? false, verified: r.verified, active: r.active, seo: r.seo ?? {},
 });
 
-export function HealthManager({ initial }: { initial: HealthRow[] }) {
+export function HealthManager({ initial, typeOptions, ownershipOptions }: {
+  initial: HealthRow[];
+  typeOptions: Option[];
+  ownershipOptions: Option[];
+}) {
   const [rows, setRows] = useState<HealthRow[]>(initial);
   const [q, setQ] = useState("");
   const [fType, setFType] = useState("");
-  const [form, setForm] = useState<Form>({ ...EMPTY });
+  const [form, setForm] = useState<Form>(() => emptyForm(typeOptions, ownershipOptions));
   const [editing, setEditing] = useState<string | null>(null);
   const [show, setShow] = useState(false);
   useModalDismiss(show, () => setShow(false));
   const [busy, setBusy] = useState(false);
   const { toast } = useToast();
+
+  const typeLabel = (s: string) => typeOptions.find((x) => x.slug === s)?.name ?? s;
+  const ownershipLabel = (s: string) => ownershipOptions.find((x) => x.slug === s)?.name ?? s;
 
   function set<K extends keyof Form>(k: K, v: Form[K]) { setForm((f) => ({ ...f, [k]: v })); }
 
@@ -70,7 +66,7 @@ export function HealthManager({ initial }: { initial: HealthRow[] }) {
 
   const pg = usePagination(filtered, 20);
 
-  function startNew() { setForm({ ...EMPTY }); setEditing(null); setShow(true); }
+  function startNew() { setForm(emptyForm(typeOptions, ownershipOptions)); setEditing(null); setShow(true); }
   function startEdit(r: HealthRow) { setForm(toForm(r)); setEditing(r.slug); setShow(true); }
 
   async function submit(e: React.FormEvent) {
@@ -113,7 +109,7 @@ export function HealthManager({ initial }: { initial: HealthRow[] }) {
         <input className="qp-input qp-admin-toolbar__search" placeholder="Tìm theo tên / xã…" value={q} onChange={(e) => setQ(e.target.value)} />
         <select className="qp-select" style={{ maxWidth: 200 }} value={fType} onChange={(e) => setFType(e.target.value)}>
           <option value="">Tất cả loại</option>
-          {TYPES.map((t) => <option key={t.slug} value={t.slug}>{t.label}</option>)}
+          {typeOptions.map((t) => <option key={t.slug} value={t.slug}>{t.name}</option>)}
         </select>
         <span className="qp-admin-toolbar__spacer" />
         <PageSizeControl value={pg.pageSize} onChange={pg.setPageSize} total={filtered.length} />
@@ -141,11 +137,11 @@ export function HealthManager({ initial }: { initial: HealthRow[] }) {
               <div className="qp-acc-grid2">
                 <div className="qp-form-group"><label className="qp-label">Loại cơ sở <span className="req">*</span></label>
                   <select className="qp-select" value={form.type} onChange={(e) => set("type", e.target.value)}>
-                    {TYPES.map((t) => <option key={t.slug} value={t.slug}>{t.label}</option>)}
+                    {typeOptions.map((t) => <option key={t.slug} value={t.slug}>{t.name}</option>)}
                   </select></div>
                 <div className="qp-form-group"><label className="qp-label">Sở hữu <span className="req">*</span></label>
                   <select className="qp-select" value={form.ownership} onChange={(e) => set("ownership", e.target.value)}>
-                    {OWNERSHIP.map((o) => <option key={o.slug} value={o.slug}>{o.label}</option>)}
+                    {ownershipOptions.map((o) => <option key={o.slug} value={o.slug}>{o.name}</option>)}
                   </select></div>
               </div>
               <div className="qp-acc-grid2">

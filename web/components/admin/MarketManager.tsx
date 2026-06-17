@@ -12,12 +12,7 @@ import { usePagination, PageSizeControl } from "@/components/admin/AdminPaging";
 import { RowActions } from "@/components/admin/RowActions";
 import { useToast } from "@/components/common/Toast";
 
-const CATEGORIES = [
-  { slug: "cho-phien", label: "Chợ phiên" },
-  { slug: "dac-san", label: "Đặc sản" },
-  { slug: "rao-vat", label: "Rao vặt" },
-] as const;
-const categoryLabel = (s: string) => CATEGORIES.find((x) => x.slug === s)?.label ?? s;
+export type CategoryOption = { slug: string; name: string };
 const wardName = (s: string) => WARDS.find((w) => w.slug === s)?.name ?? s;
 
 type Form = {
@@ -27,7 +22,7 @@ type Form = {
   seo?: SeoFields;
 };
 const EMPTY: Form = {
-  slug: "", name: "", category: "cho-phien", wardSlug: WARDS[0]?.slug ?? "",
+  slug: "", name: "", category: "", wardSlug: WARDS[0]?.slug ?? "",
   schedule: "", priceText: "", unit: "", contactName: "", contactPhone: "",
   address: "", description: "", verified: false, featured: false, active: true,
   seo: undefined,
@@ -41,11 +36,13 @@ const toForm = (r: MarketRow): Form => ({
   seo: r.seo,
 });
 
-export function MarketManager({ initial }: { initial: MarketRow[] }) {
+export function MarketManager({ initial, categoryOptions }: { initial: MarketRow[]; categoryOptions: CategoryOption[] }) {
   const [rows, setRows] = useState<MarketRow[]>(initial);
   const [q, setQ] = useState("");
   const [fCategory, setFCategory] = useState("");
-  const [form, setForm] = useState<Form>({ ...EMPTY });
+  const categoryName = (s: string) => categoryOptions.find((c) => c.slug === s)?.name ?? s;
+  const defaultCategory = categoryOptions[0]?.slug ?? "";
+  const [form, setForm] = useState<Form>({ ...EMPTY, category: defaultCategory });
   const [editing, setEditing] = useState<string | null>(null);
   const [show, setShow] = useState(false);
   useModalDismiss(show, () => setShow(false));
@@ -63,7 +60,7 @@ export function MarketManager({ initial }: { initial: MarketRow[] }) {
 
   const pg = usePagination(filtered, 20);
 
-  function startNew() { setForm({ ...EMPTY }); setEditing(null); setShow(true); }
+  function startNew() { setForm({ ...EMPTY, category: defaultCategory }); setEditing(null); setShow(true); }
   function startEdit(r: MarketRow) { setForm(toForm(r)); setEditing(r.slug); setShow(true); }
 
   async function submit(e: React.FormEvent) {
@@ -106,7 +103,7 @@ export function MarketManager({ initial }: { initial: MarketRow[] }) {
         <input className="qp-input qp-admin-toolbar__search" placeholder="Tìm theo tên / xã…" value={q} onChange={(e) => setQ(e.target.value)} />
         <select className="qp-select" style={{ maxWidth: 200 }} value={fCategory} onChange={(e) => setFCategory(e.target.value)}>
           <option value="">Tất cả danh mục</option>
-          {CATEGORIES.map((c) => <option key={c.slug} value={c.slug}>{c.label}</option>)}
+          {categoryOptions.map((c) => <option key={c.slug} value={c.slug}>{c.name}</option>)}
         </select>
         <span className="qp-admin-toolbar__spacer" />
         <PageSizeControl value={pg.pageSize} onChange={pg.setPageSize} total={filtered.length} />
@@ -128,7 +125,7 @@ export function MarketManager({ initial }: { initial: MarketRow[] }) {
               <div className="qp-acc-grid2">
                 <div className="qp-form-group"><label className="qp-label">Danh mục <span className="req">*</span></label>
                   <select className="qp-select" value={form.category} onChange={(e) => set("category", e.target.value)}>
-                    {CATEGORIES.map((c) => <option key={c.slug} value={c.slug}>{c.label}</option>)}
+                    {categoryOptions.map((c) => <option key={c.slug} value={c.slug}>{c.name}</option>)}
                   </select></div>
                 <div className="qp-form-group"><label className="qp-label">Xã / Thị trấn <span className="req">*</span></label>
                   <select className="qp-select" value={form.wardSlug} onChange={(e) => set("wardSlug", e.target.value)}>
@@ -178,7 +175,7 @@ export function MarketManager({ initial }: { initial: MarketRow[] }) {
               {pg.paged.map((r) => (
                 <tr key={r.slug}>
                   <td><b className="qp-clip" title={r.name}>{r.name}</b>{r.contactName ? <span className="qp-clip--sm type-body-small text-muted">LH: {r.contactName}</span> : null}</td>
-                  <td>{categoryLabel(r.category)}</td>
+                  <td>{categoryName(r.category)}</td>
                   <td>{wardName(r.wardSlug)}</td>
                   <td><span className={`qp-acc-badge is-${r.active ? "active" : "hidden"}`}>{r.active ? "Hiện" : "Ẩn"}</span></td>
                   <td className="qp-admin-actions">

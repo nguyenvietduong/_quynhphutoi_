@@ -2,19 +2,20 @@
 // Chạy: npm run seed:classifieds
 import { MongoClient } from "mongodb";
 import bcrypt from "bcryptjs";
-import type { ClassifiedDoc, ClassifiedCategory, ClassifiedCondition } from "../lib/classifieds";
+import type { ClassifiedDoc } from "../lib/classifieds";
 
 const uri = process.env.MONGODB_URI || "mongodb://localhost:27017";
 const dbName = process.env.MONGODB_DB || "quynhphu";
-const CLABEL: Record<ClassifiedCategory, string> = {
+// Nhãn danh mục denormalize vào bản ghi seed (khớp slug module "mua-ban").
+const CLABEL: Record<string, string> = {
   "xe-co": "Xe cộ", "bat-dong-san": "Nhà đất", "dien-tu": "Điện tử - Điện máy",
   "do-gia-dung": "Đồ gia dụng - Nội thất", "nong-san-vat-nuoi": "Nông sản - Vật nuôi",
   "thoi-trang": "Thời trang - Mẹ & bé", "khac": "Đồ khác",
 };
 
 type Seed = {
-  slug: string; title: string; category: ClassifiedCategory; description: string;
-  priceText: string; condition?: ClassifiedCondition; wardSlug: string; address?: string;
+  slug: string; title: string; category: string; description: string;
+  priceText: string; condition?: string; wardSlug: string; address?: string;
   contact: { name: string; phone: string }; approved: boolean; featured?: boolean; daysAgo: number;
   images: string[];
 };

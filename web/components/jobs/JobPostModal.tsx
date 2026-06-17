@@ -4,7 +4,6 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { WARDS } from "@/lib/wards";
-import { INDUSTRIES, JOB_TYPES, type JobType } from "@/lib/industries";
 import { Combobox } from "@/components/lostfound/Combobox";
 import { RichTextEditor } from "@/components/lostfound/RichTextEditor";
 import { ImageUploader } from "@/components/common/ImageUploader";
@@ -12,13 +11,23 @@ import { CharCount } from "@/components/common/CharCount";
 import { useAdaptiveCaptcha } from "@/components/common/useAdaptiveCaptcha";
 import { useToast } from "@/components/common/Toast";
 
-type Props = { open: boolean; onClose: () => void; isLoggedIn: boolean; defaultName?: string; onSuccess?: () => void; maxImages?: number };
+type CatOption = { slug: string; name: string };
+type Props = {
+  open: boolean;
+  onClose: () => void;
+  isLoggedIn: boolean;
+  defaultName?: string;
+  onSuccess?: () => void;
+  maxImages?: number;
+  industries: CatOption[];
+  jobTypes: CatOption[];
+};
 
-export function JobPostModal({ open, onClose, isLoggedIn, defaultName = "", onSuccess, maxImages = 8 }: Props) {
+export function JobPostModal({ open, onClose, isLoggedIn, defaultName = "", onSuccess, maxImages = 8, industries, jobTypes }: Props) {
   const [title, setTitle] = useState("");
   const [company, setCompany] = useState("");
   const [industry, setIndustry] = useState("");
-  const [jobType, setJobType] = useState<JobType>("toan-thoi-gian");
+  const [jobType, setJobType] = useState<string>(jobTypes[0]?.slug ?? "");
   const [description, setDescription] = useState("");
   const [images, setImages] = useState<string[]>([]);
   const [salaryMin, setSalaryMin] = useState("");
@@ -56,8 +65,8 @@ export function JobPostModal({ open, onClose, isLoggedIn, defaultName = "", onSu
     };
   }, [open, onClose]);
 
-  const indOptions = useMemo(() => INDUSTRIES.map((i) => ({ value: i.slug, label: i.name })), []);
-  const typeOptions = useMemo(() => JOB_TYPES.map((t) => ({ value: t.slug, label: t.name })), []);
+  const indOptions = useMemo(() => industries.map((i) => ({ value: i.slug, label: i.name })), [industries]);
+  const typeOptions = useMemo(() => jobTypes.map((t) => ({ value: t.slug, label: t.name })), [jobTypes]);
   const wardOptions = useMemo(() => WARDS.map((w) => ({ value: w.slug, label: w.name, hint: `Xã mới: ${w.newCommune}` })), []);
   // Ngày HÔM NAY theo giờ địa phương (KHÔNG dùng toISOString — nó trả giờ UTC,
   // lệch -1 ngày so với VN từ 00:00–07:00 sáng → cho chọn nhầm hạn nộp là hôm qua).
@@ -70,7 +79,7 @@ export function JobPostModal({ open, onClose, isLoggedIn, defaultName = "", onSu
     e.preventDefault();
     if (!title.trim()) { toast.error("Vui lòng nhập vị trí tuyển dụng."); return; }
     if (!company.trim()) { toast.error("Vui lòng nhập tên nhà tuyển dụng."); return; }
-    if (!INDUSTRIES.some((i) => i.slug === industry)) { toast.error("Vui lòng chọn ngành nghề."); return; }
+    if (!industries.some((i) => i.slug === industry)) { toast.error("Vui lòng chọn ngành nghề."); return; }
     if (!description.trim()) { toast.error("Vui lòng nhập mô tả công việc."); return; }
     const ward = WARDS.find((w) => w.slug === wardSlug);
     if (!ward) { toast.error("Vui lòng chọn địa điểm làm việc."); return; }
@@ -147,7 +156,7 @@ export function JobPostModal({ open, onClose, isLoggedIn, defaultName = "", onSu
               </div>
               <div className="qp-form-group">
                 <label className="qp-label">Loại hình <span className="req">*</span></label>
-                <Combobox options={typeOptions} value={jobType} onChange={(v) => setJobType(v as JobType)} placeholder="— Chọn loại hình —" searchPlaceholder="Tìm…" />
+                <Combobox options={typeOptions} value={jobType} onChange={setJobType} placeholder="— Chọn loại hình —" searchPlaceholder="Tìm…" />
               </div>
             </div>
 

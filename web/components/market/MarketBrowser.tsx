@@ -13,7 +13,7 @@ const PAGE_SIZE = 9;
 export type MarketItem = {
   slug: string;
   name: string;
-  category: "cho-phien" | "dac-san" | "rao-vat";
+  category: string;
   categoryLabel: string;
   ward: string;
   wardSlug: string;
@@ -25,19 +25,13 @@ export type MarketItem = {
   featured: boolean;
 };
 
-type Counts = { all: number } & Record<MarketItem["category"], number>;
-
-const TABS = [
-  { key: "all", label: "Tất cả" },
-  { key: "cho-phien", label: "Chợ phiên" },
-  { key: "dac-san", label: "Đặc sản" },
-] as const;
-type TabKey = (typeof TABS)[number]["key"];
+export type CategoryOption = { slug: string; name: string };
+type Counts = Record<string, number> & { all: number };
 
 function IcStore() { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M3 9l1.5-5h15L21 9" /><path d="M4 9v10a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1V9" /><path d="M3 9a2.5 2.5 0 0 0 5 0 2.5 2.5 0 0 0 5 0 2.5 2.5 0 0 0 5 0 2.5 2.5 0 0 0 3 0" /></svg>; }
 function IcBag() { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" /><path d="M3 6h18M16 10a4 4 0 0 1-8 0" /></svg>; }
 function IcTag() { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M20.6 13.4 12 22l-9-9V3h10l8.6 8.6a2 2 0 0 1 0 2.8z" /><circle cx="7.5" cy="7.5" r="1.5" /></svg>; }
-function CatIcon({ c }: { c: MarketItem["category"] }) {
+function CatIcon({ c }: { c: string }) {
   if (c === "cho-phien") return <IcStore />;
   if (c === "dac-san") return <IcBag />;
   return <IcTag />;
@@ -71,13 +65,18 @@ function MarketCard({ m }: { m: MarketItem }) {
 }
 
 export function MarketBrowser({
-  items, wards, counts,
+  items, wards, counts, categoryOptions,
 }: {
   items: MarketItem[];
   wards: { slug: string; name: string; newCommune?: string }[];
   counts: Counts;
+  categoryOptions: CategoryOption[];
 }) {
-  const [tab, setTab] = useState<TabKey>("all");
+  const tabs = useMemo(
+    () => [{ key: "all", label: "Tất cả" }, ...categoryOptions.map((c) => ({ key: c.slug, label: c.name }))],
+    [categoryOptions],
+  );
+  const [tab, setTab] = useState<string>("all");
   const [ward, setWard] = useState("all");
   const [query, setQuery] = useState("");
 
@@ -100,10 +99,10 @@ export function MarketBrowser({
   return (
     <>
       <div className="qp-tabs" role="tablist" aria-label="Lọc theo mảng">
-        {TABS.map((t) => (
+        {tabs.map((t) => (
           <button key={t.key} type="button" role="tab" aria-selected={tab === t.key}
             className={`qp-tab${tab === t.key ? " is-active" : ""}`} onClick={() => { setTab(t.key); reset(); }}>
-            {t.label} <span className="qp-tab__count">{counts[t.key]}</span>
+            {t.label} <span className="qp-tab__count">{counts[t.key] ?? 0}</span>
           </button>
         ))}
       </div>

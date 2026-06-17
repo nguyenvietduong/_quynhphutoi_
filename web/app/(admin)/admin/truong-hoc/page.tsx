@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { listSchools, toSchoolRow } from "@/lib/schools";
+import { listActiveCategoryOptions } from "@/lib/categories";
 import { SchoolsManager } from "@/components/admin/SchoolsManager";
 import { getPageSeoConfig } from "@/lib/page-seo";
 import { ModuleTabs } from "@/components/admin/ModuleTabs";
@@ -8,7 +9,12 @@ export const metadata: Metadata = { title: "Trường học — Quản trị", r
 export const dynamic = "force-dynamic";
 
 export default async function AdminSchoolsPage() {
-  const [docs, pageSeo] = await Promise.all([listSchools({}), getPageSeoConfig()]);
+  const [docs, pageSeo, levelOptions, typeOptions] = await Promise.all([
+    listSchools({}),
+    getPageSeoConfig(),
+    listActiveCategoryOptions("truong-hoc"),
+    listActiveCategoryOptions("loai-hinh-truong"),
+  ]);
   const rows = docs.map(toSchoolRow);
   return (
     <>
@@ -18,7 +24,7 @@ export default async function AdminSchoolsPage() {
         <p className="qp-admin-head__desc">Quản lý danh bạ trường học trên địa bàn huyện — thêm, sửa, xoá và ẩn/hiện.</p>
       </div>
       <ModuleTabs pageKey="/truong-hoc" pageLabel="Trường học" listLabel="Danh sách trường học" seoInitial={pageSeo["/truong-hoc"] ?? {}}>
-        <SchoolsManager initial={rows} />
+        <SchoolsManager initial={rows} levelOptions={levelOptions} typeOptions={typeOptions} />
       </ModuleTabs>
     </>
   );

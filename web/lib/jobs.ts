@@ -1,15 +1,18 @@
 // Việc làm — tin tuyển dụng địa phương xã Quỳnh Phụ.
 // Theo pattern repo (mongodb native, helper trong file). Quan hệ:
-//   - industry / jobType: slug từ lib/industries.ts (denormalize label để hiển thị).
+//   - industry: slug danh mục module "viec-lam"; jobType: slug danh mục module
+//     "loai-hinh-cong-viec" (cả hai do admin quản lý qua collection categories;
+//     denormalize label vào bản ghi để hiển thị nhanh & giữ nhãn bản ghi cũ).
 //   - location.wardSlug → đơn vị hành chính (lib/wards.ts).
 //   - postedBy → users (lib/users.ts) — phải đăng nhập mới đăng tin.
 // Kiểm duyệt: approved=false khi tạo, admin duyệt mới hiện công khai (như tìm đồ rơi).
 import { getDb, ensureIndexes } from "@/lib/db";
 import { ObjectId, type Filter } from "mongodb";
-import { industryName, jobTypeName, type JobType } from "@/lib/industries";
+import { categoryName } from "@/lib/categories";
 import type { SeoFields } from "@/lib/seo-fields";
 
-export type { JobType };
+// Loại hình / ngành nghề đều là slug danh mục (chuỗi tự do, không enum cố định).
+export type JobType = string;
 export type JobStatus = "open" | "closed" | "filled";
 
 export type JobContact = { name: string; phone: string; email?: string; hidePhone?: boolean };
@@ -133,9 +136,9 @@ export async function createJob(poster: { id: string; name: string }, input: Cre
     title: input.title.trim(),
     company: input.company.trim(),
     industry: input.industry,
-    industryLabel: industryName(input.industry),
+    industryLabel: await categoryName("viec-lam", input.industry),
     jobType: input.jobType,
-    jobTypeLabel: jobTypeName(input.jobType),
+    jobTypeLabel: await categoryName("loai-hinh-cong-viec", input.jobType),
     description: input.description,
     images: input.images ?? [],
     salary: input.salary,
@@ -249,13 +252,16 @@ export async function deleteJob(slug: string) {
 }
 
 // Admin sửa nội dung tin (ngoài duyệt). description đã sanitize ở tầng route.
-export type JobPatch = Partial<{ title: string; company: string; description: string; featured: boolean; approved: boolean; status: JobStatus; images: string[]; seo: SeoFields }>
+export type JobPatch = Partial<{ title: string; company: string; industry: string; jobType: JobType; description: string; featured: boolean; approved: boolean; status: JobStatus; images: string[]; seo: SeoFields }>
   & { "location.address"?: string; "location.mapUrl"?: string };
 export async function updateJob(slug: string, patch: JobPatch) {
   const set: Record<string, unknown> = { updatedAt: new Date() };
   for (const [k, v] of Object.entries(patch)) if (v !== undefined) set[k] = v;
   if (patch.title) set.title = patch.title.trim();
   if (patch.company) set.company = patch.company.trim();
+  // Đổi ngành / loại hình → resolve lại nhãn denormalize từ danh mục.
+  if (patch.industry !== undefined) set.industryLabel = await categoryName("viec-lam", patch.industry);
+  if (patch.jobType !== undefined) set.jobTypeLabel = await categoryName("loai-hinh-cong-viec", patch.jobType);
   const res = await (await jobs()).updateOne({ slug }, { $set: set });
   return res.matchedCount;
 }

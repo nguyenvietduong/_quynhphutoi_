@@ -4,7 +4,6 @@
 
 import { MongoClient } from "mongodb";
 import bcrypt from "bcryptjs";
-import type { JobType } from "../lib/industries";
 import type { JobDoc } from "../lib/jobs";
 
 const uri = process.env.MONGODB_URI || "mongodb://localhost:27017";
@@ -31,8 +30,8 @@ type SeedJob = {
   slug: string;
   title: string;
   company: string;
-  industry: string;
-  jobType: JobType;
+  industry: string;          // slug danh mục module "viec-lam"
+  jobType: string;           // slug danh mục module "loai-hinh-cong-viec"
   description: string;       // HTML
   salary: { min?: number; max?: number; negotiable?: boolean };
   ward: string;
@@ -183,6 +182,48 @@ const JOBS: SeedJob[] = [
     quantity: 2, experience: "Không yêu cầu", education: "Cao đẳng trở lên",
     deadline: "2026-08-15", contact: { name: "Anh Hoàng", phone: "0909000999", email: "it@congnghequynhphu.vn" },
     approved: false, daysAgo: 0, images: img("technology", 181, 182), // demo trạng thái chờ duyệt
+  },
+  {
+    slug: "thuc-tap-sinh-marketing",
+    title: "Thực tập sinh Marketing", company: "Công ty CP Truyền thông Quỳnh Phụ",
+    industry: "van-phong", jobType: "thuc-tap",
+    description: JD(
+      "Hỗ trợ lên nội dung mạng xã hội, thiết kế ấn phẩm cơ bản, theo dõi chiến dịch quảng cáo cho doanh nghiệp địa phương.",
+      ["Sinh viên năm 2–4 các ngành Marketing/Truyền thông", "Biết Canva/CapCut là lợi thế", "Năng động, ham học hỏi"],
+      ["Phụ cấp 2–3 triệu/tháng", "Được đào tạo bài bản, có chứng nhận thực tập", "Cơ hội ký hợp đồng chính thức"],
+    ),
+    salary: { min: 2, max: 3 }, ward: "Thị trấn Quỳnh Côi", wardSlug: "quynh-coi",
+    quantity: 3, experience: "Không yêu cầu", education: "Đang học Cao đẳng/Đại học",
+    deadline: "2026-08-20", contact: { name: "Chị Mai (HR)", phone: "0911222333", email: "tuyendung@ttquynhphu.vn" },
+    approved: true, daysAgo: 1, images: img("office", 191, 192),
+  },
+  {
+    slug: "tho-xay-dung-cong-trinh-dan-dung",
+    title: "Thợ xây dựng công trình dân dụng", company: "Đội thi công Phú Cường",
+    industry: "xay-dung", jobType: "toan-thoi-gian",
+    description: JD(
+      "Xây, trát, ốp lát các công trình nhà dân và công trình nhỏ trên địa bàn xã và lân cận.",
+      ["Nam 18–50 tuổi, có sức khỏe", "Biết nghề xây/trát cơ bản", "Chăm chỉ, đúng giờ"],
+      ["Công 350.000đ–450.000đ/ngày theo tay nghề", "Bao cơm trưa tại công trình", "Việc đều quanh năm"],
+    ),
+    salary: { negotiable: true }, ward: "Xã An Vũ", wardSlug: "an-vu",
+    quantity: 8, experience: "Ưu tiên có nghề", education: "Không yêu cầu",
+    deadline: "2026-07-28", contact: { name: "Anh Cường", phone: "0915333444" },
+    approved: true, daysAgo: 3, images: img("construction", 201, 202),
+  },
+  {
+    slug: "dieu-duong-phong-kham-da-khoa",
+    title: "Điều dưỡng viên", company: "Phòng khám Đa khoa An Khang",
+    industry: "y-te", jobType: "toan-thoi-gian",
+    description: JD(
+      "Chăm sóc bệnh nhân, tiêm truyền, hỗ trợ bác sĩ trong khám và thực hiện thủ thuật.",
+      ["Tốt nghiệp Trung cấp Điều dưỡng trở lên", "Có chứng chỉ hành nghề", "Cẩn thận, ân cần với bệnh nhân"],
+      ["Lương 7–10 triệu", "BHXH, BHYT đầy đủ", "Môi trường chuyên nghiệp"],
+    ),
+    salary: { min: 7, max: 10 }, ward: "Thị trấn An Bài", wardSlug: "an-bai",
+    quantity: 2, experience: "Ưu tiên có kinh nghiệm", education: "Trung cấp Điều dưỡng",
+    deadline: "2026-08-05", contact: { name: "Chị Thu", phone: "0918444555", email: "tuyendung@ankhang.vn" },
+    approved: true, daysAgo: 2, images: img("clinic", 211, 212),
   },
 ];
 

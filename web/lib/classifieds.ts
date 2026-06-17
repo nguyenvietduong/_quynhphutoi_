@@ -2,20 +2,16 @@
 // Địa điểm CHUẨN HÓA: chỉ lưu wardSlug → admin_units.
 import { getDb, ensureIndexes } from "@/lib/db";
 import { ObjectId, type Filter } from "mongodb";
-import { CLASSIFIED_CATEGORIES, categoryLabel, CONDITION_LABEL, type ClassifiedCategory, type ClassifiedCondition } from "@/lib/classified-categories";
-import { categories } from "@/lib/categories";
+import { categoryName } from "@/lib/categories";
+import type { ClassifiedCategory, ClassifiedCondition } from "@/lib/classified-categories";
 import type { SeoFields } from "@/lib/seo-fields";
 
-export { CLASSIFIED_CATEGORIES, categoryLabel, CONDITION_LABEL };
 export type { ClassifiedCategory, ClassifiedCondition };
 export type ClassifiedStatus = "open" | "sold" | "closed";
 
-// Nhãn danh mục: ưu tiên list cố định; danh mục admin thêm (DB) thì tra collection categories.
+// Nhãn danh mục: đọc 100% từ collection categories (module "mua-ban").
 async function resolveCategoryLabel(slug: string): Promise<string> {
-  const hard = CLASSIFIED_CATEGORIES.find((x) => x.slug === slug)?.label;
-  if (hard) return hard;
-  const cat = await (await categories()).findOne({ module: "mua-ban", slug });
-  return cat?.name || slug;
+  return categoryName("mua-ban", slug);
 }
 
 export type ClassifiedContact = { name: string; phone: string; email?: string; hidePhone?: boolean };
@@ -168,13 +164,13 @@ export async function relatedClassifieds(slug: string, category: ClassifiedCateg
   const col = await classifieds();
   return col.find({ slug: { $ne: slug }, category, approved: true, active: true }).sort({ createdAt: -1 }).limit(n).toArray();
 }
-export async function countByCategory(): Promise<Record<ClassifiedCategory, number>> {
+export async function countByCategory(): Promise<Record<string, number>> {
   const col = await classifieds();
-  const rows = await col.aggregate<{ _id: ClassifiedCategory; n: number }>([
+  const rows = await col.aggregate<{ _id: string; n: number }>([
     { $match: { approved: true, active: true } }, { $group: { _id: "$category", n: { $sum: 1 } } },
   ]).toArray();
-  const out = { "xe-co": 0, "bat-dong-san": 0, "dien-tu": 0, "do-gia-dung": 0, "nong-san-vat-nuoi": 0, "thoi-trang": 0, "khac": 0 } as Record<ClassifiedCategory, number>;
-  for (const r of rows) out[r._id] = r.n;
+  const out: Record<string, number> = {};
+  for (const r of rows) if (r._id) out[r._id] = r.n;
   return out;
 }
 

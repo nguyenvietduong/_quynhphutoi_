@@ -9,18 +9,17 @@ import { checkPostQuota, recordPost } from "@/lib/post-quota";
 import { getSettings } from "@/lib/settings";
 import { scanProfanity, getActiveProfanityWords } from "@/lib/profanity";
 import { isGoogleMapsUrl, resolveMapUrl } from "@/lib/map-embed";
-import { createJob, listJobs, countJobs, type JobType, type JobStatus } from "@/lib/jobs";
+import { createJob, listJobs, countJobs, type JobStatus } from "@/lib/jobs";
 
-const JOB_TYPES: JobType[] = ["toan-thoi-gian", "ban-thoi-gian", "thoi-vu", "thuc-tap"];
 const STATUSES: JobStatus[] = ["open", "closed", "filled"];
 
 export async function GET(req: Request) {
   const sp = new URL(req.url).searchParams;
-  const jt = sp.get("jobType");
   const status = sp.get("status");
+  // industry / jobType là slug danh mục (chuỗi tự do do admin quản lý).
   const opts = {
     industry: sp.get("industry") || undefined,
-    jobType: jt && JOB_TYPES.includes(jt as JobType) ? (jt as JobType) : undefined,
+    jobType: sp.get("jobType") || undefined,
     wardSlug: sp.get("ward") || undefined,
     status: status && STATUSES.includes(status as JobStatus) ? (status as JobStatus) : undefined,
     search: sp.get("search") || undefined,
@@ -54,8 +53,9 @@ export async function POST(req: Request) {
   if (title.length > 160 || companyClean.length > 120) {
     return NextResponse.json({ error: "Tiêu đề / tên nhà tuyển dụng quá dài." }, { status: 400 });
   }
-  if (!industry) return NextResponse.json({ error: "Vui lòng chọn ngành nghề." }, { status: 400 });
-  if (!JOB_TYPES.includes(jobType)) return NextResponse.json({ error: "Loại hình công việc không hợp lệ." }, { status: 400 });
+  // industry / jobType là slug danh mục — chỉ cần là chuỗi không rỗng (admin quản lý danh mục).
+  if (typeof industry !== "string" || !industry.trim()) return NextResponse.json({ error: "Vui lòng chọn ngành nghề." }, { status: 400 });
+  if (typeof jobType !== "string" || !jobType.trim()) return NextResponse.json({ error: "Vui lòng chọn loại hình công việc." }, { status: 400 });
 
   const cleanDescription = sanitizeHtml(typeof description === "string" ? description : "");
   if (!stripHtml(cleanDescription)) {

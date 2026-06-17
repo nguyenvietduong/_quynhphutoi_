@@ -11,9 +11,9 @@ import { Combobox } from "@/components/lostfound/Combobox";
 export type HealthItem = {
   slug: string;
   name: string;
-  type: "benh-vien" | "trung-tam-y-te" | "phong-kham" | "tram-y-te" | "nha-thuoc";
+  type: string;               // slug danh mục module "y-te"
   typeLabel: string;
-  ownership: "cong-lap" | "tu-nhan";
+  ownership: string;          // slug danh mục module "so-huu-y-te"
   ward: string;
   wardSlug: string;
   newCommune: string | null;
@@ -23,31 +23,20 @@ export type HealthItem = {
   verified: boolean;
 };
 
-type Counts = { all: number } & Record<HealthItem["type"], number>;
+type Option = { slug: string; name: string };
 
 const PAGE_SIZE = 12;
-const TYPE_TABS = [
-  { key: "all", label: "Tất cả" },
-  { key: "benh-vien", label: "Bệnh viện" },
-  { key: "trung-tam-y-te", label: "Trung tâm y tế" },
-  { key: "phong-kham", label: "Phòng khám" },
-  { key: "tram-y-te", label: "Trạm y tế" },
-  { key: "nha-thuoc", label: "Nhà thuốc" },
-] as const;
-type TypeKey = (typeof TYPE_TABS)[number]["key"];
-
-const OWNER_LABEL = { "cong-lap": "Công lập", "tu-nhan": "Tư nhân" } as const;
 
 function IcHospital() { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M4 21V7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v14" /><path d="M2 21h20" /><path d="M12 8v6M9 11h6" /><path d="M9 21v-3a3 3 0 0 1 6 0v3" /></svg>; }
 function IcCross() { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M3 12h6V6a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v6h6v4h-6v6a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1v-6H3z" /></svg>; }
 function IcPill() { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden><rect x="3" y="8" width="18" height="8" rx="4" transform="rotate(45 12 12)" /><path d="M8.5 8.5 15 15" /></svg>; }
-function HealthIcon({ type }: { type: HealthItem["type"] }) {
+function HealthIcon({ type }: { type: string }) {
   if (type === "benh-vien" || type === "trung-tam-y-te") return <IcHospital />;
   if (type === "nha-thuoc") return <IcPill />;
   return <IcCross />;
 }
 
-function HealthCard({ h }: { h: HealthItem }) {
+function HealthCard({ h, ownerLabel }: { h: HealthItem; ownerLabel: (s: string) => string }) {
   const href = `/y-te/${h.slug}`;
   return (
     <article className="qp-job-card">
@@ -60,7 +49,7 @@ function HealthCard({ h }: { h: HealthItem }) {
       </div>
       <div className="qp-job-card__tags">
         <span className="qp-tag-cat">{h.typeLabel}</span>
-        <span className={`qp-health-own is-${h.ownership}`}>{OWNER_LABEL[h.ownership]}</span>
+        <span className={`qp-health-own is-${h.ownership}`}>{ownerLabel(h.ownership)}</span>
         {h.emergency && <span className="qp-health-emergency">Cấp cứu 24/7</span>}
       </div>
       {h.hours && <div className="qp-job-card__meta"><span>🕒 {h.hours}</span></div>}
@@ -73,19 +62,24 @@ function HealthCard({ h }: { h: HealthItem }) {
 }
 
 export function HealthBrowser({
-  items, wards, counts,
+  items, wards, counts, typeOptions, ownershipOptions,
 }: {
   items: HealthItem[];
   wards: { slug: string; name: string; newCommune?: string }[];
-  counts: Counts;
+  counts: Record<string, number>;
+  typeOptions: Option[];
+  ownershipOptions: Option[];
 }) {
-  const [type, setType] = useState<TypeKey>("all");
+  const [type, setType] = useState("all");
   const [ward, setWard] = useState("all");
   const [owner, setOwner] = useState("all");
   const [query, setQuery] = useState("");
 
+  const typeTabs = useMemo(() => [{ key: "all", label: "Tất cả" }, ...typeOptions.map((t) => ({ key: t.slug, label: t.name }))], [typeOptions]);
+  const ownerLabel = (s: string) => ownershipOptions.find((o) => o.slug === s)?.name ?? s;
+
   const wardOptions = useMemo(() => [{ value: "all", label: `Tất cả xã/thị trấn (${wards.length})` }, ...wards.map((w) => ({ value: w.slug, label: w.name, hint: w.newCommune ? `Xã mới: ${w.newCommune}` : undefined }))], [wards]);
-  const ownerOptions = [{ value: "all", label: "Tất cả loại hình" }, { value: "cong-lap", label: "Công lập" }, { value: "tu-nhan", label: "Tư nhân" }];
+  const ownerOptions = useMemo(() => [{ value: "all", label: "Tất cả loại hình" }, ...ownershipOptions.map((o) => ({ value: o.slug, label: o.name }))], [ownershipOptions]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -105,10 +99,10 @@ export function HealthBrowser({
   return (
     <>
       <div className="qp-tabs" role="tablist" aria-label="Lọc theo loại cơ sở">
-        {TYPE_TABS.map((t) => (
+        {typeTabs.map((t) => (
           <button key={t.key} type="button" role="tab" aria-selected={type === t.key}
             className={`qp-tab${type === t.key ? " is-active" : ""}`} onClick={() => { setType(t.key); reset(); }}>
-            {t.label} <span className="qp-tab__count">{counts[t.key]}</span>
+            {t.label} <span className="qp-tab__count">{counts[t.key] ?? 0}</span>
           </button>
         ))}
       </div>
@@ -132,7 +126,7 @@ export function HealthBrowser({
       {pageItems.length === 0 ? (
         <div className="qp-empty"><div className="qp-empty__title">Không tìm thấy cơ sở</div><p className="type-body-small">Thử đổi loại, xã hoặc từ khoá khác.</p></div>
       ) : (
-        <div className="qp-job-grid">{pageItems.map((h) => <HealthCard key={h.slug} h={h} />)}</div>
+        <div className="qp-job-grid">{pageItems.map((h) => <HealthCard key={h.slug} h={h} ownerLabel={ownerLabel} />)}</div>
       )}
 
       <ListPager pager={pager} />

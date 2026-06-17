@@ -10,7 +10,7 @@
 // Chạy: npm run seed:schools
 
 import { MongoClient } from "mongodb";
-import type { SchoolDoc, SchoolLevel } from "../lib/schools"; // chỉ lấy kiểu
+import type { SchoolDoc } from "../lib/schools"; // chỉ lấy kiểu
 import { isCli } from "./_cli";
 
 const uri = process.env.MONGODB_URI || "mongodb://localhost:27017";
@@ -170,7 +170,7 @@ async function main() {
     const now = new Date();
     await col.insertMany(out.map((s) => ({ ...s, createdAt: now, updatedAt: now })));
 
-    const cnt = (lv: SchoolLevel) => out.filter((s) => s.levels.includes(lv)).length;
+    const cnt = (lv: string) => out.filter((s) => s.levels.includes(lv)).length;
     const ver = out.filter((s) => s.verified).length;
     console.log(`✓ Mầm non      : ${cnt("mam-non")}`);
     console.log(`✓ Tiểu học     : ${cnt("tieu-hoc")} (gồm trường liên cấp TH&THCS)`);

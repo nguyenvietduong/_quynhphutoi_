@@ -2,11 +2,12 @@
 // Chạy: npm run seed:relics
 import { MongoClient } from "mongodb";
 import { isCli } from "./_cli";
-import type { RelicDoc, RelicType } from "../lib/relics";
+import type { RelicDoc } from "../lib/relics";
 
 const uri = process.env.MONGODB_URI || "mongodb://localhost:27017";
 const dbName = process.env.MONGODB_DB || "quynhphu";
-const TLABEL: Record<RelicType, string> = { den: "Đền", chua: "Chùa", dinh: "Đình", mieu: "Miếu", "nha-tho": "Nhà thờ", khac: "Khác" };
+// Nhãn loại khớp danh mục module "di-tich" (chỉ để denormalize khi seed).
+const TLABEL: Record<string, string> = { den: "Đền", chua: "Chùa", dinh: "Đình", mieu: "Miếu", "nha-tho": "Nhà thờ", khac: "Khác" };
 
 // Ảnh thật theo chủ đề (loremflickr, ?lock cố định để seed ổn định).
 const img = (kw: string, ...locks: number[]) => locks.map((l) => `https://loremflickr.com/800/600/${kw}?lock=${l}`);
@@ -66,6 +67,12 @@ const ITEMS: Seed[] = [
     images: img("church", 371, 372),
     description: "Nhà thờ mang phong cách kiến trúc Gothic với tháp chuông cao, là trung tâm sinh hoạt của cộng đồng giáo dân địa phương.",
   }),
+  add({
+    slug: "tu-duong-dong-ho-nguyen", name: "Từ đường dòng họ Nguyễn", type: "khac", wardSlug: "quynh-coi", address: "Thị trấn Quỳnh Côi",
+    era: "Thời Nguyễn", worship: "Tổ tiên dòng họ Nguyễn",
+    images: img("architecture", 381, 382),
+    description: "Từ đường thờ tổ tiên dòng họ Nguyễn — công trình tín ngưỡng dòng họ tiêu biểu, nơi con cháu hội tụ dịp giỗ tổ và lễ tết.",
+  }),
 ];
 
 export function seedDocs() {
@@ -84,7 +91,7 @@ async function main() {
     await col.deleteMany({});
     const now = new Date();
     await col.insertMany(ITEMS.map((s) => ({ ...s, createdAt: now, updatedAt: now })));
-    const cnt = (t: RelicType) => ITEMS.filter((i) => i.type === t).length;
+    const cnt = (t: string) => ITEMS.filter((i) => i.type === t).length;
     console.log(`✓ Đền   : ${cnt("den")}`);
     console.log(`✓ Chùa  : ${cnt("chua")}`);
     console.log(`✓ Đình  : ${cnt("dinh")}`);

@@ -1,13 +1,13 @@
 // Admin: cập nhật (PATCH) & xoá (DELETE) một di tích.
 import { NextResponse } from "next/server";
 import { requireStaff } from "@/lib/admin-guard";
-import { updateRelic, deleteRelic, type RelicInput, type RelicType, type RelicRanking } from "@/lib/relics";
+import { updateRelic, deleteRelic, type RelicInput } from "@/lib/relics";
+import { listActiveCategoryOptions } from "@/lib/categories";
 import { sanitizeSeoFields } from "@/lib/seo-fields";
 import { WARDS } from "@/lib/wards";
 
-const TYPES: RelicType[] = ["den", "chua", "dinh", "mieu", "nha-tho", "khac"];
-const RANKINGS: RelicRanking[] = ["quoc-gia", "cap-tinh", "kiem-ke"];
 const WARD_SET = new Set(WARDS.map((w) => w.slug));
+const slugSet = async (module: string) => new Set((await listActiveCategoryOptions(module)).map((o) => o.slug));
 
 export async function PATCH(req: Request, { params }: { params: Promise<{ slug: string }> }) {
   const g = await requireStaff();
@@ -20,8 +20,8 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ slug: 
     if (typeof b[k] === "string") patch[k] = b[k];
   if (b.wardSlug !== undefined && !WARD_SET.has(String(b.wardSlug)))
     return NextResponse.json({ error: "Xã/thị trấn không hợp lệ." }, { status: 400 });
-  if (b.type !== undefined) { if (!TYPES.includes(b.type)) return NextResponse.json({ error: "Loại di tích không hợp lệ." }, { status: 400 }); patch.type = b.type; }
-  if (b.ranking !== undefined && b.ranking !== "") { if (!RANKINGS.includes(b.ranking)) return NextResponse.json({ error: "Xếp hạng không hợp lệ." }, { status: 400 }); patch.ranking = b.ranking; }
+  if (b.type !== undefined) { if (!(await slugSet("di-tich")).has(String(b.type))) return NextResponse.json({ error: "Loại di tích không hợp lệ." }, { status: 400 }); patch.type = b.type; }
+  if (b.ranking !== undefined && b.ranking !== "") { if (!(await slugSet("xep-hang-di-tich")).has(String(b.ranking))) return NextResponse.json({ error: "Xếp hạng không hợp lệ." }, { status: 400 }); patch.ranking = b.ranking; }
   if (b.recognizedYear !== undefined) patch.recognizedYear = b.recognizedYear ? Number(b.recognizedYear) : undefined;
   if (Array.isArray(b.images)) patch.images = (b.images as unknown[]).map(String);
   if (typeof b.verified === "boolean") patch.verified = b.verified;

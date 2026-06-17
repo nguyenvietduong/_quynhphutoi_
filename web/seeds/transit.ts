@@ -2,11 +2,11 @@
 // Chạy: npm run seed:transit
 import { MongoClient } from "mongodb";
 import { isCli } from "./_cli";
-import type { TransitDoc, TransitType } from "../lib/transit";
+import type { TransitDoc } from "../lib/transit";
 
 const uri = process.env.MONGODB_URI || "mongodb://localhost:27017";
 const dbName = process.env.MONGODB_DB || "quynhphu";
-const TLABEL: Record<TransitType, string> = { "lien-tinh": "Liên tỉnh", "noi-tinh": "Nội tỉnh", "xe-buyt": "Xe buýt" };
+const TLABEL: Record<string, string> = { "lien-tinh": "Liên tỉnh", "noi-tinh": "Nội tỉnh", "xe-buyt": "Xe buýt" };
 
 type Seed = Omit<TransitDoc, "_id" | "createdAt" | "updatedAt">;
 const ROUTES: Seed[] = [
@@ -77,7 +77,7 @@ async function main() {
     await col.deleteMany({});
     const now = new Date();
     await col.insertMany(ROUTES.map((r) => ({ ...r, createdAt: now, updatedAt: now })));
-    const cnt = (t: TransitType) => ROUTES.filter((r) => r.type === t).length;
+    const cnt = (t: string) => ROUTES.filter((r) => r.type === t).length;
     console.log(`✓ Liên tỉnh : ${cnt("lien-tinh")}`);
     console.log(`✓ Nội tỉnh  : ${cnt("noi-tinh")}`);
     console.log(`✓ Xe buýt   : ${cnt("xe-buyt")}`);

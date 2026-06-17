@@ -2,11 +2,12 @@
 // Chạy: npm run seed:market
 import { MongoClient } from "mongodb";
 import { isCli } from "./_cli";
-import type { MarketDoc, MarketCategory } from "../lib/market";
+import type { MarketDoc } from "../lib/market";
 
 const uri = process.env.MONGODB_URI || "mongodb://localhost:27017";
 const dbName = process.env.MONGODB_DB || "quynhphu";
-const CLABEL: Record<MarketCategory, string> = { "cho-phien": "Chợ phiên", "dac-san": "Đặc sản", "rao-vat": "Rao vặt" };
+// Nhãn khớp slug danh mục module "cho" (collection `categories`).
+const CLABEL: Record<string, string> = { "cho-phien": "Chợ phiên", "dac-san": "Đặc sản", "rao-vat": "Rao vặt" };
 
 type Seed = Omit<MarketDoc, "_id" | "createdAt" | "updatedAt">;
 const add = (s: Partial<Seed> & Pick<Seed, "slug" | "name" | "category" | "wardSlug">): Seed =>
@@ -35,6 +36,11 @@ const ITEMS: Seed[] = [
     description: "Trứng vịt lộn nuôi thả đồng, được ưa chuộng tại các chợ trong huyện." }),
   add({ slug: "rau-mau-an-toan", name: "Rau màu an toàn", category: "dac-san", wardSlug: "an-ninh", priceText: "Theo mùa", unit: "kg",
     description: "Rau màu canh tác an toàn (cải, bắp cải, su hào, hành) từ vùng chuyên canh." }),
+
+  // ── Rao vặt ──
+  add({ slug: "ban-thoc-giong-quynh-phu", name: "Bán thóc giống vụ mùa", category: "rao-vat", wardSlug: "quynh-coi",
+    priceText: "Thoả thuận", contactName: "Anh Hùng", contactPhone: "0912 345 678",
+    description: "Cung cấp thóc giống chất lượng cho vụ mùa tại địa bàn Quỳnh Phụ — liên hệ trực tiếp để biết chi tiết." }),
 ];
 
 export function seedDocs() {
@@ -53,7 +59,7 @@ async function main() {
     await col.deleteMany({});
     const now = new Date();
     await col.insertMany(ITEMS.map((s) => ({ ...s, createdAt: now, updatedAt: now })));
-    const cnt = (c: MarketCategory) => ITEMS.filter((i) => i.category === c).length;
+    const cnt = (c: string) => ITEMS.filter((i) => i.category === c).length;
     console.log(`✓ Chợ phiên : ${cnt("cho-phien")}`);
     console.log(`✓ Đặc sản   : ${cnt("dac-san")}`);
     console.log(`✓ Rao vặt   : ${cnt("rao-vat")}`);

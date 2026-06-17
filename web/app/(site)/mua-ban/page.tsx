@@ -2,7 +2,7 @@ import { pageMetadata } from "@/lib/page-seo";
 import { JsonLd } from "@/components/common/JsonLd";
 import { jsonLdBreadcrumb } from "@/lib/seo";
 import Link from "next/link";
-import { listClassifieds, listMyClassifieds, countClassifieds, CLASSIFIED_CATEGORIES, type ClassifiedDoc } from "@/lib/classifieds";
+import { listClassifieds, listMyClassifieds, countClassifieds, type ClassifiedDoc } from "@/lib/classifieds";
 import { getSession } from "@/lib/auth";
 import { getAdminUnitsMap, type AdminUnit } from "@/lib/admin-units";
 import { stripHtml } from "@/lib/strip-html";
@@ -34,14 +34,15 @@ function toItem(d: ClassifiedDoc, units: Map<string, AdminUnit>, showPhone = fal
 }
 
 export default async function MuaBanPage() {
-  const [docs, session, total, units, settings, dbCats] = await Promise.all([listClassifieds({ limit: 500 }), getSession(), countClassifieds(), getAdminUnitsMap(), getSettings(), listActiveCategoryOptions("mua-ban")]);
+  const [docs, session, total, units, settings, dbCats, dbConds] = await Promise.all([listClassifieds({ limit: 500 }), getSession(), countClassifieds(), getAdminUnitsMap(), getSettings(), listActiveCategoryOptions("mua-ban"), listActiveCategoryOptions("tinh-trang")]);
   const items = docs.map((d) => toItem(d, units));
   const pendingItems: ClassifiedItem[] = session
     ? (await listMyClassifieds(session.id)).filter((d) => !d.approved && d.active).map((d) => toItem(d, units, true))
     : [];
 
-  // Danh mục lấy từ DB (admin quản lý). DB rỗng → fallback list cố định.
-  const categories = dbCats.length ? dbCats : CLASSIFIED_CATEGORIES.map((c) => ({ slug: c.slug, name: c.label }));
+  // Danh mục lấy 100% từ DB (admin quản lý ở /admin/danh-muc).
+  const categories = dbCats.map((c) => ({ slug: c.slug, name: c.name }));
+  const conditions = dbConds.map((c) => ({ slug: c.slug, name: c.name }));
   const wards = [...new Map(items.map((i) => [i.wardSlug, { slug: i.wardSlug, name: i.ward, newCommune: i.newCommune ?? undefined }])).values()]
     .sort((a, b) => a.name.localeCompare(b.name, "vi"));
 
@@ -81,7 +82,7 @@ export default async function MuaBanPage() {
 
       <section className="qp-newsmain">
         <div className="container-wide">
-          <ClassifiedBrowser items={items} pendingItems={pendingItems} categories={categories} wards={wards} isLoggedIn={!!session} defaultName={session?.name ?? ""} maxImages={settings.postMaxImages} />
+          <ClassifiedBrowser items={items} pendingItems={pendingItems} categories={categories} conditions={conditions} wards={wards} isLoggedIn={!!session} defaultName={session?.name ?? ""} maxImages={settings.postMaxImages} />
         </div>
       </section>
     </>

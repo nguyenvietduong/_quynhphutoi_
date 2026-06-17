@@ -16,8 +16,9 @@ export type JobItem = {
   slug: string;
   title: string;
   company: string;
-  industry: string;
+  industry: string;          // slug ngành
   industryLabel: string;
+  jobType: string;           // slug loại hình
   jobTypeLabel: string;
   images: string[];
   salaryText: string;
@@ -80,11 +81,12 @@ function JobCard({ j, pending = false }: { j: JobItem; pending?: boolean }) {
 }
 
 export function JobBrowser({
-  items, pendingItems, industries, wards, isLoggedIn, defaultName, maxImages,
+  items, pendingItems, industries, jobTypes, wards, isLoggedIn, defaultName, maxImages,
 }: {
   items: JobItem[];
   pendingItems: JobItem[];
   industries: { slug: string; name: string }[];
+  jobTypes: { slug: string; name: string }[];
   wards: { slug: string; name: string; newCommune?: string }[];
   isLoggedIn: boolean;
   defaultName: string;
@@ -101,11 +103,7 @@ export function JobBrowser({
   const isPending = view === "cho-duyet";
 
   const indOptions = useMemo(() => [{ value: "all", label: `Tất cả ngành (${industries.length})` }, ...industries.map((i) => ({ value: i.slug, label: i.name }))], [industries]);
-  const typeOptions = useMemo(() => [
-    { value: "all", label: "Tất cả loại hình" },
-    { value: "toan-thoi-gian", label: "Toàn thời gian" }, { value: "ban-thoi-gian", label: "Bán thời gian" },
-    { value: "thoi-vu", label: "Thời vụ" }, { value: "thuc-tap", label: "Thực tập" },
-  ], []);
+  const typeOptions = useMemo(() => [{ value: "all", label: "Tất cả loại hình" }, ...jobTypes.map((t) => ({ value: t.slug, label: t.name }))], [jobTypes]);
   const wardOptions = useMemo(() => [{ value: "all", label: `Tất cả xã/thị trấn (${wards.length})` }, ...wards.map((w) => ({ value: w.slug, label: w.name, hint: w.newCommune ? `Xã mới: ${w.newCommune}` : undefined }))], [wards]);
 
   const filtered = useMemo(() => {
@@ -114,7 +112,7 @@ export function JobBrowser({
     const src = isPending ? pendingItems : items;
     return src.filter((j) => {
       const okInd = industry === "all" || j.industry === industry;
-      const okType = jobType === "all" || j.jobTypeLabel === typeOptions.find((t) => t.value === jobType)?.label;
+      const okType = jobType === "all" || j.jobType === jobType;
       const okWard = ward === "all" || j.wardSlug === ward;
       // Lọc theo tuổi: tin phù hợp nếu tuổi của bạn nằm trong khoảng yêu cầu (hoặc tin không yêu cầu tuổi).
       const okAge = ageNum === null || Number.isNaN(ageNum)
@@ -122,7 +120,7 @@ export function JobBrowser({
       const okQ = !q || j.title.toLowerCase().includes(q) || j.company.toLowerCase().includes(q) || j.ward.toLowerCase().includes(q);
       return okInd && okType && okWard && okAge && okQ;
     });
-  }, [items, pendingItems, isPending, industry, jobType, ward, age, query, typeOptions]);
+  }, [items, pendingItems, isPending, industry, jobType, ward, age, query]);
 
   const pager = usePagedList(filtered, PAGE_SIZE);
   const pageItems = pager.items;
@@ -198,7 +196,7 @@ export function JobBrowser({
 
       <ListPager pager={pager} />
 
-      {postOpen && <JobPostModal open onClose={() => setPostOpen(false)} isLoggedIn={isLoggedIn} defaultName={defaultName} maxImages={maxImages} onSuccess={() => router.refresh()} />}
+      {postOpen && <JobPostModal open onClose={() => setPostOpen(false)} isLoggedIn={isLoggedIn} defaultName={defaultName} maxImages={maxImages} industries={industries} jobTypes={jobTypes} onSuccess={() => router.refresh()} />}
     </>
   );
 }

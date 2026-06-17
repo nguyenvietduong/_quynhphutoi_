@@ -5,6 +5,7 @@ import Link from "next/link";
 import { listHealth, countByType, type HealthDoc } from "@/lib/health";
 import { getAdminUnitsMap } from "@/lib/admin-units";
 import { HealthBrowser, type HealthItem } from "@/components/health/HealthBrowser";
+import { listActiveCategoryOptions } from "@/lib/categories";
 
 export async function generateMetadata() {
   return pageMetadata({
@@ -17,7 +18,10 @@ export async function generateMetadata() {
 export const dynamic = "force-dynamic";
 
 export default async function YTePage() {
-  const [docs, byType, units] = await Promise.all([listHealth({}), countByType(), getAdminUnitsMap()]);
+  const [docs, byType, units, typeOptions, ownershipOptions] = await Promise.all([
+    listHealth({}), countByType(), getAdminUnitsMap(),
+    listActiveCategoryOptions("y-te"), listActiveCategoryOptions("so-huu-y-te"),
+  ]);
 
   const items: HealthItem[] = docs.map((d: HealthDoc) => {
     const u = units.get(d.wardSlug);
@@ -40,14 +44,7 @@ export default async function YTePage() {
   const wards = [...new Map(items.map((i) => [i.wardSlug, { slug: i.wardSlug, name: i.ward, newCommune: i.newCommune ?? undefined }])).values()]
     .sort((a, b) => a.name.localeCompare(b.name, "vi"));
 
-  const counts = {
-    all: items.length,
-    "benh-vien": byType["benh-vien"],
-    "trung-tam-y-te": byType["trung-tam-y-te"],
-    "phong-kham": byType["phong-kham"],
-    "tram-y-te": byType["tram-y-te"],
-    "nha-thuoc": byType["nha-thuoc"],
-  };
+  const counts: Record<string, number> = { ...byType, all: items.length };
 
   return (
     <>
@@ -81,15 +78,15 @@ export default async function YTePage() {
           </div>
           <div className="qp-kpi-grid">
             <Kpi value={counts.all} unit="cơ sở" label="Tổng cơ sở y tế" />
-            <Kpi value={counts["tram-y-te"]} unit="trạm" label="Trạm y tế xã" />
-            <Kpi value={counts["benh-vien"] + counts["trung-tam-y-te"]} unit="đơn vị" label="Tuyến huyện" />
+            <Kpi value={counts["tram-y-te"] ?? 0} unit="trạm" label="Trạm y tế xã" />
+            <Kpi value={(counts["benh-vien"] ?? 0) + (counts["trung-tam-y-te"] ?? 0)} unit="đơn vị" label="Tuyến huyện" />
           </div>
         </div>
       </section>
 
       <section className="qp-newsmain">
         <div className="container-wide">
-          <HealthBrowser items={items} wards={wards} counts={counts} />
+          <HealthBrowser items={items} wards={wards} counts={counts} typeOptions={typeOptions} ownershipOptions={ownershipOptions} />
         </div>
       </section>
     </>

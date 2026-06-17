@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getRelicBySlug, relatedRelics, RANKING_LABEL } from "@/lib/relics";
+import { getRelicBySlug, relatedRelics } from "@/lib/relics";
+import { categoryLabelMap } from "@/lib/categories";
 import { getAdminUnitBySlug, fullOldAddress } from "@/lib/admin-units";
 import { ImageGallery } from "@/components/common/ImageGallery";
 import { DetailSocial } from "@/components/common/DetailSocial";
@@ -36,6 +37,7 @@ export default async function RelicDetailPage({ params }: { params: Promise<{ sl
   const oldAddress = fullOldAddress(unit ?? undefined, r.address);
   const newAddress = unit ? `Xã ${unit.newCommune}, ${unit.newProvince}` : "";
   const related = await relatedRelics(slug, r.type, 3);
+  const rankMap = await categoryLabelMap("xep-hang-di-tich");
 
   return (
     <article>
@@ -64,7 +66,7 @@ export default async function RelicDetailPage({ params }: { params: Promise<{ sl
           </nav>
           <div className="qp-lf-detail__badges">
             <span className="qp-tag-cat">{r.typeLabel}</span>
-            {r.ranking && <span className="qp-job-type">{RANKING_LABEL[r.ranking]}</span>}
+            {r.ranking && <span className="qp-job-type">{rankMap[r.ranking] ?? r.ranking}</span>}
             {r.featured && <span className="qp-badge-g4">TIÊU BIỂU</span>}
             {r.verified && <span className="qp-lf-status" style={{ background: "rgba(0,169,143,0.13)", color: "var(--color-teal-dark)" }}>✓ Đã xác minh</span>}
           </div>
@@ -110,7 +112,7 @@ export default async function RelicDetailPage({ params }: { params: Promise<{ sl
               <div className="qp-lf-infocard__title">Thông tin di tích</div>
               <div className="qp-lf-spec">
                 <div className="qp-lf-spec__row"><span>Loại</span><b>{r.typeLabel}</b></div>
-                {r.ranking && <div className="qp-lf-spec__row"><span>Xếp hạng</span><b style={{ color: "var(--color-teal-dark)" }}>{RANKING_LABEL[r.ranking]}</b></div>}
+                {r.ranking && <div className="qp-lf-spec__row"><span>Xếp hạng</span><b style={{ color: "var(--color-teal-dark)" }}>{rankMap[r.ranking] ?? r.ranking}</b></div>}
                 {r.recognizedYear ? <div className="qp-lf-spec__row"><span>Năm xếp hạng</span><b>{r.recognizedYear}</b></div> : null}
                 {r.era && <div className="qp-lf-spec__row"><span>Niên đại</span><b>{r.era}</b></div>}
                 {r.worship && <div className="qp-lf-spec__row"><span>Thờ tự</span><b>{r.worship}</b></div>}

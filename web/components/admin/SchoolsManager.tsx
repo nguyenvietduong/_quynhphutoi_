@@ -12,20 +12,7 @@ import { SeoFieldsEditor } from "@/components/admin/SeoFieldsEditor";
 import type { SeoFields } from "@/lib/seo-fields";
 import { useToast } from "@/components/common/Toast";
 
-const LEVELS = [
-  { slug: "mam-non", label: "Mầm non" },
-  { slug: "tieu-hoc", label: "Tiểu học" },
-  { slug: "thcs", label: "Trung học cơ sở" },
-  { slug: "thpt", label: "Trung học phổ thông" },
-] as const;
-const TYPES = [
-  { slug: "cong-lap", label: "Công lập" },
-  { slug: "tu-thuc", label: "Tư thục" },
-  { slug: "dan-lap", label: "Dân lập" },
-  { slug: "gdnn-gdtx", label: "GDNN–GDTX" },
-] as const;
-const levelLabel = (s: string) => LEVELS.find((x) => x.slug === s)?.label ?? s;
-const typeLabel = (s: string) => TYPES.find((x) => x.slug === s)?.label ?? s;
+type CatOption = { slug: string; name: string };
 const wardName = (s: string) => WARDS.find((w) => w.slug === s)?.name ?? s;
 
 type Form = {
@@ -33,11 +20,11 @@ type Form = {
   address: string; phone: string; email: string; website: string; principal: string;
   foundedYear: string; description: string; verified: boolean; active: boolean; seo?: SeoFields;
 };
-const EMPTY: Form = {
-  slug: "", name: "", shortName: "", level: "thpt", type: "cong-lap", wardSlug: WARDS[0]?.slug ?? "",
+const emptyForm = (level: string, type: string): Form => ({
+  slug: "", name: "", shortName: "", level, type, wardSlug: WARDS[0]?.slug ?? "",
   address: "", phone: "", email: "", website: "", principal: "", foundedYear: "", description: "",
   verified: false, active: true, seo: undefined,
-};
+});
 const toForm = (r: SchoolRow): Form => ({
   slug: r.slug, name: r.name, shortName: r.shortName ?? "", level: r.level, type: r.type, wardSlug: r.wardSlug,
   address: r.address ?? "", phone: r.phone ?? "", email: r.email ?? "", website: r.website ?? "",
@@ -45,11 +32,18 @@ const toForm = (r: SchoolRow): Form => ({
   verified: r.verified, active: r.active, seo: r.seo,
 });
 
-export function SchoolsManager({ initial }: { initial: SchoolRow[] }) {
+export function SchoolsManager({ initial, levelOptions, typeOptions }: { initial: SchoolRow[]; levelOptions: CatOption[]; typeOptions: CatOption[] }) {
+  const defLevel = levelOptions[0]?.slug ?? "";
+  const defType = typeOptions[0]?.slug ?? "";
+  const levelLabelMap = useMemo(() => new Map(levelOptions.map((o) => [o.slug, o.name])), [levelOptions]);
+  const typeLabelMap = useMemo(() => new Map(typeOptions.map((o) => [o.slug, o.name])), [typeOptions]);
+  const levelLabel = (s: string) => levelLabelMap.get(s) ?? s;
+  const typeLabel = (s: string) => typeLabelMap.get(s) ?? s;
+
   const [rows, setRows] = useState<SchoolRow[]>(initial);
   const [q, setQ] = useState("");
   const [fLevel, setFLevel] = useState("");
-  const [form, setForm] = useState<Form>({ ...EMPTY });
+  const [form, setForm] = useState<Form>(() => emptyForm(defLevel, defType));
   const [editing, setEditing] = useState<string | null>(null);
   const [show, setShow] = useState(false);
   useModalDismiss(show, () => setShow(false));
@@ -67,7 +61,7 @@ export function SchoolsManager({ initial }: { initial: SchoolRow[] }) {
 
   const pg = usePagination(filtered, 20);
 
-  function startNew() { setForm({ ...EMPTY }); setEditing(null); setShow(true); }
+  function startNew() { setForm(emptyForm(defLevel, defType)); setEditing(null); setShow(true); }
   function startEdit(r: SchoolRow) { setForm(toForm(r)); setEditing(r.slug); setShow(true); }
 
   async function submit(e: React.FormEvent) {
@@ -109,7 +103,7 @@ export function SchoolsManager({ initial }: { initial: SchoolRow[] }) {
         <input className="qp-input qp-admin-toolbar__search" placeholder="Tìm theo tên / xã…" value={q} onChange={(e) => setQ(e.target.value)} />
         <select className="qp-select" style={{ maxWidth: 200 }} value={fLevel} onChange={(e) => setFLevel(e.target.value)}>
           <option value="">Tất cả cấp học</option>
-          {LEVELS.map((l) => <option key={l.slug} value={l.slug}>{l.label}</option>)}
+          {levelOptions.map((l) => <option key={l.slug} value={l.slug}>{l.name}</option>)}
         </select>
         <span className="qp-admin-toolbar__spacer" />
         <PageSizeControl value={pg.pageSize} onChange={pg.setPageSize} total={filtered.length} />
@@ -137,11 +131,11 @@ export function SchoolsManager({ initial }: { initial: SchoolRow[] }) {
               <div className="qp-acc-grid2">
                 <div className="qp-form-group"><label className="qp-label">Cấp học <span className="req">*</span></label>
                   <select className="qp-select" value={form.level} onChange={(e) => set("level", e.target.value)}>
-                    {LEVELS.map((l) => <option key={l.slug} value={l.slug}>{l.label}</option>)}
+                    {levelOptions.map((l) => <option key={l.slug} value={l.slug}>{l.name}</option>)}
                   </select></div>
                 <div className="qp-form-group"><label className="qp-label">Loại hình <span className="req">*</span></label>
                   <select className="qp-select" value={form.type} onChange={(e) => set("type", e.target.value)}>
-                    {TYPES.map((t) => <option key={t.slug} value={t.slug}>{t.label}</option>)}
+                    {typeOptions.map((t) => <option key={t.slug} value={t.slug}>{t.name}</option>)}
                   </select></div>
               </div>
               <div className="qp-acc-grid2">

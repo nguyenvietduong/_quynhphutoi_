@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { listRelics, toRelicRow } from "@/lib/relics";
+import { listActiveCategoryOptions } from "@/lib/categories";
 import { RelicsManager } from "@/components/admin/RelicsManager";
 import { getPageSeoConfig } from "@/lib/page-seo";
 import { ModuleTabs } from "@/components/admin/ModuleTabs";
@@ -8,7 +9,12 @@ export const metadata: Metadata = { title: "Di tích — Quản trị", robots: 
 export const dynamic = "force-dynamic";
 
 export default async function AdminRelicsPage() {
-  const [docs, pageSeo] = await Promise.all([listRelics({}), getPageSeoConfig()]);
+  const [docs, pageSeo, typeOptions, rankingOptions] = await Promise.all([
+    listRelics({}),
+    getPageSeoConfig(),
+    listActiveCategoryOptions("di-tich"),
+    listActiveCategoryOptions("xep-hang-di-tich"),
+  ]);
   const rows = docs.map(toRelicRow);
   return (
     <>
@@ -18,7 +24,7 @@ export default async function AdminRelicsPage() {
         <p className="qp-admin-head__desc">Quản lý di tích lịch sử - văn hoá trên địa bàn huyện — thêm, sửa, xoá và ẩn/hiện.</p>
       </div>
       <ModuleTabs pageKey="/di-tich" pageLabel="Di tích" listLabel="Danh sách di tích" seoInitial={pageSeo["/di-tich"] ?? {}}>
-        <RelicsManager initial={rows} />
+        <RelicsManager initial={rows} typeOptions={typeOptions} rankingOptions={rankingOptions} />
       </ModuleTabs>
     </>
   );

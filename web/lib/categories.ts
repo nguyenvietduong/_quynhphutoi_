@@ -196,11 +196,29 @@ export function buildTree(flat: CategoryDoc[]): CategoryNode[] {
 }
 
 // Danh sách phẳng {slug, name} các danh mục ĐANG bật của 1 module (theo order),
-// dùng cho dropdown/lọc ở Tin tức & Mua bán (danh mục phẳng, không phân cấp).
+// dùng cho dropdown/lọc ở mọi phân hệ (danh mục phẳng, không phân cấp).
 export async function listActiveCategoryOptions(module: string): Promise<{ slug: string; name: string }[]> {
   const col = await categories();
   const rows = await col.find({ module, active: true }).sort({ order: 1, name: 1 }).toArray();
   return rows.map((c) => ({ slug: c.slug, name: c.name }));
+}
+
+// Map slug → name MỌI danh mục của 1 module (kể cả đang ẩn) — để hiển thị nhãn
+// của bản ghi cũ dù danh mục sau này bị ẩn. Fallback hiển thị = chính slug.
+export async function categoryLabelMap(module: string): Promise<Record<string, string>> {
+  const col = await categories();
+  const rows = await col.find({ module }).sort({ order: 1, name: 1 }).toArray();
+  const map: Record<string, string> = {};
+  for (const r of rows) map[r.slug] = r.name;
+  return map;
+}
+
+// Nhãn hiển thị của 1 slug trong module — đọc thẳng DB (dùng khi tạo/sửa để
+// denormalize label vào bản ghi). Không tìm thấy → trả lại chính slug.
+export async function categoryName(module: string, slug: string): Promise<string> {
+  if (!slug) return slug;
+  const cat = await (await categories()).findOne({ module, slug });
+  return cat?.name || slug;
 }
 
 export async function getByPath(module: string, path: string) {

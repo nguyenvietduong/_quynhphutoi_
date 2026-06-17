@@ -9,13 +9,16 @@ import { ListPager } from "@/components/common/ListPager";
 import { usePagedList } from "@/lib/use-paged-list";
 import { Combobox } from "@/components/lostfound/Combobox";
 
+export type CatOption = { slug: string; name: string };
+
 export type SchoolItem = {
   slug: string;
   name: string;
-  level: "mam-non" | "tieu-hoc" | "thcs" | "thpt";
-  levels: ("mam-non" | "tieu-hoc" | "thcs" | "thpt")[];
+  level: string;
+  levels: string[];
   levelLabel: string;
-  type: "cong-lap" | "tu-thuc" | "dan-lap" | "gdnn-gdtx";
+  type: string;
+  typeLabel: string;
   ward: string;
   wardSlug: string;
   newCommune: string | null;
@@ -26,33 +29,10 @@ export type SchoolItem = {
   verified: boolean;
 };
 
-type Counts = { all: number; "mam-non": number; "tieu-hoc": number; thcs: number; thpt: number };
+// counts: số trường theo slug cấp học (+ "all" tổng).
+type Counts = Record<string, number>;
 
 const PAGE_SIZE = 12;
-
-const LEVEL_TABS = [
-  { key: "all", label: "Tất cả" },
-  { key: "mam-non", label: "Mầm non" },
-  { key: "tieu-hoc", label: "Tiểu học" },
-  { key: "thcs", label: "THCS" },
-  { key: "thpt", label: "THPT & GDTX" },
-] as const;
-type LevelKey = (typeof LEVEL_TABS)[number]["key"];
-
-const TYPE_LABEL: Record<SchoolItem["type"], string> = {
-  "cong-lap": "Công lập",
-  "dan-lap": "Dân lập",
-  "tu-thuc": "Tư thục",
-  "gdnn-gdtx": "GDNN-GDTX",
-};
-
-const TYPES: { value: string; label: string }[] = [
-  { value: "all", label: "Tất cả loại hình" },
-  { value: "cong-lap", label: "Công lập" },
-  { value: "dan-lap", label: "Dân lập" },
-  { value: "tu-thuc", label: "Tư thục" },
-  { value: "gdnn-gdtx", label: "GDNN-GDTX" },
-];
 
 function PinIcon() {
   return (
@@ -85,7 +65,7 @@ function SchoolCard({ s }: { s: SchoolItem }) {
       <div className="qp-mesh-card__body">
         <div className="qp-school-card__top">
           <span className="qp-tag-cat">{s.levelLabel}</span>
-          <span className={`qp-school-type is-${s.type}`}>{TYPE_LABEL[s.type]}</span>
+          <span className={`qp-school-type is-${s.type}`}>{s.typeLabel}</span>
           {s.verified && (
             <span className="qp-school-card__check" title="Đã xác minh nguồn"><CheckIcon /></span>
           )}
@@ -108,16 +88,22 @@ function SchoolCard({ s }: { s: SchoolItem }) {
   );
 }
 
-export function SchoolBrowser({ items, wards, newCommunes, counts }: { items: SchoolItem[]; wards: { slug: string; name: string }[]; newCommunes: { slug: string; name: string }[]; counts: Counts }) {
-  const [level, setLevel] = useState<LevelKey>("all");
+export function SchoolBrowser({ items, wards, newCommunes, counts, levelOptions, typeOptions: typeCats }: { items: SchoolItem[]; wards: { slug: string; name: string }[]; newCommunes: { slug: string; name: string }[]; counts: Counts; levelOptions: CatOption[]; typeOptions: CatOption[] }) {
+  const [level, setLevel] = useState("all");
   const [ward, setWard] = useState("all");
   const [newCommune, setNewCommune] = useState("all");
   const [type, setType] = useState("all");
   const [query, setQuery] = useState("");
 
+  // Tabs cấp học: "Tất cả" + từng danh mục bậc học (động).
+  const levelTabs = useMemo(
+    () => [{ key: "all", label: "Tất cả" }, ...levelOptions.map((l) => ({ key: l.slug, label: l.name }))],
+    [levelOptions],
+  );
+
   const wardOptions = useMemo(() => [{ value: "all", label: `Tất cả (${wards.length})` }, ...wards.map((w) => ({ value: w.slug, label: w.name }))], [wards]);
   const newCommuneOptions = useMemo(() => [{ value: "all", label: `Tất cả (${newCommunes.length})` }, ...newCommunes.map((w) => ({ value: w.slug, label: w.name }))], [newCommunes]);
-  const typeOptions = useMemo(() => TYPES.map((t) => ({ value: t.value, label: t.label })), []);
+  const typeOptions = useMemo(() => [{ value: "all", label: "Tất cả loại hình" }, ...typeCats.map((t) => ({ value: t.slug, label: t.name }))], [typeCats]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -139,7 +125,7 @@ export function SchoolBrowser({ items, wards, newCommunes, counts }: { items: Sc
     <>
       {/* Tabs cấp học */}
       <div className="qp-tabs" role="tablist" aria-label="Lọc theo cấp học">
-        {LEVEL_TABS.map((t) => (
+        {levelTabs.map((t) => (
           <button
             key={t.key}
             type="button"
@@ -148,7 +134,7 @@ export function SchoolBrowser({ items, wards, newCommunes, counts }: { items: Sc
             className={`qp-tab${level === t.key ? " is-active" : ""}`}
             onClick={() => { setLevel(t.key); reset(); }}
           >
-            {t.label} <span className="qp-tab__count">{counts[t.key]}</span>
+            {t.label} <span className="qp-tab__count">{counts[t.key] ?? 0}</span>
           </button>
         ))}
       </div>

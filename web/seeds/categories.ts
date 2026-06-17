@@ -153,6 +153,140 @@ const MODULES: { module: string; label: string; tree: SeedNode[]; prune?: boolea
       { slug: "khac", name: "Đồ khác" },
     ],
   },
+
+  // ─── Danh mục PHÂN LOẠI của các phân hệ (trước đây hardcode trong lib/*.ts).
+  // Slug phải KHỚP slug đã lưu trong dữ liệu content để nhãn & bộ lọc đúng.
+  // prune:false → admin tự thêm loại mới mà seed không xoá.
+  {
+    module: "viec-lam",
+    label: "Việc làm (ngành nghề)",
+    prune: false,
+    tree: [
+      { slug: "nong-nghiep", name: "Nông nghiệp - Thủy sản" },
+      { slug: "san-xuat", name: "Sản xuất - Công nghiệp" },
+      { slug: "may-mac", name: "May mặc - Da giày" },
+      { slug: "co-khi-dien", name: "Cơ khí - Điện - Điện tử" },
+      { slug: "xay-dung", name: "Xây dựng" },
+      { slug: "kinh-doanh", name: "Bán hàng - Kinh doanh" },
+      { slug: "dich-vu", name: "Dịch vụ - Nhà hàng - Khách sạn" },
+      { slug: "van-tai", name: "Vận tải - Kho bãi" },
+      { slug: "van-phong", name: "Hành chính - Văn phòng" },
+      { slug: "ke-toan", name: "Kế toán - Tài chính" },
+      { slug: "giao-duc", name: "Giáo dục - Đào tạo" },
+      { slug: "y-te", name: "Y tế - Chăm sóc sức khỏe" },
+      { slug: "cntt", name: "Công nghệ thông tin" },
+      { slug: "lao-dong-pho-thong", name: "Lao động phổ thông" },
+      { slug: "khac", name: "Ngành nghề khác" },
+    ],
+  },
+  {
+    module: "truong-hoc",
+    label: "Trường học (cấp học)",
+    prune: false,
+    tree: [
+      { slug: "mam-non", name: "Mầm non" },
+      { slug: "tieu-hoc", name: "Tiểu học" },
+      { slug: "thcs", name: "Trung học cơ sở" },
+      { slug: "thpt", name: "Trung học phổ thông" },
+    ],
+  },
+  {
+    module: "y-te",
+    label: "Y tế (loại cơ sở)",
+    prune: false,
+    tree: [
+      { slug: "benh-vien", name: "Bệnh viện" },
+      { slug: "trung-tam-y-te", name: "Trung tâm y tế" },
+      { slug: "phong-kham", name: "Phòng khám" },
+      { slug: "tram-y-te", name: "Trạm y tế" },
+      { slug: "nha-thuoc", name: "Nhà thuốc" },
+    ],
+  },
+  {
+    module: "cho",
+    label: "Chợ & Mua bán (loại)",
+    prune: false,
+    tree: [
+      { slug: "cho-phien", name: "Chợ phiên" },
+      { slug: "dac-san", name: "Đặc sản" },
+      { slug: "rao-vat", name: "Rao vặt" },
+    ],
+  },
+  {
+    module: "giao-thong",
+    label: "Giao thông (loại tuyến)",
+    prune: false,
+    tree: [
+      { slug: "lien-tinh", name: "Liên tỉnh" },
+      { slug: "noi-tinh", name: "Nội tỉnh" },
+      { slug: "xe-buyt", name: "Xe buýt" },
+    ],
+  },
+  {
+    module: "di-tich",
+    label: "Di tích (loại)",
+    prune: false,
+    tree: [
+      { slug: "den", name: "Đền" },
+      { slug: "chua", name: "Chùa" },
+      { slug: "dinh", name: "Đình" },
+      { slug: "mieu", name: "Miếu" },
+      { slug: "nha-tho", name: "Nhà thờ" },
+      { slug: "khac", name: "Khác" },
+    ],
+  },
+
+  // ─── Thuộc tính trạng thái (trước là enum cố định) — nay cũng quản lý được.
+  {
+    module: "loai-hinh-cong-viec",
+    label: "Việc làm (loại hình)",
+    prune: false,
+    tree: [
+      { slug: "toan-thoi-gian", name: "Toàn thời gian" },
+      { slug: "ban-thoi-gian", name: "Bán thời gian" },
+      { slug: "thoi-vu", name: "Thời vụ" },
+      { slug: "thuc-tap", name: "Thực tập" },
+    ],
+  },
+  {
+    module: "tinh-trang",
+    label: "Mua bán (tình trạng)",
+    prune: false,
+    tree: [
+      { slug: "moi", name: "Mới" },
+      { slug: "da-dung", name: "Đã sử dụng" },
+    ],
+  },
+  {
+    module: "so-huu-y-te",
+    label: "Y tế (loại hình sở hữu)",
+    prune: false,
+    tree: [
+      { slug: "cong-lap", name: "Công lập" },
+      { slug: "tu-nhan", name: "Tư nhân" },
+    ],
+  },
+  {
+    module: "loai-hinh-truong",
+    label: "Trường học (loại hình)",
+    prune: false,
+    tree: [
+      { slug: "cong-lap", name: "Công lập" },
+      { slug: "tu-thuc", name: "Tư thục" },
+      { slug: "dan-lap", name: "Dân lập" },
+      { slug: "gdnn-gdtx", name: "GDNN - GDTX" },
+    ],
+  },
+  {
+    module: "xep-hang-di-tich",
+    label: "Di tích (xếp hạng)",
+    prune: false,
+    tree: [
+      { slug: "quoc-gia", name: "Di tích quốc gia" },
+      { slug: "cap-tinh", name: "Di tích cấp tỉnh" },
+      { slug: "kiem-ke", name: "Trong danh mục kiểm kê" },
+    ],
+  },
 ];
 
 // ---- Upsert đệ quy: tự tính path / ancestors / depth từ cha ----

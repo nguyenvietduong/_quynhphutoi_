@@ -4,7 +4,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { WARDS } from "@/lib/wards";
-import { CLASSIFIED_CATEGORIES, type ClassifiedCategory } from "@/lib/classified-categories";
+import type { ClassifiedCategory } from "@/lib/classified-categories";
 import { Combobox } from "@/components/lostfound/Combobox";
 import { RichTextEditor } from "@/components/lostfound/RichTextEditor";
 import { ImageUploader } from "@/components/common/ImageUploader";
@@ -12,15 +12,15 @@ import { CharCount } from "@/components/common/CharCount";
 import { useAdaptiveCaptcha } from "@/components/common/useAdaptiveCaptcha";
 import { useToast } from "@/components/common/Toast";
 
-type Props = { open: boolean; onClose: () => void; isLoggedIn: boolean; defaultName?: string; onSuccess?: () => void; maxImages?: number; categories?: { slug: string; name: string }[] };
+type Props = { open: boolean; onClose: () => void; isLoggedIn: boolean; defaultName?: string; onSuccess?: () => void; maxImages?: number; categories?: { slug: string; name: string }[]; conditions?: { slug: string; name: string }[] };
 
-export function ClassifiedPostModal({ open, onClose, isLoggedIn, defaultName = "", onSuccess, maxImages = 8, categories }: Props) {
+export function ClassifiedPostModal({ open, onClose, isLoggedIn, defaultName = "", onSuccess, maxImages = 8, categories, conditions }: Props) {
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState<ClassifiedCategory | "">("");
   const [description, setDescription] = useState("");
   const [images, setImages] = useState<string[]>([]);
   const [priceText, setPriceText] = useState("");
-  const [condition, setCondition] = useState<"" | "moi" | "da-dung">("");
+  const [condition, setCondition] = useState<string>("");
   const [wardSlug, setWardSlug] = useState("");
   const [address, setAddress] = useState("");
   const [mapUrl, setMapUrl] = useState("");
@@ -47,11 +47,9 @@ export function ClassifiedPostModal({ open, onClose, isLoggedIn, defaultName = "
     };
   }, [open, onClose]);
 
-  // Danh mục từ DB (prop) — admin quản lý; rỗng → fallback list cố định.
-  const catOptions = useMemo(
-    () => (categories?.length ? categories.map((c) => ({ value: c.slug, label: c.name })) : CLASSIFIED_CATEGORIES.map((c) => ({ value: c.slug, label: c.label }))),
-    [categories],
-  );
+  // Danh mục & tình trạng từ DB (prop) — admin quản lý ở /admin/danh-muc.
+  const catOptions = useMemo(() => (categories ?? []).map((c) => ({ value: c.slug, label: c.name })), [categories]);
+  const condOptions = useMemo(() => (conditions ?? []).map((c) => ({ value: c.slug, label: c.name })), [conditions]);
   const wardOptions = useMemo(() => WARDS.map((w) => ({ value: w.slug, label: w.name, hint: `Xã mới: ${w.newCommune}` })), []);
 
   if (!open) return null;
@@ -149,10 +147,9 @@ export function ClassifiedPostModal({ open, onClose, isLoggedIn, defaultName = "
               </div>
               <div className="qp-form-group">
                 <label className="qp-label" htmlFor="cl-cond">Tình trạng</label>
-                <select id="cl-cond" className="qp-select" value={condition} onChange={(e) => setCondition(e.target.value as "" | "moi" | "da-dung")}>
+                <select id="cl-cond" className="qp-select" value={condition} onChange={(e) => setCondition(e.target.value)}>
                   <option value="">— Không rõ —</option>
-                  <option value="moi">Mới</option>
-                  <option value="da-dung">Đã sử dụng</option>
+                  {condOptions.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
                 </select>
               </div>
             </div>

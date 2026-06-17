@@ -3,13 +3,14 @@ import Link from "next/link";
 import { countPendingJobs, countJobs } from "@/lib/jobs";
 import { countPending as countPendingLostFound, countPosts } from "@/lib/lostfound";
 import { countPendingClassifieds, countClassifieds } from "@/lib/classifieds";
-import { schools, countByLevel, SCHOOL_LEVELS } from "@/lib/schools";
-import { health, countByType as healthByType, HEALTH_TYPES } from "@/lib/health";
+import { schools, countByLevel } from "@/lib/schools";
+import { health, countByType as healthByType } from "@/lib/health";
 import { market } from "@/lib/market";
 import { transit } from "@/lib/transit";
 import { relics } from "@/lib/relics";
 import { articles, countArticles, listArticles } from "@/lib/articles";
 import { adminUnits } from "@/lib/admin-units";
+import { listActiveCategoryOptions } from "@/lib/categories";
 import { dailyNewCounts, userStats } from "@/lib/stats";
 import { BarList } from "@/components/admin/charts/BarList";
 import { TrendChart } from "@/components/admin/charts/TrendChart";
@@ -28,6 +29,7 @@ export default async function AdminHomePage() {
     pJobs, pLost, pClass, tJobs, tLost, tClass,
     nSchools, nHealth, nMarket, nTransit, nRelics, nArticles, nUnits,
     artPublished, artDraft, topArticles, byLevel, byHealth, users, daily,
+    schoolLevels, healthTypes,
   ] = await Promise.all([
     countPendingJobs(), countPendingLostFound(), countPendingClassifieds(),
     countJobs({ approvedOnly: false }), countPosts({ approvedOnly: false }), countClassifieds({ approvedOnly: false }),
@@ -45,6 +47,8 @@ export default async function AdminHomePage() {
     healthByType(),
     userStats(),
     dailyNewCounts(14),
+    listActiveCategoryOptions("truong-hoc"),
+    listActiveCategoryOptions("y-te"),
   ]);
 
   const totalPending = pJobs + pLost + pClass;
@@ -71,9 +75,9 @@ export default async function AdminHomePage() {
       { label: "Đơn vị HC", value: nUnits, color: C.indigoLight },
     ] },
     { key: "schools", label: "Trường học theo cấp", type: "bar", unit: " trường",
-      items: SCHOOL_LEVELS.map((l) => ({ label: l.label, value: byLevel[l.slug] ?? 0, color: C.teal })) },
+      items: schoolLevels.map((l) => ({ label: l.name, value: byLevel[l.slug] ?? 0, color: C.teal })) },
     { key: "health", label: "Cơ sở y tế theo loại", type: "bar",
-      items: HEALTH_TYPES.map((t) => ({ label: t.label, value: byHealth[t.slug] ?? 0, color: C.rose })) },
+      items: healthTypes.map((t) => ({ label: t.name, value: byHealth[t.slug] ?? 0, color: C.rose })) },
   ];
 
   const donutOptions: SwitchOption[] = [

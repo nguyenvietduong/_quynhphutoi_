@@ -2,7 +2,8 @@
 // NewsBrowser. Nội dung THẬT lấy từ DB (lib/articles.ts) rồi map sang `Article` này
 // qua toNewsCardArticle. KHÔNG còn dữ liệu mẫu tĩnh (đã bỏ mock NEWS).
 
-export type NewsCategory = "Thông báo" | "Đời sống" | "Kinh tế" | "Giáo dục";
+// Tên danh mục tin tức — mở (string), quản lý 100% trong admin (module "tin-tuc").
+export type NewsCategory = string;
 
 // Phạm vi tin: trong xã (địa phương) hay ngoài xã (tin báo ngoài, nhập từ RSS…).
 // Bài cũ/không gắn → coi như "trong-xa".

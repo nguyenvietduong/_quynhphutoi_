@@ -11,12 +11,7 @@ import { SeoFieldsEditor } from "@/components/admin/SeoFieldsEditor";
 import type { SeoFields } from "@/lib/seo-fields";
 import { useToast } from "@/components/common/Toast";
 
-const TYPES = [
-  { slug: "lien-tinh", label: "Liên tỉnh" },
-  { slug: "noi-tinh", label: "Nội tỉnh" },
-  { slug: "xe-buyt", label: "Xe buýt" },
-] as const;
-const typeLabel = (s: string) => TYPES.find((x) => x.slug === s)?.label ?? s;
+type TypeOption = { slug: string; name: string };
 
 type Form = {
   slug: string; name: string; type: string; origin: string; destination: string; stops: string;
@@ -24,7 +19,7 @@ type Form = {
   note: string; verified: boolean; active: boolean; seo?: SeoFields;
 };
 const EMPTY: Form = {
-  slug: "", name: "", type: "lien-tinh", origin: "", destination: "", stops: "",
+  slug: "", name: "", type: "", origin: "", destination: "", stops: "",
   operator: "", phone: "", fare: "", frequency: "", duration: "", distance: "",
   note: "", verified: false, active: true, seo: undefined,
 };
@@ -36,7 +31,8 @@ const toForm = (r: TransitRow): Form => ({
   verified: r.verified ?? false, active: r.active ?? true, seo: r.seo,
 });
 
-export function TransitManager({ initial }: { initial: TransitRow[] }) {
+export function TransitManager({ initial, typeOptions }: { initial: TransitRow[]; typeOptions: TypeOption[] }) {
+  const typeLabel = (s: string) => typeOptions.find((x) => x.slug === s)?.name ?? s;
   const [rows, setRows] = useState<TransitRow[]>(initial);
   const [q, setQ] = useState("");
   const [fType, setFType] = useState("");
@@ -58,7 +54,7 @@ export function TransitManager({ initial }: { initial: TransitRow[] }) {
 
   const pg = usePagination(filtered, 20);
 
-  function startNew() { setForm({ ...EMPTY }); setEditing(null); setShow(true); }
+  function startNew() { setForm({ ...EMPTY, type: typeOptions[0]?.slug ?? "" }); setEditing(null); setShow(true); }
   function startEdit(r: TransitRow) { setForm(toForm(r)); setEditing(r.slug); setShow(true); }
 
   async function submit(e: React.FormEvent) {
@@ -101,7 +97,7 @@ export function TransitManager({ initial }: { initial: TransitRow[] }) {
         <input className="qp-input qp-admin-toolbar__search" placeholder="Tìm theo tên / điểm đầu / điểm cuối…" value={q} onChange={(e) => setQ(e.target.value)} />
         <select className="qp-select" style={{ maxWidth: 200 }} value={fType} onChange={(e) => setFType(e.target.value)}>
           <option value="">Tất cả loại tuyến</option>
-          {TYPES.map((t) => <option key={t.slug} value={t.slug}>{t.label}</option>)}
+          {typeOptions.map((t) => <option key={t.slug} value={t.slug}>{t.name}</option>)}
         </select>
         <span className="qp-admin-toolbar__spacer" />
         <PageSizeControl value={pg.pageSize} onChange={pg.setPageSize} total={filtered.length} />
@@ -123,7 +119,7 @@ export function TransitManager({ initial }: { initial: TransitRow[] }) {
               <div className="qp-form-group">
                 <label className="qp-label">Loại tuyến <span className="req">*</span></label>
                 <select className="qp-select" value={form.type} onChange={(e) => set("type", e.target.value)}>
-                  {TYPES.map((t) => <option key={t.slug} value={t.slug}>{t.label}</option>)}
+                  {typeOptions.map((t) => <option key={t.slug} value={t.slug}>{t.name}</option>)}
                 </select>
               </div>
               <div className="qp-acc-grid2">

@@ -1,10 +1,9 @@
 // Admin: cập nhật (PATCH) & xoá (DELETE) một tuyến giao thông.
 import { NextResponse } from "next/server";
 import { requireStaff } from "@/lib/admin-guard";
-import { updateTransit, deleteTransit, TRANSIT_TYPES, type TransitInput, type TransitType } from "@/lib/transit";
+import { updateTransit, deleteTransit, type TransitInput } from "@/lib/transit";
+import { listActiveCategoryOptions } from "@/lib/categories";
 import { sanitizeSeoFields } from "@/lib/seo-fields";
-
-const TYPES = TRANSIT_TYPES.map((t) => t.slug) as TransitType[];
 
 function toStops(v: unknown): string[] {
   const arr = Array.isArray(v) ? v.map(String) : typeof v === "string" ? v.split(/[\n,]/) : [];
@@ -20,7 +19,11 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ slug: 
   const patch: Partial<TransitInput> = {};
   for (const k of ["name", "origin", "destination", "operator", "phone", "fare", "frequency", "duration", "distance", "note"] as const)
     if (typeof b[k] === "string") patch[k] = b[k];
-  if (b.type !== undefined) { if (!TYPES.includes(b.type)) return NextResponse.json({ error: "Loại tuyến không hợp lệ." }, { status: 400 }); patch.type = b.type; }
+  if (b.type !== undefined) {
+    const types = (await listActiveCategoryOptions("giao-thong")).map((t) => t.slug);
+    if (!types.includes(b.type)) return NextResponse.json({ error: "Loại tuyến không hợp lệ." }, { status: 400 });
+    patch.type = b.type;
+  }
   if (b.stops !== undefined) patch.stops = toStops(b.stops);
   if (typeof b.verified === "boolean") patch.verified = b.verified;
   if (typeof b.active === "boolean") patch.active = b.active;

@@ -3,22 +3,14 @@
 import { getDb, ensureIndexes } from "@/lib/db";
 import { type Filter } from "mongodb";
 import { slugify, uniqueSlug } from "@/lib/slug";
+import { categoryName } from "@/lib/categories";
 import type { SeoFields } from "@/lib/seo-fields";
-
-export type TransitType = "lien-tinh" | "noi-tinh" | "xe-buyt";
-
-export const TRANSIT_TYPES: { slug: TransitType; label: string; order: number }[] = [
-  { slug: "lien-tinh", label: "Liên tỉnh", order: 1 },
-  { slug: "noi-tinh", label: "Nội tỉnh", order: 2 },
-  { slug: "xe-buyt", label: "Xe buýt", order: 3 },
-];
-export const typeLabel = (t: TransitType) => TRANSIT_TYPES.find((x) => x.slug === t)?.label ?? t;
 
 export type TransitDoc = {
   _id?: import("mongodb").ObjectId;
   slug: string;
   name: string;               // "Quỳnh Côi – Hà Nội"
-  type: TransitType;
+  type: string;               // slug danh mục module "giao-thong"
   typeLabel: string;          // denormalize
 
   origin: string;             // điểm đầu
@@ -51,7 +43,7 @@ export async function transit() {
   return col;
 }
 
-export type TransitListOpts = { type?: TransitType; search?: string; activeOnly?: boolean; limit?: number; skip?: number };
+export type TransitListOpts = { type?: string; search?: string; activeOnly?: boolean; limit?: number; skip?: number };
 
 export async function listTransit(opts: TransitListOpts = {}) {
   const col = await transit();
@@ -69,14 +61,14 @@ export async function getTransitBySlug(slug: string) {
   return (await transit()).findOne({ slug });
 }
 
-export async function relatedTransit(slug: string, type: TransitType, n = 3) {
+export async function relatedTransit(slug: string, type: string, n = 3) {
   const col = await transit();
   return col.find({ slug: { $ne: slug }, type, active: true }).sort({ name: 1 }).limit(n).toArray();
 }
 
 // ---- Admin CRUD ----
 export type TransitInput = {
-  name: string; type: TransitType;
+  name: string; type: string;
   origin: string; destination: string; stops?: string[];
   operator?: string; phone?: string; fare?: string;
   frequency?: string; duration?: string; distance?: string; note?: string;
@@ -89,7 +81,7 @@ export async function createTransit(input: TransitInput) {
   const now = new Date();
   const slug = await uniqueSlug(col, slugify(input.name), "tuyen-xe");
   const doc: TransitDoc = {
-    slug, name: input.name.trim(), type: input.type, typeLabel: typeLabel(input.type),
+    slug, name: input.name.trim(), type: input.type, typeLabel: await categoryName("giao-thong", input.type),
     origin: input.origin, destination: input.destination, stops: input.stops ?? [],
     operator: input.operator, phone: input.phone, fare: input.fare,
     frequency: input.frequency, duration: input.duration, distance: input.distance, note: input.note,
@@ -104,7 +96,7 @@ export async function updateTransit(slug: string, patch: Partial<TransitInput>) 
   const set: Record<string, unknown> = { updatedAt: new Date() };
   for (const [k, v] of Object.entries(patch)) if (v !== undefined) set[k] = v;
   if (patch.name) set.name = patch.name.trim();
-  if (patch.type) set.typeLabel = typeLabel(patch.type);
+  if (patch.type) set.typeLabel = await categoryName("giao-thong", patch.type);
   const res = await (await transit()).updateOne({ slug }, { $set: set });
   return res.matchedCount;
 }
@@ -127,10 +119,10 @@ export function toTransitRow(d: TransitDoc): TransitRow {
   };
 }
 
-export async function countByType(): Promise<Record<TransitType, number>> {
+export async function countByType(): Promise<Record<string, number>> {
   const col = await transit();
-  const rows = await col.aggregate<{ _id: TransitType; n: number }>([{ $group: { _id: "$type", n: { $sum: 1 } } }]).toArray();
-  const out = { "lien-tinh": 0, "noi-tinh": 0, "xe-buyt": 0 } as Record<TransitType, number>;
+  const rows = await col.aggregate<{ _id: string; n: number }>([{ $group: { _id: "$type", n: { $sum: 1 } } }]).toArray();
+  const out: Record<string, number> = {};
   for (const r of rows) out[r._id] = r.n;
   return out;
 }

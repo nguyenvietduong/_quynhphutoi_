@@ -13,22 +13,7 @@ import { usePagination, PageSizeControl } from "@/components/admin/AdminPaging";
 import { RowActions } from "@/components/admin/RowActions";
 import { useToast } from "@/components/common/Toast";
 
-const TYPES = [
-  { slug: "den", label: "Đền" },
-  { slug: "chua", label: "Chùa" },
-  { slug: "dinh", label: "Đình" },
-  { slug: "mieu", label: "Miếu" },
-  { slug: "nha-tho", label: "Nhà thờ" },
-  { slug: "khac", label: "Khác" },
-] as const;
-const RANKINGS = [
-  { slug: "", label: "— Chưa xếp hạng —" },
-  { slug: "quoc-gia", label: "Di tích quốc gia" },
-  { slug: "cap-tinh", label: "Di tích cấp tỉnh" },
-  { slug: "kiem-ke", label: "Trong danh mục kiểm kê" },
-] as const;
-const typeLabel = (s: string) => TYPES.find((x) => x.slug === s)?.label ?? s;
-const rankingLabel = (s: string) => RANKINGS.find((x) => x.slug === s)?.label ?? s;
+type CatOption = { slug: string; name: string };
 const wardName = (s: string) => WARDS.find((w) => w.slug === s)?.name ?? s;
 
 type Form = {
@@ -37,12 +22,12 @@ type Form = {
   address: string; description: string; images: string[];
   verified: boolean; featured: boolean; active: boolean; seo?: SeoFields;
 };
-const EMPTY: Form = {
-  slug: "", name: "", type: "den", wardSlug: WARDS[0]?.slug ?? "", ranking: "",
+const emptyForm = (defaultType: string): Form => ({
+  slug: "", name: "", type: defaultType, wardSlug: WARDS[0]?.slug ?? "", ranking: "",
   recognizedYear: "", era: "", worship: "", festival: "",
   address: "", description: "", images: [],
   verified: false, featured: false, active: true, seo: undefined,
-};
+});
 const toForm = (r: RelicRow): Form => ({
   slug: r.slug, name: r.name, type: r.type, wardSlug: r.wardSlug, ranking: r.ranking ?? "",
   recognizedYear: r.recognizedYear ? String(r.recognizedYear) : "", era: r.era ?? "",
@@ -51,11 +36,18 @@ const toForm = (r: RelicRow): Form => ({
   verified: r.verified ?? false, featured: r.featured ?? false, active: r.active ?? true, seo: r.seo,
 });
 
-export function RelicsManager({ initial }: { initial: RelicRow[] }) {
+export function RelicsManager({ initial, typeOptions, rankingOptions }: {
+  initial: RelicRow[];
+  typeOptions: CatOption[];
+  rankingOptions: CatOption[];
+}) {
+  const defaultType = typeOptions[0]?.slug ?? "";
+  const typeLabel = (s: string) => typeOptions.find((x) => x.slug === s)?.name ?? s;
+  const rankingLabel = (s: string) => rankingOptions.find((x) => x.slug === s)?.name ?? s;
   const [rows, setRows] = useState<RelicRow[]>(initial);
   const [q, setQ] = useState("");
   const [fType, setFType] = useState("");
-  const [form, setForm] = useState<Form>({ ...EMPTY });
+  const [form, setForm] = useState<Form>(() => emptyForm(defaultType));
   const [editing, setEditing] = useState<string | null>(null);
   const [show, setShow] = useState(false);
   useModalDismiss(show, () => setShow(false));
@@ -73,7 +65,7 @@ export function RelicsManager({ initial }: { initial: RelicRow[] }) {
 
   const pg = usePagination(filtered, 20);
 
-  function startNew() { setForm({ ...EMPTY }); setEditing(null); setShow(true); }
+  function startNew() { setForm(emptyForm(defaultType)); setEditing(null); setShow(true); }
   function startEdit(r: RelicRow) { setForm(toForm(r)); setEditing(r.slug); setShow(true); }
 
   async function submit(e: React.FormEvent) {
@@ -117,7 +109,7 @@ export function RelicsManager({ initial }: { initial: RelicRow[] }) {
         <input className="qp-input qp-admin-toolbar__search" placeholder="Tìm theo tên / xã…" value={q} onChange={(e) => setQ(e.target.value)} />
         <select className="qp-select" style={{ maxWidth: 200 }} value={fType} onChange={(e) => setFType(e.target.value)}>
           <option value="">Tất cả loại</option>
-          {TYPES.map((t) => <option key={t.slug} value={t.slug}>{t.label}</option>)}
+          {typeOptions.map((t) => <option key={t.slug} value={t.slug}>{t.name}</option>)}
         </select>
         <span className="qp-admin-toolbar__spacer" />
         <PageSizeControl value={pg.pageSize} onChange={pg.setPageSize} total={filtered.length} />
@@ -139,7 +131,7 @@ export function RelicsManager({ initial }: { initial: RelicRow[] }) {
               <div className="qp-acc-grid2">
                 <div className="qp-form-group"><label className="qp-label">Loại <span className="req">*</span></label>
                   <select className="qp-select" value={form.type} onChange={(e) => set("type", e.target.value)}>
-                    {TYPES.map((t) => <option key={t.slug} value={t.slug}>{t.label}</option>)}
+                    {typeOptions.map((t) => <option key={t.slug} value={t.slug}>{t.name}</option>)}
                   </select></div>
                 <div className="qp-form-group"><label className="qp-label">Xã / Thị trấn <span className="req">*</span></label>
                   <select className="qp-select" value={form.wardSlug} onChange={(e) => set("wardSlug", e.target.value)}>
@@ -149,7 +141,8 @@ export function RelicsManager({ initial }: { initial: RelicRow[] }) {
               <div className="qp-acc-grid2">
                 <div className="qp-form-group"><label className="qp-label">Xếp hạng</label>
                   <select className="qp-select" value={form.ranking} onChange={(e) => set("ranking", e.target.value)}>
-                    {RANKINGS.map((r) => <option key={r.slug} value={r.slug}>{r.label}</option>)}
+                    <option value="">— Chưa xếp hạng —</option>
+                    {rankingOptions.map((r) => <option key={r.slug} value={r.slug}>{r.name}</option>)}
                   </select></div>
                 <div className="qp-form-group"><label className="qp-label">Năm xếp hạng</label>
                   <input type="number" className="qp-input" value={form.recognizedYear} onChange={(e) => set("recognizedYear", e.target.value)} /></div>

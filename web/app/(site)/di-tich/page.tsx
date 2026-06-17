@@ -2,7 +2,8 @@ import { pageMetadata } from "@/lib/page-seo";
 import { JsonLd } from "@/components/common/JsonLd";
 import { jsonLdBreadcrumb } from "@/lib/seo";
 import Link from "next/link";
-import { listRelics, countByType, RANKING_LABEL, type RelicDoc } from "@/lib/relics";
+import { listRelics, countByType, type RelicDoc } from "@/lib/relics";
+import { listActiveCategoryOptions, categoryLabelMap } from "@/lib/categories";
 import { getAdminUnitsMap } from "@/lib/admin-units";
 import { RelicBrowser, type RelicItem } from "@/components/relics/RelicBrowser";
 
@@ -17,7 +18,13 @@ export async function generateMetadata() {
 export const dynamic = "force-dynamic";
 
 export default async function DiTichPage() {
-  const [docs, byType, units] = await Promise.all([listRelics({}), countByType(), getAdminUnitsMap()]);
+  const [docs, byType, units, typeOptions, rankMap] = await Promise.all([
+    listRelics({}),
+    countByType(),
+    getAdminUnitsMap(),
+    listActiveCategoryOptions("di-tich"),
+    categoryLabelMap("xep-hang-di-tich"),
+  ]);
 
   const items: RelicItem[] = docs.map((d: RelicDoc) => {
     const u = units.get(d.wardSlug);
@@ -32,7 +39,7 @@ export default async function DiTichPage() {
       newCommune: u?.newCommune ?? null,
       era: d.era ?? null,
       ranking: d.ranking ?? null,
-      rankingLabel: d.ranking ? RANKING_LABEL[d.ranking] : null,
+      rankingLabel: d.ranking ? (rankMap[d.ranking] ?? d.ranking) : null,
       featured: d.featured,
     };
   });
@@ -40,7 +47,8 @@ export default async function DiTichPage() {
   const wards = [...new Map(items.map((i) => [i.wardSlug, { slug: i.wardSlug, name: i.ward, newCommune: i.newCommune ?? undefined }])).values()]
     .sort((a, b) => a.name.localeCompare(b.name, "vi"));
 
-  const counts = { all: items.length, den: byType.den, chua: byType.chua, dinh: byType.dinh, mieu: byType.mieu, "nha-tho": byType["nha-tho"], khac: byType.khac };
+  const counts: Record<string, number> = { all: items.length };
+  for (const t of typeOptions) counts[t.slug] = byType[t.slug] ?? 0;
   const national = items.filter((i) => i.ranking === "quoc-gia").length;
 
   return (
@@ -79,7 +87,7 @@ export default async function DiTichPage() {
 
       <section className="qp-newsmain">
         <div className="container-wide">
-          <RelicBrowser items={items} wards={wards} counts={counts} />
+          <RelicBrowser items={items} wards={wards} counts={counts} typeOptions={typeOptions} />
         </div>
       </section>
     </>
