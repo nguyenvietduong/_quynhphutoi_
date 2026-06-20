@@ -29,6 +29,7 @@ export async function POST(req: Request) {
     name, category, wardSlug: b.wardSlug, address: b.address, description: b.description,
     schedule: b.schedule, priceText: b.priceText, unit: b.unit,
     contactName: b.contactName, contactPhone: b.contactPhone,
+    image: typeof b.image === "string" ? b.image : undefined,
     seo: sanitizeSeoFields(b.seo),
     verified: !!b.verified, featured: !!b.featured, active: b.active !== false,
   });

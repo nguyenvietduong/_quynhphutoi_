@@ -27,6 +27,7 @@ export type SchoolItem = {
   website: string | null;
   foundedYear: number | null;
   verified: boolean;
+  image: string | null;
 };
 
 // counts: số trường theo slug cấp học (+ "all" tổng).
@@ -61,7 +62,11 @@ function SchoolCard({ s }: { s: SchoolItem }) {
     <Link className="qp-school-card__name" href={`/truong-hoc/${s.slug}`}>{s.name}</Link>
   );
   return (
-    <article className="qp-mesh-card qp-mesh-card--text qp-school-card">
+    <article className="qp-mesh-card qp-school-card">
+      {s.image && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img className="qp-school-card__img" src={s.image} alt={s.name} loading="lazy" />
+      )}
       <div className="qp-mesh-card__body">
         <div className="qp-school-card__top">
           <span className="qp-tag-cat">{s.levelLabel}</span>

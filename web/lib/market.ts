@@ -32,6 +32,7 @@ export type MarketDoc = {
   contactName?: string;
   contactPhone?: string;
 
+  image?: string;               // ảnh đại diện (URL)
   seo?: SeoFields;              // ghi đè SEO trang chi tiết (tuỳ chọn)
 
   verified: boolean;
@@ -82,6 +83,7 @@ export type MarketInput = {
   wardSlug: string; address?: string; description?: string;
   schedule?: string; priceText?: string; unit?: string;
   contactName?: string; contactPhone?: string;
+  image?: string;
   seo?: SeoFields;
   verified?: boolean; featured?: boolean; active?: boolean;
 };
@@ -95,7 +97,7 @@ export async function createMarket(input: MarketInput) {
     wardSlug: input.wardSlug, address: input.address, description: input.description,
     schedule: input.schedule, priceText: input.priceText, unit: input.unit,
     contactName: input.contactName, contactPhone: input.contactPhone,
-    seo: input.seo,
+    image: input.image, seo: input.seo,
     verified: input.verified ?? false, featured: input.featured ?? false,
     active: input.active ?? true, createdAt: now, updatedAt: now,
   };
@@ -125,7 +127,7 @@ export function toMarketRow(d: MarketDoc): MarketRow {
     wardSlug: d.wardSlug, address: d.address, description: d.description,
     schedule: d.schedule, priceText: d.priceText, unit: d.unit,
     contactName: d.contactName, contactPhone: d.contactPhone,
-    seo: d.seo,
+    image: d.image, seo: d.seo,
     verified: d.verified, featured: d.featured, active: d.active,
   };
 }

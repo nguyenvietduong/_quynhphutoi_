@@ -92,6 +92,10 @@ export default async function HealthDetailPage({ params }: { params: Promise<{ s
 
           <aside className="qp-lf-aside">
             <div className="qp-lf-infocard qp-lf-infocard--cta">
+              {h.image && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={h.image} alt={h.name} style={{ width: "100%", borderRadius: "var(--radius-md)", marginBottom: "var(--space-4)", objectFit: "cover", maxHeight: 200 }} />
+              )}
               <div className="qp-lf-infocard__title">Thông tin & liên hệ</div>
               <div className="qp-lf-spec">
                 <div className="qp-lf-spec__row"><span>Loại cơ sở</span><b>{h.typeLabel}</b></div>

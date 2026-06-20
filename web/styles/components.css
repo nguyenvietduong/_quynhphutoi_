@@ -463,7 +463,7 @@
 .qp-marquee__viewport { overflow: hidden; flex: 1; }
 .qp-marquee__track {
   display: inline-flex; gap: 40px; white-space: nowrap;
-  animation: qp-marquee-scroll 70s linear infinite;
+  animation: qp-marquee-scroll 200s linear infinite;
 }
 .qp-marquee:hover .qp-marquee__track { animation-play-state: paused; }
 .qp-marquee__item { font: 500 13px/1 var(--font-primary); color: var(--on-dark-body); }
@@ -1625,6 +1625,9 @@ a.qp-contactrow__value:hover { color: var(--color-teal-dark); }
 @media (max-width: 1023px) { .qp-school-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; } }
 @media (max-width: 639px)  { .qp-school-grid { grid-template-columns: 1fr; gap: 16px; } }
 
+.qp-market-card__img { width: 100%; height: 220px; object-fit: cover; display: block; border-radius: var(--radius-card) var(--radius-card) 0 0; flex-shrink: 0; }
+.qp-health-card__img { width: 100%; height: 220px; object-fit: cover; display: block; border-radius: var(--radius-card) var(--radius-card) 0 0; flex-shrink: 0; }
+.qp-school-card__img { width: 100%; height: 220px; object-fit: cover; display: block; border-radius: var(--radius-card) var(--radius-card) 0 0; flex-shrink: 0; }
 .qp-school-card .qp-mesh-card__body { gap: var(--space-3); padding: var(--space-5) var(--space-6); }
 .qp-school-card__top { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
 .qp-school-card__name {

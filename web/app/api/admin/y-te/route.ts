@@ -36,6 +36,7 @@ export async function POST(req: Request) {
     beds: b.beds ? Number(b.beds) : undefined, specialties: b.specialties,
     foundedYear: b.foundedYear ? Number(b.foundedYear) : undefined,
     description: b.description, sourceUrl: b.sourceUrl,
+    image: typeof b.image === "string" ? b.image : undefined,
     verified: !!b.verified, active: b.active !== false,
     seo: sanitizeSeoFields(b.seo),
   });

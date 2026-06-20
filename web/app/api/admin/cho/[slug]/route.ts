@@ -16,7 +16,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ slug: 
   const patch: Partial<MarketInput> = {};
   if (b.category !== undefined) { const c = String(b.category).trim(); if (!c) return NextResponse.json({ error: "Danh mục không hợp lệ." }, { status: 400 }); patch.category = c; }
   if (b.wardSlug !== undefined) { if (!WARD_SET.has(String(b.wardSlug))) return NextResponse.json({ error: "Xã/thị trấn không hợp lệ." }, { status: 400 }); patch.wardSlug = b.wardSlug; }
-  for (const k of ["name", "address", "description", "schedule", "priceText", "unit", "contactName", "contactPhone"] as const)
+  for (const k of ["name", "address", "description", "schedule", "priceText", "unit", "contactName", "contactPhone", "image"] as const)
     if (typeof b[k] === "string") patch[k] = b[k];
   if (typeof b.verified === "boolean") patch.verified = b.verified;
   if (typeof b.featured === "boolean") patch.featured = b.featured;

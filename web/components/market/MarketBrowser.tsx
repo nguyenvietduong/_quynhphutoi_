@@ -23,6 +23,7 @@ export type MarketItem = {
   unit: string | null;
   contactPhone: string | null;
   featured: boolean;
+  image: string | null;
 };
 
 export type CategoryOption = { slug: string; name: string };
@@ -41,6 +42,10 @@ function MarketCard({ m }: { m: MarketItem }) {
   const href = `/cho/${m.slug}`;
   return (
     <article className="qp-job-card">
+      {m.image && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img className="qp-market-card__img" src={m.image} alt={m.name} loading="lazy" />
+      )}
       <div className="qp-job-card__head">
         <span className={`qp-market-logo is-${m.category}`} aria-hidden><CatIcon c={m.category} /></span>
         <div className="qp-job-card__head-main">

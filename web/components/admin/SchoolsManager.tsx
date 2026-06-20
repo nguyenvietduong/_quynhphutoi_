@@ -11,6 +11,7 @@ import { RowActions } from "@/components/admin/RowActions";
 import { SeoFieldsEditor } from "@/components/admin/SeoFieldsEditor";
 import type { SeoFields } from "@/lib/seo-fields";
 import { useToast } from "@/components/common/Toast";
+import { ImageUploader } from "@/components/common/ImageUploader";
 
 type CatOption = { slug: string; name: string };
 const wardName = (s: string) => WARDS.find((w) => w.slug === s)?.name ?? s;
@@ -18,18 +19,18 @@ const wardName = (s: string) => WARDS.find((w) => w.slug === s)?.name ?? s;
 type Form = {
   slug: string; name: string; shortName: string; level: string; type: string; wardSlug: string;
   address: string; phone: string; email: string; website: string; principal: string;
-  foundedYear: string; description: string; verified: boolean; active: boolean; seo?: SeoFields;
+  foundedYear: string; description: string; image: string; verified: boolean; active: boolean; seo?: SeoFields;
 };
 const emptyForm = (level: string, type: string): Form => ({
   slug: "", name: "", shortName: "", level, type, wardSlug: WARDS[0]?.slug ?? "",
   address: "", phone: "", email: "", website: "", principal: "", foundedYear: "", description: "",
-  verified: false, active: true, seo: undefined,
+  image: "", verified: false, active: true, seo: undefined,
 });
 const toForm = (r: SchoolRow): Form => ({
   slug: r.slug, name: r.name, shortName: r.shortName ?? "", level: r.level, type: r.type, wardSlug: r.wardSlug,
   address: r.address ?? "", phone: r.phone ?? "", email: r.email ?? "", website: r.website ?? "",
   principal: r.principal ?? "", foundedYear: r.foundedYear ? String(r.foundedYear) : "", description: r.description ?? "",
-  verified: r.verified, active: r.active, seo: r.seo,
+  image: r.image ?? "", verified: r.verified, active: r.active, seo: r.seo,
 });
 
 export function SchoolsManager({ initial, levelOptions, typeOptions }: { initial: SchoolRow[]; levelOptions: CatOption[]; typeOptions: CatOption[] }) {
@@ -73,7 +74,8 @@ export function SchoolsManager({ initial, levelOptions, typeOptions }: { initial
         name: form.name, shortName: form.shortName, level: form.level, type: form.type, wardSlug: form.wardSlug,
         address: form.address, phone: form.phone, email: form.email, website: form.website,
         principal: form.principal, foundedYear: form.foundedYear ? Number(form.foundedYear) : undefined,
-        description: form.description, verified: form.verified, active: form.active,
+        description: form.description, image: form.image || undefined,
+        verified: form.verified, active: form.active,
         seo: form.seo ?? {},
       };
       const res = await fetch(editing ? `/api/admin/truong-hoc/${editing}` : "/api/admin/truong-hoc", {
@@ -156,6 +158,8 @@ export function SchoolsManager({ initial, levelOptions, typeOptions }: { initial
               </div>
               <div className="qp-form-group"><label className="qp-label">Email</label>
                 <input className="qp-input" value={form.email} onChange={(e) => set("email", e.target.value)} /></div>
+              <div className="qp-form-group"><label className="qp-label">Ảnh trường</label>
+                <ImageUploader max={1} value={form.image ? [form.image] : []} onChange={(urls) => set("image", urls[0] ?? "")} /></div>
               <div className="qp-form-group"><label className="qp-label">Mô tả</label>
                 <textarea className="qp-textarea" value={form.description} onChange={(e) => set("description", e.target.value)} /></div>
               <SeoFieldsEditor value={form.seo} onChange={(seo) => set("seo", seo)} />

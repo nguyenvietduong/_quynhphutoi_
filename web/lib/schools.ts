@@ -24,6 +24,8 @@ export type SchoolDoc = {
   levelLabel: string;      // nhãn bậc học (denormalize cho tiện hiển thị)
   type: string;            // loại hình — slug danh mục "loai-hinh-truong"
 
+  image?: string;          // ảnh đại diện / logo trường (URL)
+
   verified: boolean;       // true: có nguồn xác minh; false: suy theo quy ước, cần kiểm chứng
   sourceUrl?: string;      // nguồn tham chiếu (nếu có)
 
@@ -103,6 +105,7 @@ export type SchoolInput = {
   wardSlug: string; address?: string;
   phone?: string; email?: string; website?: string; principal?: string;
   foundedYear?: number; description?: string;
+  image?: string;
   verified?: boolean; active?: boolean; sourceUrl?: string;
   seo?: SeoFields;
 };
@@ -115,6 +118,7 @@ export async function createSchool(input: SchoolInput) {
   const doc: SchoolDoc = {
     slug, name: input.name.trim(), shortName: input.shortName?.trim() || undefined,
     level: input.level, levels, levelLabel: await categoryName("truong-hoc", input.level), type: input.type,
+    image: input.image,
     verified: input.verified ?? false, sourceUrl: input.sourceUrl,
     wardSlug: input.wardSlug, address: input.address,
     phone: input.phone, email: input.email, website: input.website, principal: input.principal,
@@ -149,6 +153,7 @@ export function toSchoolRow(d: SchoolDoc): SchoolRow {
     slug: d.slug, name: d.name, shortName: d.shortName, level: d.level, levels: d.levels, type: d.type,
     wardSlug: d.wardSlug, address: d.address, phone: d.phone, email: d.email, website: d.website,
     principal: d.principal, foundedYear: d.foundedYear, description: d.description, sourceUrl: d.sourceUrl,
+    image: d.image,
     verified: d.verified, active: d.active, seo: d.seo,
   };
 }

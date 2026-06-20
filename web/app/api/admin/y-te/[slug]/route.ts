@@ -26,7 +26,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ slug: 
     if (!OWNERSHIPS.has(b.ownership)) return NextResponse.json({ error: "Loại sở hữu không hợp lệ." }, { status: 400 }); patch.ownership = b.ownership;
   }
   if (b.wardSlug !== undefined) { if (!WARD_SET.has(String(b.wardSlug))) return NextResponse.json({ error: "Xã/thị trấn không hợp lệ." }, { status: 400 }); patch.wardSlug = b.wardSlug; }
-  for (const k of ["address", "phone", "email", "website", "director", "hours", "specialties", "description", "sourceUrl"] as const)
+  for (const k of ["address", "phone", "email", "website", "director", "hours", "specialties", "description", "sourceUrl", "image"] as const)
     if (typeof b[k] === "string") patch[k] = b[k];
   if (b.beds !== undefined) patch.beds = b.beds ? Number(b.beds) : undefined;
   if (b.foundedYear !== undefined) patch.foundedYear = b.foundedYear ? Number(b.foundedYear) : undefined;

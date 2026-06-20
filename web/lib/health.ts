@@ -16,6 +16,8 @@ export type HealthDoc = {
   typeLabel: string;          // denormalize
   ownership: string;          // slug danh mục module "so-huu-y-te"
 
+  image?: string;          // ảnh đại diện cơ sở (URL)
+
   verified: boolean;
   sourceUrl?: string;
 
@@ -95,6 +97,7 @@ export type HealthInput = {
   phone?: string; email?: string; website?: string; director?: string;
   hours?: string; emergency?: boolean; beds?: number; specialties?: string;
   foundedYear?: number; description?: string;
+  image?: string;
   verified?: boolean; active?: boolean; sourceUrl?: string;
   seo?: SeoFields;
 };
@@ -110,6 +113,7 @@ export async function createHealth(input: HealthInput) {
     wardSlug: input.wardSlug, address: input.address,
     phone: input.phone, email: input.email, website: input.website, director: input.director,
     hours: input.hours, emergency: input.emergency ?? false, beds: input.beds, specialties: input.specialties,
+    image: input.image,
     foundedYear: input.foundedYear, description: input.description, seo: input.seo,
     active: input.active ?? true, createdAt: now, updatedAt: now,
   };
@@ -138,6 +142,7 @@ export function toHealthRow(d: HealthDoc): HealthRow {
     slug: d.slug, name: d.name, shortName: d.shortName, type: d.type, ownership: d.ownership,
     wardSlug: d.wardSlug, address: d.address, phone: d.phone, email: d.email, website: d.website,
     director: d.director, hours: d.hours, emergency: d.emergency, beds: d.beds, specialties: d.specialties,
+    image: d.image,
     foundedYear: d.foundedYear, description: d.description, sourceUrl: d.sourceUrl,
     verified: d.verified, active: d.active, seo: d.seo,
   };

@@ -38,6 +38,7 @@ export default async function YTePage() {
       hours: d.hours ?? null,
       emergency: !!d.emergency,
       verified: d.verified,
+      image: d.image ?? null,
     };
   });
 

@@ -11,6 +11,7 @@ import { Pagination } from "@/components/common/Pagination";
 import { usePagination, PageSizeControl } from "@/components/admin/AdminPaging";
 import { RowActions } from "@/components/admin/RowActions";
 import { useToast } from "@/components/common/Toast";
+import { ImageUploader } from "@/components/common/ImageUploader";
 
 export type CategoryOption = { slug: string; name: string };
 const wardName = (s: string) => WARDS.find((w) => w.slug === s)?.name ?? s;
@@ -18,20 +19,20 @@ const wardName = (s: string) => WARDS.find((w) => w.slug === s)?.name ?? s;
 type Form = {
   slug: string; name: string; category: string; wardSlug: string;
   schedule: string; priceText: string; unit: string; contactName: string; contactPhone: string;
-  address: string; description: string; verified: boolean; featured: boolean; active: boolean;
+  address: string; description: string; image: string; verified: boolean; featured: boolean; active: boolean;
   seo?: SeoFields;
 };
 const EMPTY: Form = {
   slug: "", name: "", category: "", wardSlug: WARDS[0]?.slug ?? "",
   schedule: "", priceText: "", unit: "", contactName: "", contactPhone: "",
-  address: "", description: "", verified: false, featured: false, active: true,
+  address: "", description: "", image: "", verified: false, featured: false, active: true,
   seo: undefined,
 };
 const toForm = (r: MarketRow): Form => ({
   slug: r.slug, name: r.name, category: r.category, wardSlug: r.wardSlug,
   schedule: r.schedule ?? "", priceText: r.priceText ?? "", unit: r.unit ?? "",
   contactName: r.contactName ?? "", contactPhone: r.contactPhone ?? "",
-  address: r.address ?? "", description: r.description ?? "",
+  address: r.address ?? "", description: r.description ?? "", image: r.image ?? "",
   verified: r.verified ?? false, featured: r.featured ?? false, active: r.active ?? true,
   seo: r.seo,
 });
@@ -72,7 +73,7 @@ export function MarketManager({ initial, categoryOptions }: { initial: MarketRow
         name: form.name, category: form.category, wardSlug: form.wardSlug,
         schedule: form.schedule, priceText: form.priceText, unit: form.unit,
         contactName: form.contactName, contactPhone: form.contactPhone,
-        address: form.address, description: form.description,
+        address: form.address, description: form.description, image: form.image || undefined,
         seo: form.seo ?? {},
         verified: form.verified, featured: form.featured, active: form.active,
       };
@@ -148,6 +149,8 @@ export function MarketManager({ initial, categoryOptions }: { initial: MarketRow
               </div>
               <div className="qp-form-group"><label className="qp-label">Địa chỉ</label>
                 <input className="qp-input" value={form.address} onChange={(e) => set("address", e.target.value)} placeholder="Thôn/xóm, đường…" /></div>
+              <div className="qp-form-group"><label className="qp-label">Ảnh</label>
+                <ImageUploader max={1} value={form.image ? [form.image] : []} onChange={(urls) => set("image", urls[0] ?? "")} /></div>
               <div className="qp-form-group"><label className="qp-label">Mô tả</label>
                 <textarea className="qp-textarea" value={form.description} onChange={(e) => set("description", e.target.value)} /></div>
               <SeoFieldsEditor value={form.seo} onChange={(seo) => set("seo", seo)} />

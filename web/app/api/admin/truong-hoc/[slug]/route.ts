@@ -28,7 +28,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ slug: 
   if (Array.isArray(b.levels)) patch.levels = (b.levels as string[]).filter((l) => LEVELS.has(l));
   if (b.type !== undefined) { if (!TYPES.has(b.type)) return NextResponse.json({ error: "Loại hình không hợp lệ." }, { status: 400 }); patch.type = b.type; }
   if (b.wardSlug !== undefined) { if (!WARD_SET.has(String(b.wardSlug))) return NextResponse.json({ error: "Xã/thị trấn không hợp lệ." }, { status: 400 }); patch.wardSlug = b.wardSlug; }
-  for (const k of ["address", "phone", "email", "website", "principal", "description", "sourceUrl"] as const)
+  for (const k of ["address", "phone", "email", "website", "principal", "description", "sourceUrl", "image"] as const)
     if (typeof b[k] === "string") patch[k] = b[k];
   if (b.foundedYear !== undefined) patch.foundedYear = b.foundedYear ? Number(b.foundedYear) : undefined;
   if (typeof b.verified === "boolean") patch.verified = b.verified;

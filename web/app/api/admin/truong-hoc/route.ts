@@ -40,6 +40,7 @@ export async function POST(req: Request) {
     wardSlug: b.wardSlug, address: b.address, phone: b.phone, email: b.email, website: b.website,
     principal: b.principal, foundedYear: b.foundedYear ? Number(b.foundedYear) : undefined,
     description: b.description, sourceUrl: b.sourceUrl,
+    image: typeof b.image === "string" ? b.image : undefined,
     verified: !!b.verified, active: b.active !== false,
     seo: sanitizeSeoFields(b.seo),
   });

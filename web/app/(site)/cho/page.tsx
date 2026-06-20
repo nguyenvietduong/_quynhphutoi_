@@ -35,6 +35,7 @@ export default async function ChoMuaBanPage() {
       unit: d.unit ?? null,
       contactPhone: d.contactPhone ?? null,
       featured: d.featured,
+      image: d.image ?? null,
     };
   });
 

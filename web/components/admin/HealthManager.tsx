@@ -11,6 +11,7 @@ import { Pagination } from "@/components/common/Pagination";
 import { usePagination, PageSizeControl } from "@/components/admin/AdminPaging";
 import { RowActions } from "@/components/admin/RowActions";
 import { useToast } from "@/components/common/Toast";
+import { ImageUploader } from "@/components/common/ImageUploader";
 
 type Option = { slug: string; name: string };
 const wardName = (s: string) => WARDS.find((w) => w.slug === s)?.name ?? s;
@@ -19,21 +20,21 @@ type Form = {
   slug: string; name: string; shortName: string; type: string; ownership: string; wardSlug: string;
   director: string; hours: string; beds: string; specialties: string;
   address: string; phone: string; email: string; website: string;
-  foundedYear: string; description: string; emergency: boolean; verified: boolean; active: boolean;
+  foundedYear: string; description: string; image: string; emergency: boolean; verified: boolean; active: boolean;
   seo?: SeoFields;
 };
 const emptyForm = (typeOptions: Option[], ownershipOptions: Option[]): Form => ({
   slug: "", name: "", shortName: "",
   type: typeOptions[0]?.slug ?? "", ownership: ownershipOptions[0]?.slug ?? "", wardSlug: WARDS[0]?.slug ?? "",
   director: "", hours: "", beds: "", specialties: "",
-  address: "", phone: "", email: "", website: "", foundedYear: "", description: "",
+  address: "", phone: "", email: "", website: "", foundedYear: "", description: "", image: "",
   emergency: false, verified: false, active: true, seo: {},
 });
 const toForm = (r: HealthRow): Form => ({
   slug: r.slug, name: r.name, shortName: r.shortName ?? "", type: r.type, ownership: r.ownership, wardSlug: r.wardSlug,
   director: r.director ?? "", hours: r.hours ?? "", beds: r.beds ? String(r.beds) : "", specialties: r.specialties ?? "",
   address: r.address ?? "", phone: r.phone ?? "", email: r.email ?? "", website: r.website ?? "",
-  foundedYear: r.foundedYear ? String(r.foundedYear) : "", description: r.description ?? "",
+  foundedYear: r.foundedYear ? String(r.foundedYear) : "", description: r.description ?? "", image: r.image ?? "",
   emergency: r.emergency ?? false, verified: r.verified, active: r.active, seo: r.seo ?? {},
 });
 
@@ -79,7 +80,8 @@ export function HealthManager({ initial, typeOptions, ownershipOptions }: {
         director: form.director, hours: form.hours, beds: form.beds ? Number(form.beds) : undefined, specialties: form.specialties,
         address: form.address, phone: form.phone, email: form.email, website: form.website,
         foundedYear: form.foundedYear ? Number(form.foundedYear) : undefined,
-        description: form.description, emergency: form.emergency, verified: form.verified, active: form.active,
+        description: form.description, image: form.image || undefined,
+        emergency: form.emergency, verified: form.verified, active: form.active,
         seo: form.seo ?? {},
       };
       const res = await fetch(editing ? `/api/admin/y-te/${editing}` : "/api/admin/y-te", {
@@ -172,6 +174,8 @@ export function HealthManager({ initial, typeOptions, ownershipOptions }: {
                 <div className="qp-form-group"><label className="qp-label">Năm thành lập</label>
                   <input type="number" className="qp-input" value={form.foundedYear} onChange={(e) => set("foundedYear", e.target.value)} /></div>
               </div>
+              <div className="qp-form-group"><label className="qp-label">Ảnh cơ sở</label>
+                <ImageUploader max={1} value={form.image ? [form.image] : []} onChange={(urls) => set("image", urls[0] ?? "")} /></div>
               <div className="qp-form-group"><label className="qp-label">Mô tả</label>
                 <textarea className="qp-textarea" value={form.description} onChange={(e) => set("description", e.target.value)} /></div>
               <SeoFieldsEditor value={form.seo} onChange={(seo) => set("seo", seo)} />

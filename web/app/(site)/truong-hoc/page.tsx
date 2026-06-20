@@ -54,6 +54,7 @@ export default async function TruongHocPage() {
         website: d.website ?? null,
         foundedYear: d.foundedYear ?? null,
         verified: d.verified,
+        image: d.image ?? null,
       };
     })
     .sort((a, b) => (orderOf(a.level) - orderOf(b.level)) || a.ward.localeCompare(b.ward, "vi") || a.name.localeCompare(b.name, "vi"));

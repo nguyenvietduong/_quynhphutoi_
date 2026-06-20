@@ -21,6 +21,7 @@ export type HealthItem = {
   hours: string | null;
   emergency: boolean;
   verified: boolean;
+  image: string | null;
 };
 
 type Option = { slug: string; name: string };
@@ -40,6 +41,10 @@ function HealthCard({ h, ownerLabel }: { h: HealthItem; ownerLabel: (s: string) 
   const href = `/y-te/${h.slug}`;
   return (
     <article className="qp-job-card">
+      {h.image && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img className="qp-health-card__img" src={h.image} alt={h.name} loading="lazy" />
+      )}
       <div className="qp-job-card__head">
         <span className={`qp-health-logo is-${h.type}`} aria-hidden><HealthIcon type={h.type} /></span>
         <div className="qp-job-card__head-main">
