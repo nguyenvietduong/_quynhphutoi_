@@ -5,6 +5,7 @@ import { getPublicAd, recordImpression, listAllActiveAds } from "@/lib/ads";
 import { MapEmbed } from "@/components/common/MapEmbed";
 import { ImageGallery } from "@/components/common/ImageGallery";
 import { stripHtml } from "@/lib/strip-html";
+import { cldHtml } from "@/lib/cloudinary-url";
 import { buildMetadata, jsonLdAd, jsonLdBreadcrumb } from "@/lib/seo";
 import { applySeo } from "@/lib/seo-fields";
 import { JsonLd } from "@/components/common/JsonLd";
@@ -115,7 +116,7 @@ export default async function AdDetailPage({ params }: { params: Promise<{ id: s
             {hasDesc && (
               <section className="qp-addetail__content">
                 <h2 className="qp-addetail__h2">Giới thiệu</h2>
-                <div className="rich-text-editor__content qp-rte-view" dangerouslySetInnerHTML={{ __html: ad.description! }} />
+                <div className="rich-text-editor__content qp-rte-view" dangerouslySetInnerHTML={{ __html: cldHtml(ad.description!) }} />
               </section>
             )}
             {ad.mapUrl && (

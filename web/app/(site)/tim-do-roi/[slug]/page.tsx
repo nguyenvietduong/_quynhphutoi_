@@ -6,6 +6,7 @@ import { likeInfo, listComments } from "@/lib/lostfound-social";
 import { getCurrentUser } from "@/lib/admin";
 import { isStaff } from "@/lib/users";
 import { stripHtml } from "@/lib/strip-html";
+import { cldHtml } from "@/lib/cloudinary-url";
 import { getAdminUnitsMap } from "@/lib/admin-units";
 import { ResolveButton } from "@/components/lostfound/ResolveButton";
 import { PostInteractions } from "@/components/lostfound/PostInteractions";
@@ -151,7 +152,7 @@ export default async function LostFoundDetailPage({ params }: { params: Promise<
           <div className="qp-lf-main">
             <ImageGallery images={post.images} alt={post.title} />
 
-            <div className="rich-text-editor__content qp-rte-view" dangerouslySetInnerHTML={{ __html: post.description }} />
+            <div className="rich-text-editor__content qp-rte-view" dangerouslySetInnerHTML={{ __html: cldHtml(post.description) }} />
 
             {post.location.mapUrl && (
               <div style={{ marginTop: "var(--space-6)" }}>

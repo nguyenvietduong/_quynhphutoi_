@@ -26,3 +26,22 @@ export function cldUrl(src: string, opts: CldOpts = {}): string {
   if (/^[^/]*f_auto/.test(tail)) return src;
   return `${head}${seg}/${tail}`;
 }
+
+// Tối ưu tất cả <img src="..."> trong một HTML string (dùng cho dangerouslySetInnerHTML).
+// Thêm f_auto,q_auto,w_{maxW} cho Cloudinary URLs và loading="lazy" nếu chưa có.
+export function cldHtml(html: string, maxW = 900): string {
+  if (!html) return html;
+  return html.replace(
+    /<img(\s[^>]*)?\s*\/?>/gi,
+    (tag) => {
+      const srcMatch = tag.match(/\ssrc="([^"]*)"/i);
+      if (!srcMatch) return tag;
+      const optimized = cldUrl(srcMatch[1], { w: maxW });
+      let result = tag.replace(/\ssrc="[^"]*"/i, ` src="${optimized}"`);
+      if (!/\sloading=/i.test(result)) {
+        result = result.replace(/\s*\/?>$/, ' loading="lazy"$&');
+      }
+      return result;
+    }
+  );
+}

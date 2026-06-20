@@ -5,6 +5,7 @@ import { getJobBySlug, incrementViews, relatedJobs, formatSalary, formatAge } fr
 import { getCurrentUser } from "@/lib/admin";
 import { isStaff } from "@/lib/users";
 import { stripHtml } from "@/lib/strip-html";
+import { cldHtml } from "@/lib/cloudinary-url";
 import { getAdminUnitsMap } from "@/lib/admin-units";
 import { JobActions } from "@/components/jobs/JobActions";
 import { ImageGallery } from "@/components/common/ImageGallery";
@@ -124,7 +125,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ slug
         <div className="qp-article-layout is-lf">
           <div className="qp-lf-main">
             <ImageGallery images={job.images ?? []} alt={job.title} />
-            <div className="rich-text-editor__content qp-rte-view" dangerouslySetInnerHTML={{ __html: job.description }} />
+            <div className="rich-text-editor__content qp-rte-view" dangerouslySetInnerHTML={{ __html: cldHtml(job.description) }} />
             {job.location.mapUrl && (
               <div style={{ marginTop: "var(--space-6)" }}>
                 <MapEmbed url={job.location.mapUrl} address={job.location.address} />

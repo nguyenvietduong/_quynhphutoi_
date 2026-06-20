@@ -6,6 +6,7 @@ import { categoryLabelMap } from "@/lib/categories";
 import { getCurrentUser } from "@/lib/admin";
 import { isStaff } from "@/lib/users";
 import { stripHtml } from "@/lib/strip-html";
+import { cldHtml } from "@/lib/cloudinary-url";
 import { getAdminUnitsMap } from "@/lib/admin-units";
 import { ClassifiedActions } from "@/components/classifieds/ClassifiedActions";
 import { ImageGallery } from "@/components/common/ImageGallery";
@@ -122,7 +123,7 @@ export default async function ClassifiedDetailPage({ params }: { params: Promise
         <div className="qp-article-layout is-lf">
           <div className="qp-lf-main">
             <ImageGallery images={a.images ?? []} alt={a.title} />
-            <div className="rich-text-editor__content qp-rte-view" dangerouslySetInnerHTML={{ __html: a.description }} />
+            <div className="rich-text-editor__content qp-rte-view" dangerouslySetInnerHTML={{ __html: cldHtml(a.description) }} />
             {a.location.mapUrl && (
               <div style={{ marginTop: "var(--space-6)" }}>
                 <MapEmbed url={a.location.mapUrl} address={a.location.address} />

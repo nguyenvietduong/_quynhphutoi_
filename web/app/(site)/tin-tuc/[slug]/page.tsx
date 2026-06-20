@@ -10,6 +10,7 @@ import { PostInteractions } from "@/components/lostfound/PostInteractions";
 import { CommentsSection, type CommentItem } from "@/components/lostfound/CommentsSection";
 import { NewsCard } from "@/components/news/NewsCard";
 import { AffiliateCTA } from "@/components/common/AffiliateCTA";
+import { cldUrl, cldHtml } from "@/lib/cloudinary-url";
 import { NewsletterForm } from "@/components/common/NewsletterForm";
 
 export const dynamic = "force-dynamic";
@@ -130,11 +131,11 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
                   case "image": return (
                     <figure key={i}>
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={b.src} alt={b.alt ?? ""} />
+                      <img src={cldUrl(b.src, { w: 900 })} alt={b.alt ?? ""} loading="lazy" />
                       {b.caption ? <figcaption>{b.caption}</figcaption> : null}
                     </figure>
                   );
-                  case "html": return <div key={i} dangerouslySetInnerHTML={{ __html: b.html }} />;
+                  case "html": return <div key={i} dangerouslySetInnerHTML={{ __html: cldHtml(b.html) }} />;
                   default: return <p key={i}>{b.text}</p>;
                 }
               })}
