@@ -102,9 +102,27 @@ export default function RootLayout({
   const fontVars = `${beVietnam.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable} ${sourceSerif.variable}`;
   const adsenseClient = process.env.NEXT_PUBLIC_ADSENSE_CLIENT;
   const recaptchaKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
+  const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
   return (
     <html lang="vi" className={fontVars} suppressHydrationWarning>
       <body suppressHydrationWarning><ToastProvider>{children}</ToastProvider><Analytics /></body>
+      {/* Google Analytics 4 — chỉ tải khi đã cấu hình Measurement ID (G-XXXXXXXXXX). */}
+      {gaId && (
+        <>
+          <Script
+            id="ga-loader"
+            strategy="afterInteractive"
+            src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
+          />
+          <Script
+            id="ga-init"
+            strategy="afterInteractive"
+            dangerouslySetInnerHTML={{
+              __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${gaId}');`,
+            }}
+          />
+        </>
+      )}
       {/* reCAPTCHA v2 (ô tick) — chỉ tải khi đã cấu hình site key. Render tường minh ở component. */}
       {recaptchaKey && (
         <Script
