@@ -569,7 +569,7 @@
 }
 .qp-hero__byline-avatar {
   width: 28px; height: 28px; border-radius: 50%;
-  background: var(--color-teal-light); color: var(--color-navy-deep);
+  background: var(--color-yellow); color: var(--color-navy-deep);
   display: grid; place-items: center; font: 700 10px/1 var(--font-primary);
 }
 .qp-hero__byline-sep { color: rgba(255,255,255,0.3); }
@@ -587,13 +587,13 @@
   transition: width 400ms var(--ease-soft), background 400ms ease, border-color 400ms ease;
 }
 .qp-hero__tab:hover .qp-hero__tab-bar { background: rgba(255,255,255,0.45); border-color: rgba(255,255,255,0.8); }
-.qp-hero__tab.is-active .qp-hero__tab-bar { width: 28px; background: var(--color-teal); border-color: var(--color-teal); }
+.qp-hero__tab.is-active .qp-hero__tab-bar { width: 28px; background: var(--color-yellow); border-color: var(--color-yellow); }
 
 /* Thanh tiến trình */
 .qp-hero__progress { position: absolute; bottom: 0; left: 0; right: 0; height: 4px; z-index: 6; background: rgba(255,255,255,0.08); overflow: hidden; }
 .qp-hero__progress-bar {
-  height: 100%; width: 0; background: var(--gradient-g2);
-  box-shadow: 0 0 12px rgba(0,169,143,0.4);
+  height: 100%; width: 0; background: var(--gradient-g4);
+  box-shadow: 0 0 12px rgba(252,211,77,0.4);
   animation-name: qp-hero-progress; animation-timing-function: linear; animation-fill-mode: forwards; animation-iteration-count: 1;
 }
 @keyframes qp-hero-progress { from { width: 0; } to { width: 100%; } }
@@ -823,7 +823,7 @@
 .qp-pagehero__blob { position: absolute; border-radius: 50%; pointer-events: none; z-index: 0; filter: blur(70px); animation: qp-blob-drift 18s ease-in-out infinite; }
 .qp-pagehero__blob.is-teal   { width: 320px; height: 320px; top: -100px; left: 8%; background: var(--color-teal); opacity: 0.18; }
 .qp-pagehero__blob.is-indigo { width: 220px; height: 220px; top: 30%; left: 32%; background: var(--color-indigo); opacity: 0.16; animation-delay: -8s; }
-.qp-pagehero__blob.is-yellow { width: 240px; height: 240px; bottom: -80px; left: 58%; background: var(--color-teal-light); opacity: 0.16; animation-delay: -12s; }
+.qp-pagehero__blob.is-yellow { width: 240px; height: 240px; bottom: -80px; left: 58%; background: var(--color-yellow); opacity: 0.16; animation-delay: -12s; }
 @keyframes qp-blob-drift { 0%, 100% { transform: translate(0,0); } 33% { transform: translate(20px,-18px); } 66% { transform: translate(-14px,12px); } }
 .qp-pagehero__art {
   position: absolute; top: -20px; bottom: -20px; right: 0; width: 230px; z-index: 1; pointer-events: none;
@@ -832,11 +832,11 @@
 .qp-pagehero__inner { position: relative; z-index: 3; padding-block: 20px 24px; display: flex; flex-direction: column; align-items: flex-start; }
 .qp-pagehero .qp-breadcrumb { padding-block: 0; margin-bottom: 20px; font-family: var(--font-mono-sans); font-weight: 600; letter-spacing: 0.3px; }
 .qp-pagehero__eyebrow { display: inline-flex; align-items: center; gap: 10px; color: var(--color-teal-dark); margin-bottom: 18px; }
-.qp-pagehero__eyebrow::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--color-teal); }
+.qp-pagehero__eyebrow::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--color-yellow); }
 .qp-pagehero h1 { color: var(--color-navy); margin-bottom: 18px; font-size: 30px; letter-spacing: -0.8px; }
 .qp-pagehero__lead { max-width: 560px; font: 400 16px/1.55 var(--font-primary); color: var(--color-gray-text); margin-bottom: 24px;
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-.qp-pagehero__line { display: block; width: 64px; height: 3px; border-radius: 2px; background: var(--color-teal); }
+.qp-pagehero__line { display: block; width: 64px; height: 3px; border-radius: 2px; background: var(--color-yellow); }
 @media (max-width: 1179px) { .qp-pagehero__inner { padding-block: 16px 20px; } }
 @media (max-width: 767px) {
   .qp-pagehero__inner { padding-block: 16px; }
@@ -1011,7 +1011,7 @@
 /* Popular ("Đọc nhiều") */
 .qp-popular { display: flex; flex-direction: column; background: var(--color-gray-light); border: 1px solid var(--color-gray-border); border-radius: var(--radius-card); overflow: hidden; }
 .qp-popular__head { position: relative; flex-shrink: 0; padding: 20px 16px 16px; border-bottom: 1px solid var(--color-gray-border); }
-.qp-popular__head::after { content: ''; position: absolute; left: 16px; bottom: -1px; width: 48px; height: 3px; background: var(--color-teal); border-radius: 2px; }
+.qp-popular__head::after { content: ''; position: absolute; left: 16px; bottom: -1px; width: 48px; height: 3px; background: var(--color-yellow); border-radius: 2px; }
 .qp-popular__head h2 { color: var(--color-navy); }
 .qp-popular__list { display: flex; flex-direction: column; flex: 1; }
 .qp-popular__item { display: grid; grid-template-columns: 28px 1fr; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--color-gray-border); flex: 1; transition: background var(--duration-fast) ease; }
@@ -1025,7 +1025,7 @@
 
 /* Tiêu đề lưới "Tất cả tin tức" — SectionHead: mb 32, pb 16, vạch vàng 64×3 */
 .qp-newsgrid-head { position: relative; margin-bottom: 32px; padding-bottom: 16px; border-bottom: 1px solid var(--color-gray-border); }
-.qp-newsgrid-head::after { content: ''; position: absolute; left: 0; bottom: -1px; width: 64px; height: 3px; background: var(--color-teal); border-radius: 2px; }
+.qp-newsgrid-head::after { content: ''; position: absolute; left: 0; bottom: -1px; width: 64px; height: 3px; background: var(--color-yellow); border-radius: 2px; }
 .qp-newsgrid-head .type-tag { display: block; margin-bottom: 6px; }
 .qp-newsgrid-head h2 { color: var(--color-navy); }
 
@@ -1320,7 +1320,7 @@ a.qp-contactrow__value:hover { color: var(--color-teal-dark); }
 }
 .qp-sechead::after {
   content: ''; position: absolute; left: 0; bottom: -1px;
-  width: 64px; height: 3px; background: var(--color-teal); border-radius: 2px;
+  width: 64px; height: 3px; background: var(--color-yellow); border-radius: 2px;
 }
 .qp-sechead__titles { display: flex; flex-direction: column; gap: 8px; }
 .qp-sechead__eyebrow { color: var(--color-teal-dark); }
@@ -1359,11 +1359,31 @@ a.qp-contactrow__value:hover { color: var(--color-teal-dark); }
    EVENT CARD (date strip + nội dung) — sự kiện / chợ phiên
    ============================================================ */
 .qp-event-card {
+  position: relative;
   display: flex; gap: var(--space-4); min-width: 0; background: #fff;
   border: 1px solid var(--color-navy-pale-2); border-radius: var(--radius-card);
-  padding: var(--space-4); transition: border-color var(--duration-default) ease, box-shadow var(--duration-default) ease, transform var(--duration-default) var(--ease-soft);
+  padding: var(--space-4); overflow: hidden; transition: border-color 0.4s ease;
 }
-.qp-event-card:hover { border-color: var(--color-teal); box-shadow: var(--shadow-lift); transform: translateY(-3px); }
+.qp-event-card::before {
+  content: ''; position: absolute; inset: 0; z-index: 3; pointer-events: none;
+  border-radius: var(--radius-card); padding: 1px;
+  background: linear-gradient(120deg, transparent 0%, var(--color-teal) 20%,
+    var(--color-indigo) 50%, var(--color-teal) 80%, transparent 100%);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude;
+  opacity: 0; transition: opacity var(--duration-slow) ease;
+}
+.qp-event-card::after {
+  content: ''; position: absolute; top: 14px; right: 14px; z-index: 4; pointer-events: none;
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--color-yellow); box-shadow: 0 0 12px rgba(252,211,77,0.65);
+  opacity: 0; transform: scale(0.5);
+  transition: opacity 0.4s ease, transform 0.4s var(--ease-pop);
+}
+.qp-event-card:hover { border-color: transparent; }
+.qp-event-card:hover::before { opacity: 1; }
+.qp-event-card:hover::after { opacity: 1; transform: scale(1); }
+.qp-event-card > * { position: relative; z-index: 2; }
 .qp-event-card__date {
   flex-shrink: 0; width: 66px; text-align: center; align-self: flex-start;
   background: var(--gradient-g3); color: #fff; border-radius: var(--radius-md);
