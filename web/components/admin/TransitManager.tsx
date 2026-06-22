@@ -7,6 +7,7 @@ import type { TransitRow } from "@/lib/transit";
 import { Pagination } from "@/components/common/Pagination";
 import { usePagination, PageSizeControl } from "@/components/admin/AdminPaging";
 import { RowActions } from "@/components/admin/RowActions";
+import { hasPerm, type PermLevel } from "@/lib/perm";
 import { SeoFieldsEditor } from "@/components/admin/SeoFieldsEditor";
 import type { SeoFields } from "@/lib/seo-fields";
 import { useToast } from "@/components/common/Toast";
@@ -31,7 +32,8 @@ const toForm = (r: TransitRow): Form => ({
   verified: r.verified ?? false, active: r.active ?? true, seo: r.seo,
 });
 
-export function TransitManager({ initial, typeOptions }: { initial: TransitRow[]; typeOptions: TypeOption[] }) {
+export function TransitManager({ initial, typeOptions, perm = "full" }: { initial: TransitRow[]; typeOptions: TypeOption[]; perm?: PermLevel }) {
+  const canEdit = hasPerm(perm, "edit");
   const typeLabel = (s: string) => typeOptions.find((x) => x.slug === s)?.name ?? s;
   const [rows, setRows] = useState<TransitRow[]>(initial);
   const [q, setQ] = useState("");
@@ -101,7 +103,7 @@ export function TransitManager({ initial, typeOptions }: { initial: TransitRow[]
         </select>
         <span className="qp-admin-toolbar__spacer" />
         <PageSizeControl value={pg.pageSize} onChange={pg.setPageSize} total={filtered.length} />
-        <button type="button" className="qp-btn-primary" onClick={startNew}>+ Thêm tuyến</button>
+        {canEdit && <button type="button" className="qp-btn-primary" onClick={startNew}>+ Thêm tuyến</button>}
       </div>
 
       {show && (
@@ -179,8 +181,8 @@ export function TransitManager({ initial, typeOptions }: { initial: TransitRow[]
                   <td><span className={`qp-acc-badge is-${r.active ? "active" : "hidden"}`}>{r.active ? "Hiện" : "Ẩn"}</span></td>
                   <td className="qp-admin-actions">
                     <RowActions actions={[
-                      { value: "edit", label: "Sửa", run: () => startEdit(r) },
-                      { value: "delete", label: "Xoá", run: () => remove(r) },
+                      { value: "edit", label: "Sửa", hidden: !canEdit, run: () => startEdit(r) },
+                      { value: "delete", label: "Xoá", hidden: !canEdit, run: () => remove(r) },
                     ]} />
                   </td>
                 </tr>

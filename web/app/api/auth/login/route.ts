@@ -20,6 +20,9 @@ export async function POST(req: Request) {
   if (!u || !(await checkPassword(u, password || ""))) {
     return NextResponse.json({ error: "Email hoặc mật khẩu không đúng." }, { status: 401 });
   }
+  if (u.banned) {
+    return NextResponse.json({ error: "Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên." }, { status: 403 });
+  }
 
   await createSession({ id: String(u._id), email: u.email, name: u.name, avatar: u.avatar || "" });
   return NextResponse.json({ ok: true });

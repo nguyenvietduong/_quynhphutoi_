@@ -1,10 +1,10 @@
 // Admin: sửa (PATCH) & xoá (DELETE) một từ cấm.
 import { NextResponse } from "next/server";
-import { requireStaff } from "@/lib/admin-guard";
+import { requirePerm } from "@/lib/admin-guard";
 import { updateProfanityWord, deleteProfanityWord, type ProfanityPatch } from "@/lib/profanity";
 
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
-  const g = await requireStaff();
+  const g = await requirePerm("loc-tu-ngu", "edit");
   if (g instanceof NextResponse) return g;
   const { id } = await params;
   const b = await req.json().catch(() => ({}));
@@ -23,7 +23,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
 }
 
 export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {
-  const g = await requireStaff();
+  const g = await requirePerm("loc-tu-ngu", "edit");
   if (g instanceof NextResponse) return g;
   const { id } = await params;
   const n = await deleteProfanityWord(id);

@@ -10,6 +10,7 @@ import { SeoFieldsEditor } from "@/components/admin/SeoFieldsEditor";
 import { Pagination } from "@/components/common/Pagination";
 import { usePagination, PageSizeControl } from "@/components/admin/AdminPaging";
 import { RowActions } from "@/components/admin/RowActions";
+import { hasPerm, type PermLevel } from "@/lib/perm";
 import { useToast } from "@/components/common/Toast";
 import { ImageUploader } from "@/components/common/ImageUploader";
 
@@ -38,11 +39,13 @@ const toForm = (r: HealthRow): Form => ({
   emergency: r.emergency ?? false, verified: r.verified, active: r.active, seo: r.seo ?? {},
 });
 
-export function HealthManager({ initial, typeOptions, ownershipOptions }: {
+export function HealthManager({ initial, typeOptions, ownershipOptions, perm = "full" }: {
   initial: HealthRow[];
   typeOptions: Option[];
   ownershipOptions: Option[];
+  perm?: PermLevel;
 }) {
+  const canEdit = hasPerm(perm, "edit");
   const [rows, setRows] = useState<HealthRow[]>(initial);
   const [q, setQ] = useState("");
   const [fType, setFType] = useState("");
@@ -115,7 +118,7 @@ export function HealthManager({ initial, typeOptions, ownershipOptions }: {
         </select>
         <span className="qp-admin-toolbar__spacer" />
         <PageSizeControl value={pg.pageSize} onChange={pg.setPageSize} total={filtered.length} />
-        <button type="button" className="qp-btn-primary" onClick={startNew}>+ Thêm cơ sở</button>
+        {canEdit && <button type="button" className="qp-btn-primary" onClick={startNew}>+ Thêm cơ sở</button>}
       </div>
 
       {show && (
@@ -209,8 +212,8 @@ export function HealthManager({ initial, typeOptions, ownershipOptions }: {
                   <td><span className={`qp-acc-badge is-${r.active ? "active" : "hidden"}`}>{r.active ? "Hiện" : "Ẩn"}</span></td>
                   <td className="qp-admin-actions">
                     <RowActions actions={[
-                      { value: "edit", label: "Sửa", run: () => startEdit(r) },
-                      { value: "delete", label: "Xoá", run: () => remove(r) },
+                      { value: "edit", label: "Sửa", hidden: !canEdit, run: () => startEdit(r) },
+                      { value: "delete", label: "Xoá", hidden: !canEdit, run: () => remove(r) },
                     ]} />
                   </td>
                 </tr>

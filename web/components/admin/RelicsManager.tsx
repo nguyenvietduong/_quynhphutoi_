@@ -12,6 +12,7 @@ import { Pagination } from "@/components/common/Pagination";
 import { usePagination, PageSizeControl } from "@/components/admin/AdminPaging";
 import { RowActions } from "@/components/admin/RowActions";
 import { useToast } from "@/components/common/Toast";
+import { hasPerm, type PermLevel } from "@/lib/perm";
 
 type CatOption = { slug: string; name: string };
 const wardName = (s: string) => WARDS.find((w) => w.slug === s)?.name ?? s;
@@ -36,11 +37,13 @@ const toForm = (r: RelicRow): Form => ({
   verified: r.verified ?? false, featured: r.featured ?? false, active: r.active ?? true, seo: r.seo,
 });
 
-export function RelicsManager({ initial, typeOptions, rankingOptions }: {
+export function RelicsManager({ initial, typeOptions, rankingOptions, perm = "full" }: {
   initial: RelicRow[];
   typeOptions: CatOption[];
   rankingOptions: CatOption[];
+  perm?: PermLevel;
 }) {
+  const canEdit = hasPerm(perm, "edit");
   const defaultType = typeOptions[0]?.slug ?? "";
   const typeLabel = (s: string) => typeOptions.find((x) => x.slug === s)?.name ?? s;
   const rankingLabel = (s: string) => rankingOptions.find((x) => x.slug === s)?.name ?? s;
@@ -113,7 +116,7 @@ export function RelicsManager({ initial, typeOptions, rankingOptions }: {
         </select>
         <span className="qp-admin-toolbar__spacer" />
         <PageSizeControl value={pg.pageSize} onChange={pg.setPageSize} total={filtered.length} />
-        <button type="button" className="qp-btn-primary" onClick={startNew}>+ Thêm di tích</button>
+        {canEdit && <button type="button" className="qp-btn-primary" onClick={startNew}>+ Thêm di tích</button>}
       </div>
 
       {show && (
@@ -192,8 +195,8 @@ export function RelicsManager({ initial, typeOptions, rankingOptions }: {
                   <td><span className={`qp-acc-badge is-${r.active ? "active" : "hidden"}`}>{r.active ? "Hiện" : "Ẩn"}</span></td>
                   <td className="qp-admin-actions">
                     <RowActions actions={[
-                      { value: "edit", label: "Sửa", run: () => startEdit(r) },
-                      { value: "delete", label: "Xoá", run: () => remove(r) },
+                      { value: "edit", label: "Sửa", hidden: !canEdit, run: () => startEdit(r) },
+                      { value: "delete", label: "Xoá", hidden: !canEdit, run: () => remove(r) },
                     ]} />
                   </td>
                 </tr>

@@ -1,6 +1,6 @@
 // Admin: cập nhật (PATCH) & xoá (DELETE) một tuyến giao thông.
 import { NextResponse } from "next/server";
-import { requireStaff } from "@/lib/admin-guard";
+import { requirePerm } from "@/lib/admin-guard";
 import { updateTransit, deleteTransit, type TransitInput } from "@/lib/transit";
 import { listActiveCategoryOptions } from "@/lib/categories";
 import { sanitizeSeoFields } from "@/lib/seo-fields";
@@ -11,7 +11,7 @@ function toStops(v: unknown): string[] {
 }
 
 export async function PATCH(req: Request, { params }: { params: Promise<{ slug: string }> }) {
-  const g = await requireStaff();
+  const g = await requirePerm("giao-thong", "edit");
   if (g instanceof NextResponse) return g;
   const { slug } = await params;
   const b = await req.json().catch(() => ({}));
@@ -35,7 +35,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ slug: 
 }
 
 export async function DELETE(_req: Request, { params }: { params: Promise<{ slug: string }> }) {
-  const g = await requireStaff();
+  const g = await requirePerm("giao-thong", "edit");
   if (g instanceof NextResponse) return g;
   const { slug } = await params;
   const n = await deleteTransit(slug);

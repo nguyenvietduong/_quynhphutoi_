@@ -14,6 +14,7 @@ import { ImageUploader } from "@/components/common/ImageUploader";
 import { SeoFieldsEditor } from "@/components/admin/SeoFieldsEditor";
 import type { SeoFields } from "@/lib/seo-fields";
 import { useToast } from "@/components/common/Toast";
+import { hasPerm, type PermLevel } from "@/lib/perm";
 
 export type ModRow = {
   slug: string; title: string; sub: string; description: string;
@@ -33,7 +34,8 @@ export type ModConfig = {
   statusOptions: { value: string; label: string }[];
 };
 
-export function PostModerationManager({ initial, config }: { initial: ModRow[]; config: ModConfig }) {
+export function PostModerationManager({ initial, config, perm = "full" }: { initial: ModRow[]; config: ModConfig; perm?: PermLevel }) {
+  const canEdit = hasPerm(perm, "edit");
   const [rows, setRows] = useState<ModRow[]>(initial);
   const [q, setQ] = useState("");
   const [view, setView] = useState<"pending" | "approved" | "all">("approved");
@@ -224,12 +226,12 @@ export function PostModerationManager({ initial, config }: { initial: ModRow[]; 
             <div className="qp-modal__foot" style={{ justifyContent: "space-between" }}>
               <div style={{ display: "flex", gap: 8 }}>
                 {detail.approved && <a className="qp-btn-outline" href={`${config.publicBase}/${detail.slug}`} target="_blank" rel="noreferrer">Xem công khai</a>}
-                <button type="button" className="qp-btn-outline" onClick={() => { const d = detail; setDetail(null); if (d) setEdit(d); }}>Sửa</button>
-                <button type="button" className="qp-btn-outline" style={{ color: "var(--color-error)", borderColor: "var(--color-error)" }} onClick={() => { const d = detail; setDetail(null); if (d) remove(d); }}>Từ chối / Xoá</button>
+                {canEdit && <button type="button" className="qp-btn-outline" onClick={() => { const d = detail; setDetail(null); if (d) setEdit(d); }}>Sửa</button>}
+                {canEdit && <button type="button" className="qp-btn-outline" style={{ color: "var(--color-error)", borderColor: "var(--color-error)" }} onClick={() => { const d = detail; setDetail(null); if (d) remove(d); }}>Từ chối / Xoá</button>}
               </div>
-              {detail.approved
+              {canEdit && (detail.approved
                 ? <button type="button" className="qp-btn-outline" onClick={() => { const d = detail; setDetail(null); if (d) approve(d, false); }}>Bỏ duyệt</button>
-                : <button type="button" className="qp-btn-primary" onClick={() => { const d = detail; setDetail(null); if (d) approve(d, true); }}>Duyệt &amp; hiển thị</button>}
+                : <button type="button" className="qp-btn-primary" onClick={() => { const d = detail; setDetail(null); if (d) approve(d, true); }}>Duyệt &amp; hiển thị</button>)}
             </div>
           </div>
         </div>
@@ -263,11 +265,11 @@ export function PostModerationManager({ initial, config }: { initial: ModRow[]; 
                     <RowActions actions={[
                       { value: "detail", label: "Chi tiết", run: () => setDetail(r) },
                       r.approved
-                        ? { value: "unapprove", label: "Bỏ duyệt", run: () => approve(r, false) }
-                        : { value: "approve", label: "Duyệt", run: () => approve(r, true) },
+                        ? { value: "unapprove", label: "Bỏ duyệt", hidden: !canEdit, run: () => approve(r, false) }
+                        : { value: "approve", label: "Duyệt", hidden: !canEdit, run: () => approve(r, true) },
                       { value: "view", label: "Xem công khai", hidden: !r.approved, run: () => window.open(`${config.publicBase}/${r.slug}`, "_blank") },
-                      { value: "edit", label: "Sửa", run: () => setEdit(r) },
-                      { value: "delete", label: "Xoá", run: () => remove(r) },
+                      { value: "edit", label: "Sửa", hidden: !canEdit, run: () => setEdit(r) },
+                      { value: "delete", label: "Xoá", hidden: !canEdit, run: () => remove(r) },
                     ]} />
                   </td>
                 </tr>

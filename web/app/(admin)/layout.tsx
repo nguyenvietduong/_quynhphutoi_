@@ -29,7 +29,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     <div className="qp-admin-shell">
       <AdminSidebar counts={counts} logo={settings.siteLogo || undefined} role={user!.role ?? "user"} />
       <div className="qp-admin-main">
-        <AdminTopbar name={user!.name} />
+        <AdminTopbar name={user!.name} email={user!.email} avatar={user!.avatar} />
         <div className="qp-admin-content">{children}</div>
       </div>
     </div>

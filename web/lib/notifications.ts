@@ -71,6 +71,16 @@ export async function notifyAdmins(input: NotifInput, actorId?: string) {
   await notifyMany(admins.map((a) => a._id), input, actorId);
 }
 
+// Gửi cho toàn bộ ban quản trị: admin + editor (trừ actor).
+export async function notifyStaff(input: NotifInput, actorId?: string) {
+  const db = await getDb();
+  const staff = await db.collection("users").find(
+    { role: { $in: ["admin", "editor"] } },
+    { projection: { _id: 1 } },
+  ).toArray();
+  await notifyMany(staff.map((s) => s._id), input, actorId);
+}
+
 // Gửi broadcast tới toàn bộ người dùng (hoặc chỉ admin). Trả về số người nhận.
 export async function broadcastToAll(input: NotifInput, opts: { adminsOnly?: boolean } = {}, actorId?: string) {
   const db = await getDb();

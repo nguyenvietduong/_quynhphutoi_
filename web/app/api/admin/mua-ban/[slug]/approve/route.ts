@@ -1,13 +1,11 @@
 import { NextResponse } from "next/server";
-import { getCurrentUser } from "@/lib/admin";
-import { isStaff } from "@/lib/users";
+import { requirePerm } from "@/lib/admin-guard";
 import { approveClassified, getClassifiedBySlug } from "@/lib/classifieds";
 import { notifyUser } from "@/lib/notifications";
 
 export async function POST(req: Request, { params }: { params: Promise<{ slug: string }> }) {
-  const user = await getCurrentUser();
-  if (!user) return NextResponse.json({ error: "Vui lòng đăng nhập." }, { status: 401 });
-  if (!isStaff(user)) return NextResponse.json({ error: "Chỉ admin mới được duyệt tin." }, { status: 403 });
+  const g = await requirePerm("mua-ban", "edit");
+  if (g instanceof NextResponse) return g;
   const { slug } = await params;
   const ad = await getClassifiedBySlug(slug);
   if (!ad) return NextResponse.json({ error: "Không tìm thấy tin." }, { status: 404 });

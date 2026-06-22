@@ -1,6 +1,6 @@
 // Admin: liệt kê (GET) & tạo (POST) tuyến giao thông.
 import { NextResponse } from "next/server";
-import { requireStaff } from "@/lib/admin-guard";
+import { requirePerm } from "@/lib/admin-guard";
 import { listTransit, createTransit, toTransitRow } from "@/lib/transit";
 import { listActiveCategoryOptions } from "@/lib/categories";
 import { sanitizeSeoFields } from "@/lib/seo-fields";
@@ -12,14 +12,14 @@ function toStops(v: unknown): string[] {
 }
 
 export async function GET() {
-  const g = await requireStaff();
+  const g = await requirePerm("giao-thong", "view");
   if (g instanceof NextResponse) return g;
   const docs = await listTransit({});
   return NextResponse.json({ items: docs.map(toTransitRow) });
 }
 
 export async function POST(req: Request) {
-  const g = await requireStaff();
+  const g = await requirePerm("giao-thong", "edit");
   if (g instanceof NextResponse) return g;
   const b = await req.json().catch(() => ({}));
 

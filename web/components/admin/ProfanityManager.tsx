@@ -9,10 +9,12 @@ import { Pagination } from "@/components/common/Pagination";
 import { usePagination, PageSizeControl } from "@/components/admin/AdminPaging";
 import { RowActions } from "@/components/admin/RowActions";
 import type { ProfanityRow } from "@/lib/profanity";
+import { hasPerm, type PermLevel } from "@/lib/perm";
 
 const SMALL = 12.5;
 
-export function ProfanityManager({ initial }: { initial: ProfanityRow[] }) {
+export function ProfanityManager({ initial, perm = "full" }: { initial: ProfanityRow[]; perm?: PermLevel }) {
+  const canEdit = hasPerm(perm, "edit");
   const [rows, setRows] = useState<ProfanityRow[]>(initial);
   const [edits, setEdits] = useState<Record<string, string>>({});
   const [q, setQ] = useState("");
@@ -147,12 +149,12 @@ export function ProfanityManager({ initial }: { initial: ProfanityRow[] }) {
         </span>
         <span style={{ flex: 1 }} />
         <button type="button" className="qp-btn-outline qp-btn-sm" onClick={copyAll} disabled={!rows.length} style={{ fontSize: SMALL }}>Copy tất cả</button>
-        <button type="button" className="qp-btn-outline qp-btn-sm" onClick={importLib} disabled={busy} style={{ fontSize: SMALL }}>Nạp từ thư viện</button>
-        <button type="button" className="qp-btn-outline qp-btn-sm" onClick={restoreDefaults} disabled={busy} style={{ fontSize: SMALL }}>Khôi phục mặc định</button>
+        {canEdit && <button type="button" className="qp-btn-outline qp-btn-sm" onClick={importLib} disabled={busy} style={{ fontSize: SMALL }}>Nạp từ thư viện</button>}
+        {canEdit && <button type="button" className="qp-btn-outline qp-btn-sm" onClick={restoreDefaults} disabled={busy} style={{ fontSize: SMALL }}>Khôi phục mặc định</button>}
       </div>
 
       {/* Thêm — một hoặc nhiều từ ngăn bởi dấu phẩy */}
-      <form className="qp-chart-card" onSubmit={add} style={{ padding: 12, marginBottom: 12 }}>
+      {canEdit && <form className="qp-chart-card" onSubmit={add} style={{ padding: 12, marginBottom: 12 }}>
         <label className="qp-label" style={{ fontSize: SMALL }}>Thêm từ cấm (nhiều từ ngăn bằng dấu phẩy)</label>
         <textarea
           className="qp-textarea" rows={2} value={bulk} onChange={(e) => setBulk(e.target.value)}
@@ -167,7 +169,7 @@ export function ProfanityManager({ initial }: { initial: ProfanityRow[] }) {
           <span style={{ flex: 1 }} />
           <button type="submit" className="qp-btn-primary qp-btn-sm" disabled={busy || !bulk.trim()} style={{ fontSize: SMALL }}>Thêm</button>
         </div>
-      </form>
+      </form>}
 
       {/* Tìm kiếm */}
       <div className="qp-admin-toolbar" style={{ marginBottom: 8 }}>
@@ -204,7 +206,7 @@ export function ProfanityManager({ initial }: { initial: ProfanityRow[] }) {
                   <td style={{ textAlign: "center" }}><Switch on={r.accentInsensitive} onChange={() => toggle(r, "accentInsensitive")} title="Khớp cả khi bỏ dấu" /></td>
                   <td style={{ textAlign: "center" }}><Switch on={r.enabled} onChange={() => toggle(r, "enabled")} title="Bật/tắt từ cấm này" /></td>
                   <td className="qp-admin-actions">
-                    <RowActions actions={[{ value: "delete", label: "Xoá", run: () => remove(r) }]} />
+                    <RowActions actions={[{ value: "delete", label: "Xoá", hidden: !canEdit, run: () => remove(r) }]} />
                   </td>
                 </tr>
               ))}

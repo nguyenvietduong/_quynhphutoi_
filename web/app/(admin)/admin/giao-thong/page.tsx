@@ -1,14 +1,19 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import { listTransit, toTransitRow } from "@/lib/transit";
 import { TransitManager } from "@/components/admin/TransitManager";
 import { getPageSeoConfig } from "@/lib/page-seo";
 import { ModuleTabs } from "@/components/admin/ModuleTabs";
 import { listActiveCategoryOptions } from "@/lib/categories";
+import { getModulePerm } from "@/lib/admin-guard";
 
 export const metadata: Metadata = { title: "Giao thông — Quản trị", robots: { index: false, follow: false } };
 export const dynamic = "force-dynamic";
 
 export default async function AdminTransitPage() {
+  const perm = await getModulePerm("giao-thong");
+  if (!perm || perm === "none") redirect("/admin/403");
+
   const [docs, pageSeo, typeOptions] = await Promise.all([
     listTransit({}),
     getPageSeoConfig(),
@@ -23,7 +28,7 @@ export default async function AdminTransitPage() {
         <p className="qp-admin-head__desc">Quản lý các tuyến xe khách, xe buýt qua địa bàn huyện — thêm, sửa, xoá và ẩn/hiện.</p>
       </div>
       <ModuleTabs pageKey="/giao-thong" pageLabel="Giao thông" listLabel="Danh sách tuyến giao thông" seoInitial={pageSeo["/giao-thong"] ?? {}}>
-        <TransitManager initial={rows} typeOptions={typeOptions} />
+        <TransitManager initial={rows} typeOptions={typeOptions} perm={perm} />
       </ModuleTabs>
     </>
   );

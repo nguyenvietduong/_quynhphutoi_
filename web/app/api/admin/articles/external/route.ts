@@ -1,7 +1,7 @@
 // Admin: lấy tin từ API ngoài để xem trước (GET) và tạo nhanh hàng loạt BẢN NHÁP (POST).
 // Mọi bài tạo ở đây luôn là status "draft" để admin chỉnh sửa rồi mới xuất bản.
 import { NextResponse } from "next/server";
-import { requireStaff } from "@/lib/admin-guard";
+import { requirePerm } from "@/lib/admin-guard";
 import { createArticle, toArticleRow } from "@/lib/articles";
 import { sanitizeHtml } from "@/lib/sanitize";
 import { fetchExternalNews, type ExternalNewsItem } from "@/lib/external-news";
@@ -20,7 +20,7 @@ function bodyFrom(it: ExternalNewsItem): string {
 }
 
 export async function GET(req: Request) {
-  const g = await requireStaff();
+  const g = await requirePerm("tin-tuc", "edit");
   if (g instanceof NextResponse) return g;
   const q = new URL(req.url).searchParams.get("q") || "";
   try {
@@ -32,7 +32,7 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
-  const g = await requireStaff();
+  const g = await requirePerm("tin-tuc", "edit");
   if (g instanceof NextResponse) return g;
   const b = await req.json().catch(() => ({}));
   const items: ExternalNewsItem[] = Array.isArray(b.items) ? b.items : [];

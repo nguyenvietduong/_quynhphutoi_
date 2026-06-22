@@ -1,13 +1,18 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { getArticleBySlug, toArticleRow } from "@/lib/articles";
 import { listActiveCategoryOptions } from "@/lib/categories";
 import { ArticleEditorPage, type ArticleForm } from "@/components/admin/ArticleEditorPage";
+import { getModulePerm } from "@/lib/admin-guard";
+import { hasPerm } from "@/lib/perm";
 
 export const metadata: Metadata = { title: "Sửa bài viết — Tin tức", robots: { index: false, follow: false } };
 export const dynamic = "force-dynamic";
 
 export default async function EditArticlePage({ params }: { params: Promise<{ slug: string }> }) {
+  const perm = await getModulePerm("tin-tuc");
+  if (!perm || !hasPerm(perm, "edit")) redirect("/admin/tin-tuc");
+
   const { slug } = await params;
   const [doc, catOpts] = await Promise.all([getArticleBySlug(slug), listActiveCategoryOptions("tin-tuc")]);
   if (!doc) notFound();

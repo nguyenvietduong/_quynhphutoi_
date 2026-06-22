@@ -1,6 +1,6 @@
 // Admin: cập nhật (PATCH) & xoá (DELETE) một bài viết.
 import { NextResponse } from "next/server";
-import { requireStaff } from "@/lib/admin-guard";
+import { requirePerm } from "@/lib/admin-guard";
 import { updateArticle, deleteArticle, getArticleBySlug, type ArticleInput, type ArticleStatus } from "@/lib/articles";
 import { sanitizeHtml } from "@/lib/sanitize";
 import { notifyUser } from "@/lib/notifications";
@@ -8,7 +8,7 @@ import { notifyUser } from "@/lib/notifications";
 const STATUSES: ArticleStatus[] = ["draft", "published"];
 
 export async function PATCH(req: Request, { params }: { params: Promise<{ slug: string }> }) {
-  const g = await requireStaff();
+  const g = await requirePerm("tin-tuc", "edit");
   if (g instanceof NextResponse) return g;
   const { slug } = await params;
   const b = await req.json().catch(() => ({}));
@@ -39,7 +39,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ slug: 
 }
 
 export async function DELETE(_req: Request, { params }: { params: Promise<{ slug: string }> }) {
-  const g = await requireStaff();
+  const g = await requirePerm("tin-tuc", "edit");
   if (g instanceof NextResponse) return g;
   const { slug } = await params;
   // Lấy trước để báo cho người gửi nếu đây là bài người dùng đang chờ duyệt.

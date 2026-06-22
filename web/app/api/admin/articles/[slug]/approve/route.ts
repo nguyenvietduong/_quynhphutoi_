@@ -1,14 +1,12 @@
 // Admin duyệt / bỏ duyệt 1 bài viết do người dùng gửi.
 import { NextResponse } from "next/server";
-import { getCurrentUser } from "@/lib/admin";
-import { isStaff } from "@/lib/users";
+import { requirePerm } from "@/lib/admin-guard";
 import { approveArticle, getArticleBySlug } from "@/lib/articles";
 import { notifyUser } from "@/lib/notifications";
 
 export async function POST(req: Request, { params }: { params: Promise<{ slug: string }> }) {
-  const user = await getCurrentUser();
-  if (!user) return NextResponse.json({ error: "Vui lòng đăng nhập." }, { status: 401 });
-  if (!isStaff(user)) return NextResponse.json({ error: "Chỉ admin mới được duyệt bài." }, { status: 403 });
+  const g = await requirePerm("tin-tuc", "full");
+  if (g instanceof NextResponse) return g;
   const { slug } = await params;
   const article = await getArticleBySlug(slug);
   if (!article) return NextResponse.json({ error: "Không tìm thấy bài viết." }, { status: 404 });

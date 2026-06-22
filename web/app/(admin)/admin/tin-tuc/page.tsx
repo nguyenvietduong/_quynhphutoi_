@@ -1,4 +1,5 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import { listAllArticles, toArticleRow } from "@/lib/articles";
 import { getNewsPageConfig, newsCandidatesBySlugs } from "@/lib/news-page";
 import { getPageSeoConfig } from "@/lib/page-seo";
@@ -7,11 +8,15 @@ import { listActiveCategoryOptions } from "@/lib/categories";
 import { ModuleTabs } from "@/components/admin/ModuleTabs";
 import { ArticleManager } from "@/components/admin/ArticleManager";
 import { NewsPageManager } from "@/components/admin/NewsPageManager";
+import { getModulePerm } from "@/lib/admin-guard";
 
 export const metadata: Metadata = { title: "Tin tức — Quản trị", robots: { index: false, follow: false } };
 export const dynamic = "force-dynamic";
 
 export default async function AdminArticlesPage() {
+  const perm = await getModulePerm("tin-tuc");
+  if (!perm || perm === "none") redirect("/admin/403");
+
   const [docs, newsConfig, pageSeo, externalEnabled, catOpts] = await Promise.all([
     listAllArticles(), getNewsPageConfig(), getPageSeoConfig(), externalNewsConfigured(), listActiveCategoryOptions("tin-tuc"),
   ]);
@@ -42,7 +47,7 @@ export default async function AdminArticlesPage() {
         seoInitial={pageSeo["/tin-tuc"] ?? {}}
         manage={<NewsPageManager initialConfig={newsConfig} initialTitles={newsTitles} />}
       >
-        <ArticleManager initial={rows} externalEnabled={externalEnabled} categories={categoryNames} />
+        <ArticleManager initial={rows} externalEnabled={externalEnabled} categories={categoryNames} perm={perm} />
       </ModuleTabs>
     </>
   );

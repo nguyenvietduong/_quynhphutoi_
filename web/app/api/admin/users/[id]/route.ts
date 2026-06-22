@@ -2,7 +2,7 @@
 // An toàn: không cho tự gỡ quyền admin của chính mình, không cho tự xoá.
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin-guard";
-import { setUserRole, setUserVerified, deleteUser } from "@/lib/users";
+import { setUserRole, setUserVerified, setBanned, addWarning, clearWarnings, deleteUser, findById } from "@/lib/users";
 
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const g = await requireAdmin();
@@ -20,6 +20,22 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   if (typeof b.verified === "boolean") {
     const n = await setUserVerified(id, b.verified);
     if (!n) return NextResponse.json({ error: "Không tìm thấy." }, { status: 404 });
+  }
+  if (typeof b.banned === "boolean") {
+    if (isSelf) return NextResponse.json({ error: "Không thể tự khóa tài khoản của mình." }, { status: 400 });
+    const n = await setBanned(id, b.banned);
+    if (!n) return NextResponse.json({ error: "Không tìm thấy." }, { status: 404 });
+  }
+  if (b.warn === "add") {
+    if (isSelf) return NextResponse.json({ error: "Không thể tự cảnh báo chính mình." }, { status: 400 });
+    const result = await addWarning(id);
+    if (!result) return NextResponse.json({ error: "Không tìm thấy." }, { status: 404 });
+    return NextResponse.json({ ok: true, warnCount: result.warnCount, autoBanned: result.autoBanned });
+  }
+  if (b.warn === "clear") {
+    const u = await clearWarnings(id);
+    if (!u) return NextResponse.json({ error: "Không tìm thấy." }, { status: 404 });
+    return NextResponse.json({ ok: true, warnCount: 0 });
   }
   return NextResponse.json({ ok: true });
 }

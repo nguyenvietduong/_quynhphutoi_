@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
-import { getCurrentUser } from "@/lib/admin";
-import { isStaff } from "@/lib/users";
+import { requirePerm } from "@/lib/admin-guard";
 import { deleteClassified, getClassifiedBySlug, updateClassified, type ClassifiedPatch, type ClassifiedStatus } from "@/lib/classifieds";
 import { sanitizeSeoFields } from "@/lib/seo-fields";
 import { notifyUser } from "@/lib/notifications";
@@ -10,9 +9,8 @@ import { isGoogleMapsUrl, resolveMapUrl } from "@/lib/map-embed";
 const CL_STATUSES: ClassifiedStatus[] = ["open", "sold", "closed"];
 
 export async function PATCH(req: Request, { params }: { params: Promise<{ slug: string }> }) {
-  const user = await getCurrentUser();
-  if (!user) return NextResponse.json({ error: "Vui lòng đăng nhập." }, { status: 401 });
-  if (!isStaff(user)) return NextResponse.json({ error: "Chỉ admin." }, { status: 403 });
+  const g = await requirePerm("mua-ban", "edit");
+  if (g instanceof NextResponse) return g;
   const { slug } = await params;
   const b = await req.json().catch(() => ({}));
 
@@ -40,9 +38,8 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ slug: 
 }
 
 export async function DELETE(_req: Request, { params }: { params: Promise<{ slug: string }> }) {
-  const user = await getCurrentUser();
-  if (!user) return NextResponse.json({ error: "Vui lòng đăng nhập." }, { status: 401 });
-  if (!isStaff(user)) return NextResponse.json({ error: "Chỉ admin mới được xoá tin." }, { status: 403 });
+  const g = await requirePerm("mua-ban", "edit");
+  if (g instanceof NextResponse) return g;
   const { slug } = await params;
   const ad = await getClassifiedBySlug(slug);
   const deleted = await deleteClassified(slug);

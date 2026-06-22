@@ -12,6 +12,7 @@ import { SeoFieldsEditor } from "@/components/admin/SeoFieldsEditor";
 import type { SeoFields } from "@/lib/seo-fields";
 import { useToast } from "@/components/common/Toast";
 import { ImageUploader } from "@/components/common/ImageUploader";
+import { hasPerm, type PermLevel } from "@/lib/perm";
 
 type CatOption = { slug: string; name: string };
 const wardName = (s: string) => WARDS.find((w) => w.slug === s)?.name ?? s;
@@ -33,7 +34,8 @@ const toForm = (r: SchoolRow): Form => ({
   image: r.image ?? "", verified: r.verified, active: r.active, seo: r.seo,
 });
 
-export function SchoolsManager({ initial, levelOptions, typeOptions }: { initial: SchoolRow[]; levelOptions: CatOption[]; typeOptions: CatOption[] }) {
+export function SchoolsManager({ initial, levelOptions, typeOptions, perm = "full" }: { initial: SchoolRow[]; levelOptions: CatOption[]; typeOptions: CatOption[]; perm?: PermLevel }) {
+  const canEdit = hasPerm(perm, "edit");
   const defLevel = levelOptions[0]?.slug ?? "";
   const defType = typeOptions[0]?.slug ?? "";
   const levelLabelMap = useMemo(() => new Map(levelOptions.map((o) => [o.slug, o.name])), [levelOptions]);
@@ -109,7 +111,7 @@ export function SchoolsManager({ initial, levelOptions, typeOptions }: { initial
         </select>
         <span className="qp-admin-toolbar__spacer" />
         <PageSizeControl value={pg.pageSize} onChange={pg.setPageSize} total={filtered.length} />
-        <button type="button" className="qp-btn-primary" onClick={startNew}>+ Thêm trường</button>
+        {canEdit && <button type="button" className="qp-btn-primary" onClick={startNew}>+ Thêm trường</button>}
       </div>
 
       {show && (
@@ -192,8 +194,8 @@ export function SchoolsManager({ initial, levelOptions, typeOptions }: { initial
                   <td><span className={`qp-acc-badge is-${r.active ? "active" : "hidden"}`}>{r.active ? "Hiện" : "Ẩn"}</span></td>
                   <td className="qp-admin-actions">
                     <RowActions actions={[
-                      { value: "edit", label: "Sửa", run: () => startEdit(r) },
-                      { value: "delete", label: "Xoá", run: () => remove(r) },
+                      { value: "edit", label: "Sửa", hidden: !canEdit, run: () => startEdit(r) },
+                      { value: "delete", label: "Xoá", hidden: !canEdit, run: () => remove(r) },
                     ]} />
                   </td>
                 </tr>

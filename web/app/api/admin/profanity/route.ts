@@ -1,10 +1,10 @@
 // Admin: danh sách từ cấm (GET) & thêm từ (POST). Tự seed mặc định nếu còn trống.
 import { NextResponse } from "next/server";
-import { requireStaff } from "@/lib/admin-guard";
+import { requirePerm } from "@/lib/admin-guard";
 import { listProfanityWords, addProfanityWord, addProfanityWords, splitWordList, seedProfanityWords, toProfanityRow } from "@/lib/profanity";
 
 export async function GET() {
-  const g = await requireStaff();
+  const g = await requirePerm("loc-tu-ngu", "edit");
   if (g instanceof NextResponse) return g;
   let docs = await listProfanityWords();
   if (docs.length === 0) {
@@ -15,7 +15,7 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  const g = await requireStaff();
+  const g = await requirePerm("loc-tu-ngu", "edit");
   if (g instanceof NextResponse) return g;
   const b = await req.json().catch(() => ({}));
   try {

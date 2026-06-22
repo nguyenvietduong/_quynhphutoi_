@@ -12,6 +12,8 @@ export type UserDoc = {
   name: string;
   passwordHash: string;
   verified: boolean;
+  banned?: boolean;            // true = tài khoản bị khóa, không thể đăng nhập.
+  warnCount?: number;          // số lần bị cảnh báo vi phạm nội quy.
   avatar?: string | null;     // URL ảnh đại diện (Cloudinary). Trống = dùng chữ cái đầu.
   role?: UserRole;            // thiếu = "user". "admin" toàn quyền; "editor" làm nội dung + kiểm duyệt.
   verifyToken?: string | null;
@@ -51,14 +53,16 @@ export async function findById(id: string | ObjectId) {
 }
 
 // ---- Admin: quản lý người dùng ----
-export type UserListOpts = { search?: string; role?: UserRole; limit?: number; skip?: number };
+export type UserListOpts = { search?: string; role?: UserRole; status?: "active" | "warned" | "banned"; limit?: number; skip?: number };
 
 function userFilter(opts: UserListOpts) {
   const filter: Record<string, unknown> = {};
   if (opts.role) {
-    // "user" gồm cả tài khoản cũ thiếu field role → loại admin/editor.
     filter.role = opts.role === "user" ? { $nin: ["admin", "editor"] } : opts.role;
   }
+  if (opts.status === "banned")  filter.banned = true;
+  if (opts.status === "warned")  { filter.banned = { $ne: true }; filter.warnCount = { $gt: 0 }; }
+  if (opts.status === "active")  { filter.banned = { $ne: true }; filter.$or = [{ warnCount: { $exists: false } }, { warnCount: 0 }]; }
   if (opts.search?.trim()) {
     const rx = new RegExp(opts.search.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
     filter.$or = [{ email: rx }, { name: rx }];
@@ -100,13 +104,61 @@ export async function deleteUser(id: string | ObjectId) {
 }
 
 // Bản ghi phẳng cho client admin (KHÔNG kèm passwordHash / token).
-export type UserRow = { id: string; email: string; name: string; role: UserRole; verified: boolean; createdAt: string };
+export type UserRow = { id: string; email: string; name: string; role: UserRole; verified: boolean; banned: boolean; warnCount: number; createdAt: string };
 export function toUserRow(u: UserDoc): UserRow {
   return {
     id: u._id!.toString(), email: u.email, name: u.name,
-    role: u.role === "admin" ? "admin" : u.role === "editor" ? "editor" : "user", verified: u.verified,
+    role: u.role === "admin" ? "admin" : u.role === "editor" ? "editor" : "user",
+    verified: u.verified,
+    banned: u.banned === true,
+    warnCount: u.warnCount ?? 0,
     createdAt: u.createdAt ? new Date(u.createdAt).toISOString() : "",
   };
+}
+
+export async function setBanned(id: string | ObjectId, banned: boolean) {
+  if (typeof id === "string" && !ObjectId.isValid(id)) return 0;
+  const _id = typeof id === "string" ? new ObjectId(id) : id;
+  const res = await (await users()).updateOne({ _id }, { $set: { banned } });
+  return res.matchedCount;
+}
+
+const AUTO_BAN_THRESHOLD = 3;
+
+export async function addWarning(id: string | ObjectId) {
+  if (typeof id === "string" && !ObjectId.isValid(id)) return null;
+  const _id = typeof id === "string" ? new ObjectId(id) : id;
+  const col = await users();
+  const doc = await col.findOneAndUpdate(
+    { _id },
+    { $inc: { warnCount: 1 } },
+    { returnDocument: "after" },
+  );
+  if (!doc) return null;
+  const warnCount = doc.warnCount ?? 1;
+  const autoBanned = warnCount >= AUTO_BAN_THRESHOLD;
+  if (autoBanned) await col.updateOne({ _id }, { $set: { banned: true } });
+  return { warnCount, autoBanned };
+}
+
+// Giảm warnCount 1 đơn vị (tối thiểu 0) khi user xóa bài bị cảnh báo.
+export async function removeWarning(id: string | ObjectId) {
+  if (typeof id === "string" && !ObjectId.isValid(id)) return null;
+  const _id = typeof id === "string" ? new ObjectId(id) : id;
+  const col = await users();
+  const doc = await col.findOneAndUpdate(
+    { _id, $or: [{ warnCount: { $gt: 0 } }, { warnCount: { $exists: false } }] },
+    [{ $set: { warnCount: { $max: [{ $subtract: [{ $ifNull: ["$warnCount", 0] }, 1] }, 0] } } }],
+    { returnDocument: "after" },
+  );
+  return doc ? { warnCount: doc.warnCount ?? 0 } : null;
+}
+
+export async function clearWarnings(id: string | ObjectId) {
+  if (typeof id === "string" && !ObjectId.isValid(id)) return 0;
+  const _id = typeof id === "string" ? new ObjectId(id) : id;
+  const res = await (await users()).updateOne({ _id }, { $set: { warnCount: 0 } });
+  return res.matchedCount;
 }
 
 export async function createUser(email: string, name: string, password: string) {

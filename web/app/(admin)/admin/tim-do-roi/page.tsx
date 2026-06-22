@@ -1,10 +1,12 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import { listPosts } from "@/lib/lostfound";
 import { getAdminUnitsMap } from "@/lib/admin-units";
 import { PostModerationManager, type ModRow, type ModConfig } from "@/components/admin/PostModerationManager";
 import { getPageSeoConfig } from "@/lib/page-seo";
 import { ModuleTabs } from "@/components/admin/ModuleTabs";
 import { formatDate } from "@/lib/datetime";
+import { getModulePerm } from "@/lib/admin-guard";
 
 export const metadata: Metadata = { title: "Quản lý tìm đồ rơi — Quản trị", robots: { index: false, follow: false } };
 export const dynamic = "force-dynamic";
@@ -21,6 +23,9 @@ const spec = (label: string, value?: string | number | null) =>
   value || value === 0 ? [{ label, value: String(value) }] : [];
 
 export default async function AdminLostFoundPage() {
+  const perm = await getModulePerm("tim-do-roi");
+  if (!perm || perm === "none") redirect("/admin/403");
+
   const [docs, units, pageSeo] = await Promise.all([listPosts({ approvedOnly: false, limit: 500 }), getAdminUnitsMap(), getPageSeoConfig()]);
   const rows: ModRow[] = docs.map((d) => {
     const ward = units.get(d.location.wardSlug)?.name ?? d.location.wardSlug;
@@ -52,7 +57,7 @@ export default async function AdminLostFoundPage() {
         <p className="qp-admin-head__desc">Duyệt, xem chi tiết, sửa, ẩn/hiện và xoá tin tìm đồ / nhặt được đồ.</p>
       </div>
       <ModuleTabs pageKey="/tim-do-roi" pageLabel="Tìm đồ rơi" listLabel="Danh sách tìm đồ rơi" seoInitial={pageSeo["/tim-do-roi"] ?? {}}>
-        <PostModerationManager initial={rows} config={config} />
+        <PostModerationManager initial={rows} config={config} perm={perm} />
       </ModuleTabs>
     </>
   );

@@ -1,10 +1,12 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import { listClassifieds } from "@/lib/classifieds";
 import { getAdminUnitsMap } from "@/lib/admin-units";
 import { categoryLabelMap } from "@/lib/categories";
 import { PostModerationManager, type ModRow, type ModConfig } from "@/components/admin/PostModerationManager";
 import { getPageSeoConfig } from "@/lib/page-seo";
 import { ModuleTabs } from "@/components/admin/ModuleTabs";
+import { getModulePerm } from "@/lib/admin-guard";
 
 export const metadata: Metadata = { title: "Quản lý mua bán — Quản trị", robots: { index: false, follow: false } };
 export const dynamic = "force-dynamic";
@@ -20,6 +22,9 @@ const spec = (label: string, value?: string | number | null) =>
   value || value === 0 ? [{ label, value: String(value) }] : [];
 
 export default async function AdminClassifiedsPage() {
+  const perm = await getModulePerm("mua-ban");
+  if (!perm || perm === "none") redirect("/admin/403");
+
   const [docs, units, pageSeo, condMap] = await Promise.all([listClassifieds({ approvedOnly: false, limit: 500 }), getAdminUnitsMap(), getPageSeoConfig(), categoryLabelMap("tinh-trang")]);
   const rows: ModRow[] = docs.map((d) => {
     const ward = units.get(d.location.wardSlug)?.name ?? d.location.wardSlug;
@@ -50,7 +55,7 @@ export default async function AdminClassifiedsPage() {
         <p className="qp-admin-head__desc">Duyệt, xem chi tiết, sửa, ẩn/hiện và xoá tin rao vặt mua bán do người dân đăng.</p>
       </div>
       <ModuleTabs pageKey="/mua-ban" pageLabel="Mua bán" listLabel="Danh sách mua bán" seoInitial={pageSeo["/mua-ban"] ?? {}}>
-        <PostModerationManager initial={rows} config={config} />
+        <PostModerationManager initial={rows} config={config} perm={perm} />
       </ModuleTabs>
     </>
   );

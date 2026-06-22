@@ -10,6 +10,7 @@ import type { SeoFields } from "@/lib/seo-fields";
 import { Pagination } from "@/components/common/Pagination";
 import { usePagination, PageSizeControl } from "@/components/admin/AdminPaging";
 import { RowActions } from "@/components/admin/RowActions";
+import { hasPerm, type PermLevel } from "@/lib/perm";
 import { useToast } from "@/components/common/Toast";
 import { ImageUploader } from "@/components/common/ImageUploader";
 
@@ -37,7 +38,8 @@ const toForm = (r: MarketRow): Form => ({
   seo: r.seo,
 });
 
-export function MarketManager({ initial, categoryOptions }: { initial: MarketRow[]; categoryOptions: CategoryOption[] }) {
+export function MarketManager({ initial, categoryOptions, perm = "full" }: { initial: MarketRow[]; categoryOptions: CategoryOption[]; perm?: PermLevel }) {
+  const canEdit = hasPerm(perm, "edit");
   const [rows, setRows] = useState<MarketRow[]>(initial);
   const [q, setQ] = useState("");
   const [fCategory, setFCategory] = useState("");
@@ -108,7 +110,7 @@ export function MarketManager({ initial, categoryOptions }: { initial: MarketRow
         </select>
         <span className="qp-admin-toolbar__spacer" />
         <PageSizeControl value={pg.pageSize} onChange={pg.setPageSize} total={filtered.length} />
-        <button type="button" className="qp-btn-primary" onClick={startNew}>+ Thêm mục</button>
+        {canEdit && <button type="button" className="qp-btn-primary" onClick={startNew}>+ Thêm mục</button>}
       </div>
 
       {show && (
@@ -183,8 +185,8 @@ export function MarketManager({ initial, categoryOptions }: { initial: MarketRow
                   <td><span className={`qp-acc-badge is-${r.active ? "active" : "hidden"}`}>{r.active ? "Hiện" : "Ẩn"}</span></td>
                   <td className="qp-admin-actions">
                     <RowActions actions={[
-                      { value: "edit", label: "Sửa", run: () => startEdit(r) },
-                      { value: "delete", label: "Xoá", run: () => remove(r) },
+                      { value: "edit", label: "Sửa", hidden: !canEdit, run: () => startEdit(r) },
+                      { value: "delete", label: "Xoá", hidden: !canEdit, run: () => remove(r) },
                     ]} />
                   </td>
                 </tr>

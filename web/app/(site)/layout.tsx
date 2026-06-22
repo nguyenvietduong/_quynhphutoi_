@@ -11,6 +11,8 @@ import { getSettings } from "@/lib/settings";
 import { findById } from "@/lib/users";
 import { RULES_VERSION } from "@/lib/rules";
 import { RulesGate } from "@/components/site/RulesGate";
+import { WarningModal } from "@/components/account/WarningModal";
+import { getActiveWarnings } from "@/lib/user-warnings";
 
 export default async function SiteLayout({
   children,
@@ -20,9 +22,15 @@ export default async function SiteLayout({
 
   // Người dùng đã đăng nhập nhưng chưa đồng ý nội quy (hoặc đồng ý phiên bản cũ) → hiện modal.
   let needsRules = false;
+  let activeWarnings: Awaited<ReturnType<typeof getActiveWarnings>> = [];
+  let isBanned = false;
   if (user?.id) {
     const doc = await findById(user.id);
     needsRules = !!doc && (doc.rulesAgreedVersion ?? 0) < RULES_VERSION;
+    isBanned = doc?.banned === true;
+    if ((doc?.warnCount ?? 0) > 0) {
+      activeWarnings = await getActiveWarnings(user.id);
+    }
   }
 
   return (
@@ -37,6 +45,9 @@ export default async function SiteLayout({
       <BackToTop />
       <StickyAdBar />
       {user ? <RulesGate needsAgreement={needsRules} /> : null}
+      {user && activeWarnings.length > 0
+        ? <WarningModal initialWarnings={activeWarnings} isBanned={isBanned} />
+        : null}
     </>
   );
 }

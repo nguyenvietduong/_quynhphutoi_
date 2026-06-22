@@ -1,6 +1,6 @@
 // Admin: liệt kê (GET) & tạo (POST) mục Chợ & Mua bán.
 import { NextResponse } from "next/server";
-import { requireStaff } from "@/lib/admin-guard";
+import { requirePerm } from "@/lib/admin-guard";
 import { listMarket, createMarket, toMarketRow } from "@/lib/market";
 import { sanitizeSeoFields } from "@/lib/seo-fields";
 import { WARDS } from "@/lib/wards";
@@ -8,14 +8,14 @@ import { WARDS } from "@/lib/wards";
 const WARD_SET = new Set(WARDS.map((w) => w.slug));
 
 export async function GET() {
-  const g = await requireStaff();
+  const g = await requirePerm("cho", "view");
   if (g instanceof NextResponse) return g;
   const docs = await listMarket({});
   return NextResponse.json({ items: docs.map(toMarketRow) });
 }
 
 export async function POST(req: Request) {
-  const g = await requireStaff();
+  const g = await requirePerm("cho", "edit");
   if (g instanceof NextResponse) return g;
   const b = await req.json().catch(() => ({}));
 

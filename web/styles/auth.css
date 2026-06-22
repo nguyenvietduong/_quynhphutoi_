@@ -148,6 +148,21 @@
 .wm-login input:focus { border-color:var(--g3); background:#fff; box-shadow:0 0 0 3px rgba(63,168,94,.13); }
 .wm-login .input-wrap:focus-within .ico { color:var(--g3); }
 
+/* Nút mắt ẩn/hiện mật khẩu */
+.wm-login .ico-eye {
+  position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+  width: 28px; height: 28px;
+  display: flex; align-items: center; justify-content: center;
+  background: none; border: none; cursor: pointer; padding: 0;
+  color: #b8d0c0;
+  transition: color .2s;
+  border-radius: 6px;
+}
+.wm-login .ico-eye:hover { color: var(--g2); }
+.wm-login .ico-eye svg { width: 15px; height: 15px; pointer-events: none; }
+/* Input có nút mắt bên phải — chừa khoảng cho icon */
+.wm-login .input-wrap--has-eye input { padding-right: 40px; }
+
 .wm-login .row-extra {
   display:flex; justify-content:space-between; align-items:center;
   margin:-1px 0 18px;

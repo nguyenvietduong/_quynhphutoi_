@@ -12,6 +12,9 @@ import { getSettings } from "@/lib/settings";
 import { slugify } from "@/lib/slug";
 import { createArticle } from "@/lib/articles";
 import { maskIdNumbers, maskIdNumbersInHtml, hasIdNumber } from "@/lib/content-policy";
+import { scanProfanity, getActiveProfanityWords } from "@/lib/profanity";
+import { addWarning } from "@/lib/users";
+import { createWarning } from "@/lib/user-warnings";
 
 // Chuyên mục cho phép người dùng chọn (đồng bộ với admin ArticleManager).
 const CATEGORIES = ["Thông báo", "Đời sống", "Kinh tế", "Giáo dục"];
@@ -62,8 +65,20 @@ export async function POST(req: Request) {
   const safeExcerpt = maskIdNumbers(excerpt);
   const safeBodyHtml = maskIdNumbersInHtml(bodyHtml);
 
-  // Cờ kiểm duyệt: chỉ cảnh báo khi bài có số giấy tờ tuỳ thân (đã tự động che) → báo admin.
-  const flags = hadIdNumber ? ["Có số giấy tờ tuỳ thân (đã tự động che)"] : [];
+  // Cờ kiểm duyệt: ID numbers + từ cấm (nếu filter bật).
+  const flags: string[] = hadIdNumber ? ["Có số giấy tờ tuỳ thân (đã tự động che)"] : [];
+
+  let hasProfanity = false;
+  if (settings.profanityFilterEnabled) {
+    const badWords = scanProfanity(
+      `${safeTitle}\n${safeExcerpt}\n${stripHtml(safeBodyHtml)}`,
+      await getActiveProfanityWords(),
+    );
+    if (badWords.length > 0) {
+      hasProfanity = true;
+      flags.push("Chứa từ ngữ nhạy cảm");
+    }
+  }
 
   try {
     const article = await createArticle({
@@ -77,6 +92,20 @@ export async function POST(req: Request) {
       flags,
     });
     await recordPost(session.id);
+
+    // Tự động cộng 1 cảnh báo + lưu record cho user nếu bài chứa từ cấm.
+    if (hasProfanity) {
+      await createWarning({
+        userId: session.id,
+        articleId: article._id.toString(),
+        articleTitle: article.title,
+        articleSlug: article.slug,
+        module: "tin-tuc",
+        reason: "Chứa từ ngữ nhạy cảm",
+      });
+      await addWarning(session.id);
+    }
+
     await notifyAdmins(
       {
         type: "post_pending",

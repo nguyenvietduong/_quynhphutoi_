@@ -24,6 +24,139 @@ const C = {
   tealLight: "#34D4B8", indigoLight: "#818CF8", rose: "#E1567C", slate: "#64748B",
 };
 
+/* ─── SVG Icons ─────────────────────────────────────────── */
+const IconUsers = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: "100%", height: "100%" }}>
+    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" />
+    <path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" />
+  </svg>
+);
+const IconFile = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: "100%", height: "100%" }}>
+    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" />
+    <line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /><line x1="10" y1="9" x2="8" y2="9" />
+  </svg>
+);
+const IconTrend = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: "100%", height: "100%" }}>
+    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" /><polyline points="17 6 23 6 23 12" />
+  </svg>
+);
+const IconInbox = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: "100%", height: "100%" }}>
+    <polyline points="21 8 21 21 3 21 3 8" /><rect x="1" y="3" width="22" height="5" /><line x1="10" y1="12" x2="14" y2="12" />
+  </svg>
+);
+const IconClock = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: "100%", height: "100%" }}>
+    <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
+  </svg>
+);
+const IconDatabase = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: "100%", height: "100%" }}>
+    <ellipse cx="12" cy="5" rx="9" ry="3" />
+    <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3" /><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" />
+  </svg>
+);
+const IconBriefcase = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: "100%", height: "100%" }}>
+    <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
+    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+  </svg>
+);
+const IconSearch = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: "100%", height: "100%" }}>
+    <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+  </svg>
+);
+const IconTag = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: "100%", height: "100%" }}>
+    <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" /><line x1="7" y1="7" x2="7.01" y2="7" />
+  </svg>
+);
+const IconNewspaper = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: "100%", height: "100%" }}>
+    <path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a4 4 0 0 1-4-4V6" />
+    <line x1="12" y1="8" x2="18" y2="8" /><line x1="12" y1="12" x2="18" y2="12" /><line x1="12" y1="16" x2="18" y2="16" />
+  </svg>
+);
+const IconUserCog = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: "100%", height: "100%" }}>
+    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" />
+    <circle cx="19" cy="19" r="2" /><path d="M19 15v2" /><path d="M19 21v1" />
+  </svg>
+);
+const IconBell = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: "100%", height: "100%" }}>
+    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" />
+  </svg>
+);
+
+/* ─── Helper components ──────────────────────────────────── */
+function StatCard({
+  icon, value, label, sub, color = C.teal, warn = false,
+}: {
+  icon: React.ReactNode; value: number; label: string; sub?: string; color?: string; warn?: boolean;
+}) {
+  const accent = warn ? C.warn : color;
+  return (
+    <div
+      className={`qp-acc-stat${warn ? " is-warn" : ""}`}
+      style={{ textAlign: "left", padding: "20px 22px", borderTop: `3px solid ${accent}` }}
+    >
+      <div style={{
+        display: "inline-flex", alignItems: "center", justifyContent: "center",
+        width: 40, height: 40, borderRadius: 10,
+        background: `${accent}18`, marginBottom: 14,
+        flexShrink: 0,
+      }}>
+        <div style={{ color: accent, width: 20, height: 20 }}>{icon}</div>
+      </div>
+      <div className="qp-acc-stat__value" style={{ fontSize: 30, textAlign: "left", lineHeight: 1 }}>
+        {value.toLocaleString("vi-VN")}
+      </div>
+      <div className="qp-acc-stat__label" style={{ textAlign: "left", marginTop: 6 }}>{label}</div>
+      {sub && (
+        <div style={{ marginTop: 8, fontSize: 12, color: "var(--color-gray-text)", lineHeight: 1.5, borderTop: "1px solid var(--color-gray-border)", paddingTop: 8 }}>
+          {sub}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ModuleCard({
+  href, icon, label, badge, ok, desc, count,
+}: {
+  href: string; icon: React.ReactNode; label: string;
+  badge: string; ok: boolean; desc?: string; count?: number;
+}) {
+  return (
+    <Link href={href} className="qp-admin-card" style={{ gap: 0 }}>
+      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 10, marginBottom: 16 }}>
+        <div style={{
+          display: "inline-flex", alignItems: "center", justifyContent: "center",
+          width: 46, height: 46, borderRadius: 12,
+          background: ok ? "var(--color-teal-pale)" : "rgba(245,158,11,0.10)",
+          flexShrink: 0,
+        }}>
+          <div style={{ color: ok ? "var(--color-teal-dark)" : C.warn, width: 22, height: 22 }}>{icon}</div>
+        </div>
+        <span className={`qp-admin-card__badge${ok ? " is-ok" : ""}`}>{badge}</span>
+      </div>
+      <div className="qp-admin-card__label">{label}</div>
+      {desc && <p className="qp-admin-card__desc" style={{ marginTop: 4 }}>{desc}</p>}
+      {count !== undefined && (
+        <p className="qp-admin-card__desc" style={{ marginTop: 4, fontVariantNumeric: "tabular-nums" }}>
+          <b style={{ color: "var(--color-navy)", fontSize: 15 }}>{count.toLocaleString("vi-VN")}</b> mục trong hệ thống
+        </p>
+      )}
+      <span className="qp-admin-card__go" style={{ marginTop: 16 }}>Mở trang →</span>
+    </Link>
+  );
+}
+
+/* ─── Page ───────────────────────────────────────────────── */
 export default async function AdminHomePage() {
   const [
     pJobs, pLost, pClass, tJobs, tLost, tClass,
@@ -54,11 +187,10 @@ export default async function AdminHomePage() {
   const totalPending = pJobs + pLost + pClass;
   const totalPosts = tJobs + tLost + tClass;
   const totalApproved = totalPosts - totalPending;
-
-  // Tổng tin mới 14 ngày theo phân hệ.
+  const totalDataEntries = nSchools + nHealth + nMarket + nTransit + nRelics + nUnits;
   const sum = (k: "jobs" | "lostfound" | "classifieds" | "articles") => daily.reduce((s, d) => s + d[k], 0);
+  const totalNew14 = sum("jobs") + sum("lostfound") + sum("classifieds") + sum("articles");
 
-  // Các bộ số liệu cho dropdown (gọn thay vì bày hết).
   const barOptions: SwitchOption[] = [
     { key: "posts", label: "Tin theo phân hệ", type: "bar", unit: " tin", items: [
       { label: "Việc làm", value: tJobs, color: C.teal },
@@ -99,41 +231,125 @@ export default async function AdminHomePage() {
 
   return (
     <>
+      {/* ── Header ─────────────────────────────────────────── */}
       <div className="qp-admin-head">
         <span className="qp-admin-head__eyebrow">Tổng quan</span>
         <h1 className="type-h1">Bảng điều khiển</h1>
-        <p className="qp-admin-head__desc">
-          {totalPending > 0 ? <>Có <b>{totalPending}</b> tin đang chờ duyệt. </> : "Không có tin chờ duyệt. "}
-          Tổng quan số liệu &amp; xu hướng hoạt động của cổng.
-        </p>
       </div>
 
-      {/* KPI */}
-      <div className="qp-acc-stats" style={{ gridTemplateColumns: "repeat(4, minmax(0,1fr))", marginBottom: "var(--space-6)" }}>
-        <div className="qp-acc-stat"><div className="qp-acc-stat__value">{users.total.toLocaleString("vi-VN")}</div><div className="qp-acc-stat__label">Người dùng</div></div>
-        <div className="qp-acc-stat"><div className="qp-acc-stat__value">{artPublished.toLocaleString("vi-VN")}</div><div className="qp-acc-stat__label">Bài đã xuất bản</div></div>
-        <div className="qp-acc-stat"><div className="qp-acc-stat__value">{totalPosts.toLocaleString("vi-VN")}</div><div className="qp-acc-stat__label">Tổng tin đăng</div></div>
-        <div className={`qp-acc-stat${totalPending ? " is-warn" : ""}`}><div className="qp-acc-stat__value">{totalPending.toLocaleString("vi-VN")}</div><div className="qp-acc-stat__label">Chờ duyệt</div></div>
+      {/* ── Pending alert ──────────────────────────────────── */}
+      {totalPending > 0 && (
+        <div style={{
+          display: "flex", alignItems: "center", gap: 14,
+          padding: "14px 20px",
+          background: "rgba(245,158,11,0.07)",
+          border: "1px solid rgba(245,158,11,0.35)",
+          borderLeft: `4px solid ${C.warn}`,
+          borderRadius: "var(--radius-card)",
+          marginBottom: "var(--space-5)",
+          flexWrap: "wrap",
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, flex: 1, minWidth: 200 }}>
+            <svg viewBox="0 0 24 24" fill="none" stroke={C.warn} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ width: 20, height: 20, flexShrink: 0 }}>
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+              <line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" />
+            </svg>
+            <div>
+              <span style={{ fontWeight: 700, color: "var(--color-navy-deep)", fontSize: 14 }}>
+                Có {totalPending} tin đang chờ duyệt
+              </span>
+              <span style={{ fontSize: 13, color: "var(--color-gray-text)", marginLeft: 10 }}>
+                {[
+                  pJobs  > 0 && `${pJobs} việc làm`,
+                  pLost  > 0 && `${pLost} tìm đồ rơi`,
+                  pClass > 0 && `${pClass} mua bán`,
+                ].filter(Boolean).join(" · ")}
+              </span>
+            </div>
+          </div>
+          <div style={{ display: "flex", gap: 8, flexShrink: 0, flexWrap: "wrap" }}>
+            {pJobs  > 0 && <Link href="/admin/viec-lam"   style={{ fontSize: 13, fontWeight: 600, color: C.warn, textDecoration: "none", padding: "5px 12px", border: `1px solid ${C.warn}`, borderRadius: 6, background: "rgba(245,158,11,0.08)" }}>Việc làm →</Link>}
+            {pLost  > 0 && <Link href="/admin/tim-do-roi" style={{ fontSize: 13, fontWeight: 600, color: C.warn, textDecoration: "none", padding: "5px 12px", border: `1px solid ${C.warn}`, borderRadius: 6, background: "rgba(245,158,11,0.08)" }}>Đồ rơi →</Link>}
+            {pClass > 0 && <Link href="/admin/mua-ban"    style={{ fontSize: 13, fontWeight: 600, color: C.warn, textDecoration: "none", padding: "5px 12px", border: `1px solid ${C.warn}`, borderRadius: 6, background: "rgba(245,158,11,0.08)" }}>Mua bán →</Link>}
+          </div>
+        </div>
+      )}
+
+      {/* ── KPI Stats — 3 cột × 2 hàng ────────────────────── */}
+      <div style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(3, minmax(0,1fr))",
+        gap: 14,
+        marginBottom: "var(--space-6)",
+      }}>
+        <StatCard
+          icon={<IconUsers />}
+          value={users.total}
+          label="Người dùng"
+          color={C.navy}
+          sub={`${users.admins} quản trị · ${Math.max(0, users.total - users.admins)} thành viên`}
+        />
+        <StatCard
+          icon={<IconFile />}
+          value={artPublished}
+          label="Bài đã xuất bản"
+          color={C.indigo}
+          sub={`${artDraft} bài nháp · ${nArticles} tổng bài viết`}
+        />
+        <StatCard
+          icon={<IconTrend />}
+          value={totalNew14}
+          label="Tin mới 14 ngày"
+          color={C.teal}
+          sub={`${sum("jobs")} VL · ${sum("lostfound")} ĐR · ${sum("classifieds")} MB · ${sum("articles")} bài`}
+        />
+        <StatCard
+          icon={<IconInbox />}
+          value={totalPosts}
+          label="Tổng tin đăng"
+          color={C.slate}
+          sub={`${tJobs} việc làm · ${tLost} tìm đồ rơi · ${tClass} mua bán`}
+        />
+        <StatCard
+          icon={<IconClock />}
+          value={totalPending}
+          label="Chờ duyệt"
+          warn={totalPending > 0}
+          sub={totalPending > 0
+            ? [pJobs > 0 && `${pJobs} việc làm`, pLost > 0 && `${pLost} đồ rơi`, pClass > 0 && `${pClass} mua bán`].filter(Boolean).join(" · ")
+            : "Không có tin nào cần duyệt"}
+        />
+        <StatCard
+          icon={<IconDatabase />}
+          value={totalDataEntries}
+          label="Dữ liệu hệ thống"
+          color={C.teal}
+          sub={`${nSchools} trường · ${nHealth} y tế · ${nRelics} di tích · ${nMarket} chợ · ${nTransit} GT · ${nUnits} đơn vị HC`}
+        />
       </div>
 
-      <div className="qp-dash-grid">
-        {/* Xu hướng — luôn hiển thị */}
-        <div className="qp-chart-card span-2">
+      {/* ── Charts grid — 3 cột ────────────────────────────── */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0,1fr))", gap: "var(--space-5)", marginBottom: "var(--space-6)" }}>
+
+        {/* Xu hướng — span toàn bộ */}
+        <div className="qp-chart-card" style={{ gridColumn: "1 / -1" }}>
           <div className="qp-chart-card__head">
             <span className="qp-chart-card__title">Xu hướng đăng tin · bài (14 ngày)</span>
-            <span className="qp-chart-card__hint">Tổng: {daily.reduce((s, d) => s + d.total, 0)}</span>
+            <span className="qp-chart-card__hint">Tổng: {daily.reduce((s, d) => s + d.total, 0).toLocaleString("vi-VN")} tin · bài</span>
           </div>
           <TrendChart points={daily.map((d) => ({ date: d.date, total: d.total }))} />
         </div>
 
-        {/* Phân bố số lượng — chọn loại bằng dropdown */}
-        <ChartSwitcher title="Phân bố số lượng" options={barOptions} />
+        {/* Bar — 2 cột (rộng hơn để label không bị cắt) */}
+        <div style={{ gridColumn: "span 2" }}>
+          <ChartSwitcher title="Phân bố số lượng" options={barOptions} />
+        </div>
 
-        {/* Tỉ lệ — chọn loại bằng dropdown */}
+        {/* Donut — 1 cột */}
         <ChartSwitcher title="Tỉ lệ" options={donutOptions} />
 
-        {/* Top bài viết — luôn hiển thị */}
-        <div className="qp-chart-card span-2">
+        {/* Top bài viết — span toàn bộ */}
+        <div className="qp-chart-card" style={{ gridColumn: "1 / -1" }}>
           <div className="qp-chart-card__head">
             <span className="qp-chart-card__title">Bài viết xem nhiều nhất</span>
             <span className="qp-chart-card__hint">{artPublished} đã xuất bản · {artDraft} nháp</span>
@@ -144,28 +360,66 @@ export default async function AdminHomePage() {
         </div>
       </div>
 
-      {/* Truy cập nhanh */}
-      <div className="qp-newsgrid-head"><span className="type-tag qp-sechead__eyebrow">Lối tắt</span><h2 className="type-h2">Truy cập nhanh</h2></div>
+      {/* ── Module shortcuts ───────────────────────────────── */}
+      <div style={{ marginBottom: "var(--space-4)" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: "var(--space-4)", paddingBottom: "var(--space-3)", borderBottom: "1px solid var(--color-gray-border)" }}>
+          <div>
+            <p style={{ margin: 0, fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.7px", color: "var(--color-gray-text)", marginBottom: 4 }}>Lối tắt</p>
+            <h2 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: "var(--color-navy-deep)" }}>Truy cập nhanh</h2>
+          </div>
+        </div>
+      </div>
+
       <div className="qp-admin-grid">
-        <QuickCard href="/admin/viec-lam" label="Duyệt việc làm" badge={pJobs ? `${pJobs} chờ` : "Xong"} ok={!pJobs} />
-        <QuickCard href="/admin/tim-do-roi" label="Duyệt tìm đồ rơi" badge={pLost ? `${pLost} chờ` : "Xong"} ok={!pLost} />
-        <QuickCard href="/admin/mua-ban" label="Duyệt mua bán" badge={pClass ? `${pClass} chờ` : "Xong"} ok={!pClass} />
-        <QuickCard href="/admin/tin-tuc" label="Viết tin tức" badge="Soạn bài" ok />
-        <QuickCard href="/admin/nguoi-dung" label="Người dùng" badge="Quản lý" ok />
-        <QuickCard href="/admin/thong-bao" label="Gửi thông báo" badge="Broadcast" ok />
+        <ModuleCard
+          href="/admin/viec-lam"
+          icon={<IconBriefcase />}
+          label="Việc làm"
+          badge={pJobs ? `${pJobs} chờ duyệt` : "Xong rồi"}
+          ok={!pJobs}
+          count={tJobs}
+        />
+        <ModuleCard
+          href="/admin/tim-do-roi"
+          icon={<IconSearch />}
+          label="Tìm đồ rơi"
+          badge={pLost ? `${pLost} chờ duyệt` : "Xong rồi"}
+          ok={!pLost}
+          count={tLost}
+        />
+        <ModuleCard
+          href="/admin/mua-ban"
+          icon={<IconTag />}
+          label="Mua bán"
+          badge={pClass ? `${pClass} chờ duyệt` : "Xong rồi"}
+          ok={!pClass}
+          count={tClass}
+        />
+        <ModuleCard
+          href="/admin/tin-tuc"
+          icon={<IconNewspaper />}
+          label="Tin tức"
+          badge="Soạn bài"
+          ok
+          count={nArticles}
+        />
+        <ModuleCard
+          href="/admin/nguoi-dung"
+          icon={<IconUserCog />}
+          label="Người dùng"
+          badge="Quản lý"
+          ok
+          count={users.total}
+        />
+        <ModuleCard
+          href="/admin/thong-bao"
+          icon={<IconBell />}
+          label="Thông báo"
+          badge="Broadcast"
+          ok
+          desc="Gửi thông báo tới người dùng hoặc ban quản trị"
+        />
       </div>
     </>
-  );
-}
-
-function QuickCard({ href, label, badge, ok }: { href: string; label: string; badge: string; ok: boolean }) {
-  return (
-    <Link href={href} className="qp-admin-card">
-      <div className="qp-admin-card__top">
-        <span className="qp-admin-card__label">{label}</span>
-        <span className={`qp-admin-card__badge${ok ? " is-ok" : ""}`}>{badge}</span>
-      </div>
-      <span className="qp-admin-card__go">Mở trang →</span>
-    </Link>
   );
 }
