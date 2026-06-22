@@ -215,6 +215,9 @@ export function ArticleManager({ initial, externalEnabled, perm = "full" }: { in
                       : <span className={`qp-acc-badge is-${r.status === "published" ? "active" : "pending"}`}>
                           {r.status === "published" ? "Đã xuất bản" : "Nháp"}
                         </span>}
+                    {!r.pending && r.approvedByName && (
+                      <span className="type-body-small text-muted" style={{ display: "block", marginTop: 2 }}>{r.approvedByName}</span>
+                    )}
                   </td>
                   <td>{r.views}</td>
                   <td className="qp-admin-actions">

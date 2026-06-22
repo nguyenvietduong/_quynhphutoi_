@@ -11,7 +11,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ slug: s
   if (!ad) return NextResponse.json({ error: "Không tìm thấy tin." }, { status: 404 });
   const body = await req.json().catch(() => ({}));
   const approved = body.approved !== false;
-  await approveClassified(slug, approved);
+  await approveClassified(slug, approved, approved ? { id: g.user._id!.toString(), name: g.user.name } : undefined);
   if (approved) {
     await notifyUser(ad.postedBy, { type: "post_approved", title: `Tin mua bán “${ad.title}” của bạn đã được duyệt`, href: `/mua-ban/${slug}`, module: "mua-ban" });
   }

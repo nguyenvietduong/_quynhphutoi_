@@ -46,6 +46,7 @@ export type JobDoc = {
   postedByName: string;
   status: JobStatus;
   approved: boolean;
+  approvedBy?: string; approvedByName?: string; approvedAt?: Date;
   verified: boolean;
   featured: boolean;
   views: number;
@@ -242,8 +243,12 @@ export async function markClosed(slug: string) {
   await (await jobs()).updateOne({ slug }, { $set: { status: "closed", closedAt: now, updatedAt: now } });
 }
 
-export async function approveJob(slug: string, approved = true) {
-  await (await jobs()).updateOne({ slug }, { $set: { approved, updatedAt: new Date() } });
+export async function approveJob(slug: string, approved = true, by?: { id: string; name: string }) {
+  const now = new Date();
+  const set: Record<string, unknown> = { approved, updatedAt: now };
+  if (approved && by) { set.approvedBy = by.id; set.approvedByName = by.name; set.approvedAt = now; }
+  if (!approved) { set.approvedBy = null; set.approvedByName = null; set.approvedAt = null; }
+  await (await jobs()).updateOne({ slug }, { $set: set });
 }
 
 export async function deleteJob(slug: string) {

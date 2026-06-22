@@ -33,6 +33,7 @@ export type ClassifiedDoc = {
   postedByName: string;
   status: ClassifiedStatus;
   approved: boolean;
+  approvedBy?: string; approvedByName?: string; approvedAt?: Date;
   verified: boolean;
   featured: boolean;
   views: number;
@@ -181,8 +182,12 @@ export async function markSold(slug: string) {
   const now = new Date();
   await (await classifieds()).updateOne({ slug }, { $set: { status: "sold", soldAt: now, updatedAt: now } });
 }
-export async function approveClassified(slug: string, approved = true) {
-  await (await classifieds()).updateOne({ slug }, { $set: { approved, updatedAt: new Date() } });
+export async function approveClassified(slug: string, approved = true, by?: { id: string; name: string }) {
+  const now = new Date();
+  const set: Record<string, unknown> = { approved, updatedAt: now };
+  if (approved && by) { set.approvedBy = by.id; set.approvedByName = by.name; set.approvedAt = now; }
+  if (!approved) { set.approvedBy = null; set.approvedByName = null; set.approvedAt = null; }
+  await (await classifieds()).updateOne({ slug }, { $set: set });
 }
 export async function deleteClassified(slug: string) {
   const res = await (await classifieds()).deleteOne({ slug });

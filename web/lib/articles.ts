@@ -65,6 +65,7 @@ export type ArticleDoc = {
   postedBy?: ObjectId;       // chủ bài (người dùng gửi)
   postedByName?: string;
   approved?: boolean;        // false = chờ admin duyệt; thiếu/true = đã duyệt
+  approvedBy?: string; approvedByName?: string; approvedAt?: Date;
   active?: boolean;          // false = đã ẩn/gỡ; thiếu/true = đang hiển thị
   flags?: string[];          // cờ kiểm duyệt tự động (từ cấm + vi phạm chính sách) — báo admin xem
   publishedAt: Date | null;
@@ -354,12 +355,16 @@ export async function countPendingArticles() {
 }
 
 // Duyệt / bỏ duyệt 1 bài. Khi duyệt mà chưa có ngày xuất bản → đặt ngay.
-export async function approveArticle(slug: string, approved = true) {
+export async function approveArticle(slug: string, approved = true, by?: { id: string; name: string }) {
   const col = await articles();
-  const set: Record<string, unknown> = { approved, updatedAt: new Date() };
+  const now = new Date();
+  const set: Record<string, unknown> = { approved, updatedAt: now };
   if (approved) {
     const cur = await col.findOne({ slug });
-    if (cur && !cur.publishedAt) set.publishedAt = new Date();
+    if (cur && !cur.publishedAt) set.publishedAt = now;
+    if (by) { set.approvedBy = by.id; set.approvedByName = by.name; set.approvedAt = now; }
+  } else {
+    set.approvedBy = null; set.approvedByName = null; set.approvedAt = null;
   }
   await col.updateOne({ slug }, { $set: set });
 }
@@ -381,6 +386,7 @@ export type ArticleRow = {
   bodyHtml: string; featured: boolean; status: ArticleStatus;
   seo: ArticleSeo; views: number; publishedAt: string | null;
   approved: boolean; pending: boolean; postedByName: string;   // bài người dùng gửi
+  approvedByName?: string; approvedAt?: string | null;          // ai duyệt, khi nào
   flags: string[];   // cờ kiểm duyệt tự động (từ cấm + vi phạm chính sách)
 };
 // Map sang shape Article tĩnh (lib/news.ts) để tái dùng NewsCard / NewsBrowser ở trang public.
@@ -406,6 +412,7 @@ export function toArticleRow(d: ArticleDoc): ArticleRow {
     seo: d.seo ?? {}, views: d.views ?? 0,
     publishedAt: d.publishedAt ? d.publishedAt.toISOString() : null,
     approved: d.approved !== false, pending: d.approved === false, postedByName: d.postedByName ?? "",
+    approvedByName: d.approvedByName ?? undefined, approvedAt: d.approvedAt ? (d.approvedAt as Date).toISOString() : null,
     flags: d.flags ?? [],
   };
 }

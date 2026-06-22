@@ -67,6 +67,7 @@ export type LostFoundDoc = {
 
   status: LostFoundStatus;
   approved: boolean;            // admin đã duyệt cho hiện public chưa
+  approvedBy?: string; approvedByName?: string; approvedAt?: Date;
   verified: boolean;            // đã xác minh (admin / liên hệ thành công)
   featured: boolean;
   views: number;
@@ -295,11 +296,12 @@ export async function markResolved(slug: string) {
 }
 
 // Admin duyệt cho hiện public.
-export async function approvePost(slug: string, approved = true) {
-  await (await lostFound()).updateOne(
-    { slug },
-    { $set: { approved, updatedAt: new Date() } },
-  );
+export async function approvePost(slug: string, approved = true, by?: { id: string; name: string }) {
+  const now = new Date();
+  const set: Record<string, unknown> = { approved, updatedAt: now };
+  if (approved && by) { set.approvedBy = by.id; set.approvedByName = by.name; set.approvedAt = now; }
+  if (!approved) { set.approvedBy = null; set.approvedByName = null; set.approvedAt = null; }
+  await (await lostFound()).updateOne({ slug }, { $set: set });
 }
 
 // Admin sửa nội dung tin (description đã sanitize ở tầng route).

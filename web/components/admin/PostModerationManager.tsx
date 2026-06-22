@@ -20,6 +20,7 @@ export type ModRow = {
   slug: string; title: string; sub: string; description: string;
   extra: string; status: string; approved: boolean; featured: boolean;
   postedByName: string; createdAt: string;
+  approvedByName?: string; approvedAt?: string | null;
   images?: string[]; thumb?: string;
   address?: string; mapUrl?: string;             // vị trí (sửa được như form client)
   seo?: SeoFields;                               // ghi đè SEO trang chi tiết (tuỳ chọn)
@@ -215,6 +216,12 @@ export function PostModerationManager({ initial, config, perm = "full" }: { init
               <div className="qp-admin-spec">
                 <div className="qp-admin-spec__k">Người đăng</div><div className="qp-admin-spec__v">{detail.postedByName || "—"}</div>
                 <div className="qp-admin-spec__k">Ngày đăng</div><div className="qp-admin-spec__v">{formatDateTime(detail.createdAt)}</div>
+                {detail.approved && detail.approvedByName && (
+                  <>
+                    <div className="qp-admin-spec__k">Người duyệt</div><div className="qp-admin-spec__v">{detail.approvedByName}</div>
+                    {detail.approvedAt && <><div className="qp-admin-spec__k">Duyệt lúc</div><div className="qp-admin-spec__v">{formatDateTime(detail.approvedAt)}</div></>}
+                  </>
+                )}
                 {(detail.specs ?? []).map((s, i) => (
                   <Fragmently key={i} k={s.label} v={s.value} />
                 ))}
@@ -260,7 +267,12 @@ export function PostModerationManager({ initial, config, perm = "full" }: { init
                   <td>{r.postedByName}</td>
                   <td className="type-body-small text-muted"><TimeAgo iso={r.createdAt} /></td>
                   <td><span className="qp-acc-badge">{statusLabel(r.status)}</span></td>
-                  <td><span className={`qp-acc-badge is-${r.approved ? "active" : "pending"}`}>{r.approved ? "Đã duyệt" : "Chờ"}</span></td>
+                  <td>
+                    <span className={`qp-acc-badge is-${r.approved ? "active" : "pending"}`}>{r.approved ? "Đã duyệt" : "Chờ"}</span>
+                    {r.approved && r.approvedByName && (
+                      <span className="type-body-small text-muted" style={{ display: "block", marginTop: 2 }}>{r.approvedByName}</span>
+                    )}
+                  </td>
                   <td className="qp-admin-actions">
                     <RowActions actions={[
                       { value: "detail", label: "Chi tiết", run: () => setDetail(r) },

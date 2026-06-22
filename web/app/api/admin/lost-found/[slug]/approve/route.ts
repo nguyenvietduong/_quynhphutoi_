@@ -19,7 +19,7 @@ export async function POST(
 
   const body = await req.json().catch(() => ({}));
   const approved = body.approved !== false; // mặc định duyệt
-  await approvePost(slug, approved);
+  await approvePost(slug, approved, approved ? { id: g.user._id!.toString(), name: g.user.name } : undefined);
 
   if (approved) {
     await notifyUser(post.postedBy, {

@@ -33,6 +33,7 @@ export default async function AdminJobsPage() {
       slug: d.slug, title: d.title, sub: `${d.company} · ${d.industryLabel} · ${formatSalary(d.salary)}`,
       description: d.description, extra: d.company, status: d.status, approved: d.approved, featured: d.featured,
       postedByName: d.postedByName, createdAt: d.createdAt.toISOString(),
+      approvedByName: d.approvedByName ?? undefined, approvedAt: d.approvedAt ? (d.approvedAt as Date).toISOString() : null,
       images: d.images ?? [], thumb: d.images?.[0],
       address: d.location.address ?? "", mapUrl: d.location.mapUrl ?? "",
       seo: d.seo,
