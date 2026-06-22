@@ -4,6 +4,8 @@ import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin-guard";
 import { setUserRole, setUserVerified, setBanned, addWarning, clearWarnings, deleteUser, findById } from "@/lib/users";
 
+const SUPERADMIN_EMAIL = "duongnv10504@gmail.com";
+
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const g = await requireAdmin();
   if (g instanceof NextResponse) return g;
@@ -11,9 +13,14 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   const b = await req.json().catch(() => ({}));
   const isSelf = g.user._id!.toString() === id;
 
+  const target = await findById(id);
+  if (!target) return NextResponse.json({ error: "Không tìm thấy." }, { status: 404 });
+  if (target.email === SUPERADMIN_EMAIL) return NextResponse.json({ error: "Tài khoản này được bảo vệ, không thể chỉnh sửa." }, { status: 403 });
+
   if (b.role !== undefined) {
     if (!["admin", "editor", "user"].includes(b.role)) return NextResponse.json({ error: "Vai trò không hợp lệ." }, { status: 400 });
     if (isSelf && b.role !== "admin") return NextResponse.json({ error: "Không thể tự gỡ quyền admin của chính mình." }, { status: 400 });
+    if (!isSelf && target.role === "admin") return NextResponse.json({ error: "Không thể đổi quyền của tài khoản admin khác." }, { status: 403 });
     const n = await setUserRole(id, b.role);
     if (!n) return NextResponse.json({ error: "Không tìm thấy." }, { status: 404 });
   }
@@ -45,6 +52,9 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ id: 
   if (g instanceof NextResponse) return g;
   const { id } = await params;
   if (g.user._id!.toString() === id) return NextResponse.json({ error: "Không thể tự xoá tài khoản của mình." }, { status: 400 });
+  const target = await findById(id);
+  if (!target) return NextResponse.json({ error: "Không tìm thấy." }, { status: 404 });
+  if (target.email === SUPERADMIN_EMAIL) return NextResponse.json({ error: "Tài khoản này được bảo vệ, không thể xoá." }, { status: 403 });
   const n = await deleteUser(id);
   if (!n) return NextResponse.json({ error: "Không tìm thấy." }, { status: 404 });
   return NextResponse.json({ ok: true });

@@ -8,6 +8,8 @@ import { RowActions } from "@/components/admin/RowActions";
 import { formatDate } from "@/lib/datetime";
 import { useToast } from "@/components/common/Toast";
 
+const SUPERADMIN_EMAIL = "duongnv10504@gmail.com";
+
 const STATUS_TABS: { value: string; label: string }[] = [
   { value: "",        label: "Tất cả" },
   { value: "active",  label: "Hoạt động" },
@@ -186,19 +188,33 @@ export function UserManager({ initial, me }: { initial: UserRow[]; me: string })
               </tr>
             </thead>
             <tbody>
-              {pg.paged.map((r) => (
+              {pg.paged.map((r) => {
+                const isSelf       = r.id === me;
+                const isProtected  = r.email === SUPERADMIN_EMAIL;
+                const isOtherAdmin = r.role === "admin" && !isSelf;
+                // Role select bị khóa nếu: chính mình, tài khoản bảo vệ, hoặc admin khác
+                const roleDisabled = isSelf || isProtected || isOtherAdmin;
+                // Không hiện dropdown thao tác nếu: chính mình hoặc tài khoản bảo vệ
+                const hideActions  = isSelf || isProtected;
+
+                return (
                 <tr
                   key={r.id}
                   style={{
                     ...(r.banned ? { opacity: .6 } : {}),
-                    ...(r.id === me ? { background: "var(--color-teal-pale)" } : {}),
+                    ...(isSelf ? { background: "var(--color-teal-pale)" } : {}),
                   }}
                 >
 
-                  {/* Email + Tên — nếu là tài khoản đang đăng nhập thì highlight border trái */}
-                  <td style={r.id === me ? { borderLeft: "3px solid var(--color-teal)" } : undefined}>
-                    <div style={{ fontWeight: 600, color: r.id === me ? "var(--color-teal-dark)" : "var(--color-navy)" }}>
+                  {/* Email + Tên */}
+                  <td style={isSelf ? { borderLeft: "3px solid var(--color-teal)" } : undefined}>
+                    <div style={{ fontWeight: 600, color: isSelf ? "var(--color-teal-dark)" : "var(--color-navy)" }}>
                       {r.email}
+                      {isProtected && (
+                        <svg style={{ marginLeft: 6, verticalAlign: "middle", color: "var(--color-gray-text)", flexShrink: 0 }} width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-label="Tài khoản được bảo vệ">
+                          <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                        </svg>
+                      )}
                     </div>
                     <div className="type-body-small text-muted">{r.name}</div>
                   </td>
@@ -253,9 +269,14 @@ export function UserManager({ initial, me }: { initial: UserRow[]; me: string })
                       className="qp-select"
                       style={{ maxWidth: 170 }}
                       value={r.role}
-                      disabled={r.id === me}
+                      disabled={roleDisabled}
                       onChange={(e) => changeRole(r, e.target.value as UserRow["role"])}
-                      title={r.id === me ? "Không thể tự đổi quyền của mình" : "Đổi vai trò"}
+                      title={
+                        isProtected  ? "Tài khoản được bảo vệ, không thể thay đổi" :
+                        isSelf       ? "Không thể tự đổi quyền của mình" :
+                        isOtherAdmin ? "Không thể đổi quyền của admin khác" :
+                        "Đổi vai trò"
+                      }
                     >
                       <option value="admin">Admin</option>
                       <option value="editor">Biên tập viên</option>
@@ -279,17 +300,20 @@ export function UserManager({ initial, me }: { initial: UserRow[]; me: string })
                   {/* Ngày tạo */}
                   <td className="type-body-small text-muted">{formatDate(r.createdAt)}</td>
 
-                  {/* Actions */}
+                  {/* Actions — ẩn hoàn toàn nếu là chính mình hoặc tài khoản được bảo vệ */}
                   <td className="qp-admin-actions">
-                    <RowActions actions={[
-                      { value: "warn",    label: "Cảnh báo (+1)",   hidden: r.id === me || r.banned, run: () => warn(r) },
-                      { value: "unwarn",  label: "Xoá cảnh báo",    hidden: r.id === me || r.warnCount === 0, run: () => clearWarn(r) },
-                      { value: "ban",     label: r.banned ? "Mở khóa" : "Khóa tài khoản", hidden: r.id === me, run: () => toggleBanned(r) },
-                      { value: "delete",  label: "Xoá",             hidden: r.id === me, run: () => remove(r) },
-                    ]} />
+                    {!hideActions && (
+                      <RowActions actions={[
+                        { value: "warn",   label: "Cảnh báo (+1)",                    hidden: r.banned,          run: () => warn(r) },
+                        { value: "unwarn", label: "Xoá cảnh báo",                    hidden: r.warnCount === 0, run: () => clearWarn(r) },
+                        { value: "ban",    label: r.banned ? "Mở khóa" : "Khóa tài khoản",                    run: () => toggleBanned(r) },
+                        { value: "delete", label: "Xoá",                                                       run: () => remove(r) },
+                      ]} />
+                    )}
                   </td>
                 </tr>
-              ))}
+                );
+              })}
             </tbody>
           </table>
           <Pagination page={pg.page} totalPages={pg.totalPages} onPage={pg.setPage} />
