@@ -199,10 +199,10 @@ export function SettingsManager({ initial }: { initial: AppSettings }) {
           <Card title="Logo thương hiệu" desc="Tải lên logo hiển thị ở đầu trang (header), chân trang và trang đăng nhập; cùng logo nhỏ làm icon trên tab trình duyệt. Để trống = dùng logo mặc định. Áp dụng ngay cho lượt truy cập tiếp theo (icon tab có thể cần tải lại trang do trình duyệt cache).">
             <div className="qp-acc-grid2">
               <Field label="Logo chính" hint="Hiển thị ở header/footer/trang đăng nhập. Nên dùng ảnh vuông hoặc gần vuông, nền trong (PNG).">
-                <ImageUploader value={form.siteLogo ? [form.siteLogo] : []} onChange={(a) => set("siteLogo", (a[0] ?? "") as never)} max={1} />
+                <ImageUploader value={form.siteLogo ? [form.siteLogo] : []} onChange={(a) => set("siteLogo", (a[0] ?? "") as never)} max={1} subfolder="system" />
               </Field>
               <Field label="Logo nhỏ (icon tab trình duyệt)" hint="Dùng làm favicon trên tab & PWA. Nên vuông ~512×512, PNG nền trong. Để trống = dùng Logo chính.">
-                <ImageUploader value={form.siteFavicon ? [form.siteFavicon] : []} onChange={(a) => set("siteFavicon", (a[0] ?? "") as never)} max={1} />
+                <ImageUploader value={form.siteFavicon ? [form.siteFavicon] : []} onChange={(a) => set("siteFavicon", (a[0] ?? "") as never)} max={1} subfolder="system" />
               </Field>
             </div>
           </Card>
@@ -285,17 +285,49 @@ export function SettingsManager({ initial }: { initial: AppSettings }) {
         )}
 
         {tab === "ai" && (
-          <Card title="Tạo nội dung bằng AI (Gemini)" desc="Tích hợp Google Gemini để tự động soạn thảo nội dung bài viết từ tiêu đề và tóm tắt. Lấy API key miễn phí tại aistudio.google.com → Get API key.">
-            <Field label="Khoá API (Gemini API key)" hint="Khoá lưu phía máy chủ và KHÔNG gửi lại trình duyệt. Để trống = giữ khoá đã lưu (hoặc dùng env GEMINI_API_KEY nếu chưa lưu). Nhập khoá mới để thay. Lấy khoá miễn phí: aistudio.google.com → Get API key.">
-              {form.geminiApiKeySet && (
-                <span className="qp-acc-badge is-active" style={{ marginBottom: 8, display: "inline-flex" }}>🔑 Đã lưu khoá API</span>
-              )}
-              <input type="password" autoComplete="off" maxLength={200} className="qp-input" value={form.geminiApiKey} onChange={txt("geminiApiKey")} placeholder={form.geminiApiKeySet ? "Đã có khoá • nhập để thay khoá mới" : "Dán khoá API Gemini tại đây…"} />
-            </Field>
-            <p className="qp-form-tip" style={{ marginTop: 12 }}>
-              Gói miễn phí: 15 lượt/phút · 1 triệu token/ngày — đủ cho ban biên tập nội bộ. Sau khi lưu khoá, nút <strong>✨ Tạo bằng AI</strong> sẽ xuất hiện trong trang soạn thảo bài viết.
-            </p>
-          </Card>
+          <>
+            <Card title="Gemini (Google)" desc="Miễn phí: 15 req/phút · 1 triệu token/ngày. Lấy key tại aistudio.google.com → Get API key.">
+              <Field label="API key" hint="Lưu phía máy chủ, không gửi lại trình duyệt. Để trống = giữ khoá cũ (hoặc dùng env GEMINI_API_KEY).">
+                {form.geminiApiKeySet && <span className="qp-acc-badge is-active" style={{ marginBottom: 8, display: "inline-flex" }}>🔑 Đã lưu khoá</span>}
+                <input type="password" autoComplete="off" maxLength={200} className="qp-input"
+                  value={form.geminiApiKey} onChange={txt("geminiApiKey")}
+                  placeholder={form.geminiApiKeySet ? "Đã có khoá • nhập để thay" : "AIza..."} />
+              </Field>
+            </Card>
+
+            <Card title="OpenAI / ChatGPT" desc="Trả phí theo token. Lấy key tại platform.openai.com → API keys.">
+              <Field label="API key" hint="Để trống = giữ khoá cũ (hoặc dùng env OPENAI_API_KEY).">
+                {form.openaiApiKeySet && <span className="qp-acc-badge is-active" style={{ marginBottom: 8, display: "inline-flex" }}>🔑 Đã lưu khoá</span>}
+                <input type="password" autoComplete="off" maxLength={200} className="qp-input"
+                  value={form.openaiApiKey} onChange={txt("openaiApiKey")}
+                  placeholder={form.openaiApiKeySet ? "Đã có khoá • nhập để thay" : "sk-..."} />
+              </Field>
+              <Field label="Model" hint="VD: gpt-4o-mini (rẻ nhất), gpt-4o, gpt-4-turbo">
+                <input type="text" maxLength={80} className="qp-input"
+                  value={form.openaiModel} onChange={txt("openaiModel")}
+                  placeholder="gpt-4o-mini" />
+              </Field>
+            </Card>
+
+            <Card title="Tùy chỉnh (KiraAI, Ollama…)" desc="Bất kỳ API nào tương thích định dạng OpenAI Chat Completions.">
+              <Field label="Endpoint URL" hint="URL gốc. VD: https://api.kiraai.vn/v1 — hệ thống tự thêm /chat/completions.">
+                <input type="url" maxLength={300} className="qp-input"
+                  value={form.customAiEndpoint} onChange={txt("customAiEndpoint")}
+                  placeholder="https://api.kiraai.vn/v1" />
+              </Field>
+              <Field label="API key" hint="Để trống = giữ khoá cũ.">
+                {form.customAiKeySet && <span className="qp-acc-badge is-active" style={{ marginBottom: 8, display: "inline-flex" }}>🔑 Đã lưu khoá</span>}
+                <input type="password" autoComplete="off" maxLength={200} className="qp-input"
+                  value={form.customAiKey} onChange={txt("customAiKey")}
+                  placeholder={form.customAiKeySet ? "Đã có khoá • nhập để thay" : "Dán API key tại đây…"} />
+              </Field>
+              <Field label="Tên model" hint="Tên model mà endpoint yêu cầu. VD: Kira-Mini-0.1">
+                <input type="text" maxLength={80} className="qp-input"
+                  value={form.customAiModel} onChange={txt("customAiModel")}
+                  placeholder="Kira-Mini-0.1" />
+              </Field>
+            </Card>
+          </>
         )}
 
         {tab === "data" && (

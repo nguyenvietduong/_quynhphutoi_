@@ -1,15 +1,25 @@
 "use client";
 
-// Quản trị các khối trang chủ: bật/tắt, chọn chế độ (mới nhất/ngẫu nhiên/thủ công),
-// số lượng, và picker chọn item thủ công cho từng khối.
+// Quan tri cac khoi trang chu: bat/tat, chon che do (moi nhat/ngau nhien/thu cong),
+// so luong, va picker chon item thu cong cho tung khoi.
 import { useMemo, useState } from "react";
 import { useToast } from "@/components/common/Toast";
 import type { HomeSectionsConfig, HomeSectionConfig, HomeSectionKey, HomeSectionMode, HomeCandidate } from "@/lib/home-sections";
 
-// Hằng client-safe (KHÔNG import value từ lib/home-sections — sẽ kéo mongodb vào bundle).
-const KEYS: HomeSectionKey[] = ["tin-tuc", "viec-lam", "tim-do-roi", "mua-ban", "marquee"];
-const LABEL: Record<HomeSectionKey, string> = { "tin-tuc": "Tin tức", "viec-lam": "Việc làm", "tim-do-roi": "Tìm đồ rơi", "mua-ban": "Mua bán", "marquee": "Dải chạy dưới navbar (Marquee)" };
-const NOTE: Partial<Record<HomeSectionKey, string>> = { "marquee": "Dải chạy “Cập nhật mới” ngay dưới thanh menu — chỉ lấy tiêu đề từ Tin tức." };
+// Hang client-safe (KHONG import value tu lib/home-sections - se keo mongodb vao bundle).
+const KEYS: HomeSectionKey[] = ["slider", "tin-tuc", "viec-lam", "tim-do-roi", "mua-ban", "marquee"];
+const LABEL: Record<HomeSectionKey, string> = {
+  "slider": "Slider trang chủ",
+  "tin-tuc": "Tin tức",
+  "viec-lam": "Việc làm",
+  "tim-do-roi": "Tìm đồ rơi",
+  "mua-ban": "Mua bán",
+  "marquee": "Dải chạy dưới navbar (Marquee)",
+};
+const NOTE: Partial<Record<HomeSectionKey, string>> = {
+  "slider": "Bài viết hiển thị trong slider hero đầu trang chủ. Chế độ Mới nhất lấy bài mới nhất; Chọn thủ công để ghim bài cụ thể.",
+  "marquee": "Dải chạy Cập nhật mới ngay dưới thanh menu — chỉ lấy tiêu đề từ Tin tức.",
+};
 const MODES: { value: HomeSectionMode; label: string }[] = [
   { value: "latest", label: "Mới nhất" },
   { value: "random", label: "Ngẫu nhiên" },
@@ -72,10 +82,11 @@ function SectionCard({ k, cfg, candidates, onPatch, onToggleSlug }: {
   onToggleSlug: (slug: string) => void;
 }) {
   const [q, setQ] = useState("");
+  const kw = q.trim().toLowerCase();
   const filtered = useMemo(() => {
-    const kw = q.trim().toLowerCase();
-    return kw ? candidates.filter((c) => c.title.toLowerCase().includes(kw)) : candidates;
-  }, [q, candidates]);
+    if (!kw) return [];
+    return candidates.filter((c) => c.title.toLowerCase().includes(kw));
+  }, [kw, candidates]);
   const selected = new Set(cfg.manualSlugs);
 
   return (
@@ -108,16 +119,44 @@ function SectionCard({ k, cfg, candidates, onPatch, onToggleSlug }: {
             <p className="type-body-small text-muted">Chưa có item nào để chọn (cần bài/tin đã đăng &amp; được duyệt).</p>
           ) : (
             <>
-              <input className="qp-input" placeholder="Tìm theo tiêu đề…" value={q} onChange={(e) => setQ(e.target.value)} style={{ marginBottom: 8 }} />
-              <div style={{ maxHeight: 220, overflowY: "auto", border: "1px solid var(--color-border, #e5e7eb)", borderRadius: 8, padding: 8 }}>
-                {filtered.map((c) => (
-                  <label key={c.slug} className="qp-check" style={{ display: "flex", gap: 8, padding: "4px 2px", alignItems: "flex-start" }}>
-                    <input type="checkbox" checked={selected.has(c.slug)} onChange={() => onToggleSlug(c.slug)} />
-                    <span>{c.title}</span>
-                  </label>
-                ))}
-                {filtered.length === 0 && <p className="type-body-small text-muted" style={{ margin: 4 }}>Không khớp từ khoá.</p>}
-              </div>
+              <input className="qp-input" placeholder="Gõ tiêu đề để tìm và thêm bài…" value={q} onChange={(e) => setQ(e.target.value)} style={{ marginBottom: 6 }} />
+              {kw && (
+                <div style={{ maxHeight: 200, overflowY: "auto", border: "1px solid var(--color-border, #e5e7eb)", borderRadius: 8, padding: 8, marginBottom: 8 }}>
+                  {filtered.length > 0 ? filtered.map((c) => (
+                    <label key={c.slug} className="qp-check" style={{ display: "flex", gap: 8, padding: "4px 2px", alignItems: "flex-start" }}>
+                      <input type="checkbox" checked={selected.has(c.slug)} onChange={() => onToggleSlug(c.slug)} />
+                      <span>{c.title}</span>
+                    </label>
+                  )) : (
+                    <p className="type-body-small text-muted" style={{ margin: 4 }}>Không tìm thấy bài khớp.</p>
+                  )}
+                </div>
+              )}
+              {cfg.manualSlugs.length > 0 && (
+                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+                  <thead>
+                    <tr style={{ borderBottom: "1px solid var(--color-border, #e5e7eb)" }}>
+                      <th style={{ textAlign: "left", padding: "4px 8px", fontWeight: 600, color: "var(--color-gray-text)" }}>#</th>
+                      <th style={{ textAlign: "left", padding: "4px 8px", fontWeight: 600, color: "var(--color-gray-text)" }}>Tiêu đề</th>
+                      <th style={{ padding: "4px 8px" }} />
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {cfg.manualSlugs.map((slug, i) => {
+                      const title = candidates.find((c) => c.slug === slug)?.title ?? slug;
+                      return (
+                        <tr key={slug} style={{ borderBottom: "1px solid var(--color-border, #e5e7eb)" }}>
+                          <td style={{ padding: "6px 8px", color: "var(--color-gray-text)", width: 28 }}>{i + 1}</td>
+                          <td style={{ padding: "6px 8px" }}>{title}</td>
+                          <td style={{ padding: "6px 8px", textAlign: "right" }}>
+                            <button type="button" onClick={() => onToggleSlug(slug)} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--color-error, #ef4444)", fontSize: 13, padding: "0 4px" }}>Xoá</button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              )}
             </>
           )}
         </div>

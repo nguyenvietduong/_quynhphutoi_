@@ -170,7 +170,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
                 <span className="qp-avatar-initials" aria-hidden>{initials}</span>
                 <div>
                   <div className="qp-author__name">{a.author}</div>
-                  <div className="qp-author__meta">{a.authorTitle || "Tác giả"}</div>
+                  <div className="qp-author__meta">{a.authorTitle || "Quỳnh Phụ Tôi"}</div>
                 </div>
               </div>
               <div className="qp-lf-spec" style={{ marginTop: 14 }}>

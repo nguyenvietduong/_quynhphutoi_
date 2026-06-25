@@ -15,10 +15,10 @@ import type { AppSettings } from "@/lib/settings";
 
 export const SITE = {
   url: (process.env.NEXT_PUBLIC_SITE_URL || "https://www.quynhphutoi.io.vn").replace(/\/$/, ""),
-  name: "Cổng thông tin Quỳnh Phụ",
+  name: "Quỳnh Phụ Tôi",
   shortName: "Quỳnh Phụ Tôi",
   description:
-    "Cổng thông tin xã Quỳnh Phụ (Thái Bình) — tin tức, việc làm, mua bán, tìm đồ rơi, trường học, y tế, giao thông, di tích và kết nối cộng đồng.",
+    "Kênh thông tin cộng đồng xã Quỳnh Phụ (Thái Bình) — tin tức, việc làm, mua bán, tìm đồ rơi, trường học, y tế, giao thông, di tích và kết nối cộng đồng.",
   locale: "vi_VN",
   logo: "/img/patterns/logo.png",
   region: "Xã Quỳnh Phụ",

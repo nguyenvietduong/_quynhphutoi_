@@ -35,7 +35,7 @@ export async function Footer() {
           <div className="qp-footer__cta-text">
             <span className="qp-footer__cta-eyebrow"><FIcon name="megaphone" /> Hợp tác · Quảng cáo</span>
             <h3 className="qp-footer__cta-title">Doanh nghiệp địa phương muốn tiếp cận người dân Quỳnh Phụ?</h3>
-            <p className="qp-footer__cta-sub">Đặt banner, tài trợ hoặc hợp tác nội dung cùng cổng thông tin cộng đồng.</p>
+            <p className="qp-footer__cta-sub">Đặt banner, tài trợ hoặc hợp tác nội dung cùng trang thông tin cộng đồng.</p>
           </div>
           <a href={`mailto:${s.contactEmail}`} className="qp-footer__cta-btn">Liên hệ ngay <span aria-hidden>→</span></a>
         </div>
@@ -87,7 +87,7 @@ export async function Footer() {
         </div>
 
         <div className="qp-footer__bottom">
-          <span>© {year} · Cổng thông tin cộng đồng Quỳnh Phụ — phi chính thức.</span>
+          <span>© {year} · Quỳnh Phụ Tôi — Trang thông tin cộng đồng, phi chính thức.</span>
           <span className="qp-footer__madein">Làm bởi một người yêu Thái Bình <span className="qp-footer__heart" aria-hidden>♥</span></span>
         </div>
       </div>

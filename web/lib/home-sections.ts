@@ -15,7 +15,7 @@ import { categoryLabelMap } from "@/lib/categories";
 import type { Article } from "@/lib/news";
 import { formatDate } from "@/lib/datetime";
 
-export type HomeSectionKey = "tin-tuc" | "viec-lam" | "tim-do-roi" | "mua-ban" | "marquee";
+export type HomeSectionKey = "slider" | "tin-tuc" | "viec-lam" | "tim-do-roi" | "mua-ban" | "marquee";
 export type HomeSectionMode = "latest" | "random" | "manual";
 export const HOME_SECTION_MODES: HomeSectionMode[] = ["latest", "random", "manual"];
 
@@ -28,8 +28,9 @@ export type HomeSectionConfig = {
 export type HomeSectionsConfig = Record<HomeSectionKey, HomeSectionConfig>;
 
 // "marquee" = dải chạy "Cập nhật mới" dưới navbar (chỉ lấy tiêu đề từ Tin tức).
-export const HOME_SECTION_KEYS: HomeSectionKey[] = ["tin-tuc", "viec-lam", "tim-do-roi", "mua-ban", "marquee"];
+export const HOME_SECTION_KEYS: HomeSectionKey[] = ["slider", "tin-tuc", "viec-lam", "tim-do-roi", "mua-ban", "marquee"];
 export const HOME_SECTION_LABEL: Record<HomeSectionKey, string> = {
+  "slider": "Slider trang chủ",
   "tin-tuc": "Tin tức",
   "viec-lam": "Việc làm",
   "tim-do-roi": "Tìm đồ rơi",
@@ -37,12 +38,13 @@ export const HOME_SECTION_LABEL: Record<HomeSectionKey, string> = {
   "marquee": "Dải chạy (Marquee)",
 };
 
-const DEFAULT_LIMIT: Record<HomeSectionKey, number> = { "tin-tuc": 4, "viec-lam": 3, "tim-do-roi": 4, "mua-ban": 4, "marquee": 8 };
+const DEFAULT_LIMIT: Record<HomeSectionKey, number> = { "slider": 4, "tin-tuc": 4, "viec-lam": 3, "tim-do-roi": 4, "mua-ban": 4, "marquee": 8 };
 const MAX_LIMIT = 12;
 const MAX_MANUAL = 24;
 
 function defaults(): HomeSectionsConfig {
   return {
+    "slider": { enabled: true, mode: "latest", manualSlugs: [], limit: DEFAULT_LIMIT["slider"] },
     "tin-tuc": { enabled: true, mode: "latest", manualSlugs: [], limit: DEFAULT_LIMIT["tin-tuc"] },
     "viec-lam": { enabled: true, mode: "latest", manualSlugs: [], limit: DEFAULT_LIMIT["viec-lam"] },
     "tim-do-roi": { enabled: true, mode: "latest", manualSlugs: [], limit: DEFAULT_LIMIT["tim-do-roi"] },
@@ -122,6 +124,23 @@ async function pickDocs<T extends Document & { slug: string; createdAt: Date }>(
   return (await c.find(base).sort({ createdAt: -1 } as Sort).limit(cfg.limit).toArray()) as T[];
 }
 
+// Slider hero: trả ArticleDoc[] đầy đủ để trang chủ map sang HeroSlide.
+async function resolveSliderDocs(cfg: HomeSectionConfig): Promise<ArticleDoc[]> {
+  const c = await articles();
+  const base: Filter<ArticleDoc> = { status: "published", approved: { $ne: false }, active: { $ne: false } };
+  if (cfg.mode === "manual") {
+    if (cfg.manualSlugs.length === 0) return [];
+    const found = await c.find({ ...base, slug: { $in: cfg.manualSlugs } }).toArray();
+    const order = new Map(cfg.manualSlugs.map((s, i) => [s, i] as const));
+    found.sort((a, b) => (order.get(a.slug) ?? 0) - (order.get(b.slug) ?? 0));
+    return found.slice(0, cfg.limit);
+  }
+  if (cfg.mode === "random") {
+    return c.aggregate<ArticleDoc>([{ $match: base }, { $sample: { size: cfg.limit } }]).toArray();
+  }
+  return c.find(base).sort({ publishedAt: -1 }).limit(cfg.limit).toArray();
+}
+
 // Tin tức: trả Article[] (dùng lại NewsCard). Sắp theo publishedAt cho mode latest.
 async function resolveNews(cfg: HomeSectionConfig): Promise<Article[]> {
   const c = await articles();
@@ -162,17 +181,19 @@ const classifiedCard = (d: ClassifiedDoc, condMap: Record<string, string>): Home
 
 export type HomeSectionsData = {
   config: HomeSectionsConfig;
+  sliderDocs: ArticleDoc[];
   news: Article[];
   jobs: HomeCard[];
   lostfound: HomeCard[];
   classifieds: HomeCard[];
 };
 
-// Đọc cấu hình + resolve item cho cả 4 khối — trang chủ chỉ việc render.
+// Đọc cấu hình + resolve item cho cả khối — trang chủ chỉ việc render.
 export async function loadHomeSections(): Promise<HomeSectionsData> {
   const config = await getHomeSections();
   const approved: Filter<Document> = { approved: true, active: true };
-  const [news, jobCards, lfCards, clCards] = await Promise.all([
+  const [sliderDocs, news, jobCards, lfCards, clCards] = await Promise.all([
+    config["slider"].enabled ? resolveSliderDocs(config["slider"]) : Promise.resolve([] as ArticleDoc[]),
     config["tin-tuc"].enabled ? resolveNews(config["tin-tuc"]) : Promise.resolve([] as Article[]),
     config["viec-lam"].enabled
       ? pickDocs(await jobs(), approved as Filter<JobDoc>, config["viec-lam"]).then((ds) => ds.map(jobCard))
@@ -187,7 +208,7 @@ export async function loadHomeSections(): Promise<HomeSectionsData> {
         ]).then(([ds, condMap]) => ds.map((d) => classifiedCard(d, condMap)))
       : Promise.resolve([] as HomeCard[]),
   ]);
-  return { config, news, jobs: jobCards, lostfound: lfCards, classifieds: clCards };
+  return { config, sliderDocs, news, jobs: jobCards, lostfound: lfCards, classifieds: clCards };
 }
 
 // Dải chạy Marquee dưới navbar — trả danh sách tiêu đề (chỉ từ Tin tức) theo cấu hình.
@@ -208,5 +229,5 @@ export async function listHomeCandidates(): Promise<Record<HomeSectionKey, HomeC
     (await lostFound()).find({ approved: true, active: true }).sort({ createdAt: -1 }).limit(100).project<HomeCandidate>({ _id: 0, slug: 1, title: 1 }).toArray(),
     (await classifieds()).find({ approved: true, active: true }).sort({ createdAt: -1 }).limit(100).project<HomeCandidate>({ _id: 0, slug: 1, title: 1 }).toArray(),
   ]);
-  return { "tin-tuc": a, "viec-lam": j, "tim-do-roi": l, "mua-ban": c, "marquee": a };
+  return { "slider": a, "tin-tuc": a, "viec-lam": j, "tim-do-roi": l, "mua-ban": c, "marquee": a };
 }

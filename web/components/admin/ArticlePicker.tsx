@@ -54,32 +54,19 @@ export function ArticlePicker({ selected, max, titles, onChange, onLearnTitles }
 
   return (
     <div className="qp-picker">
-      {/* Chip mục đã chọn */}
-      {selected.length > 0 ? (
-        <div className="qp-picker__chips">
-          {selected.map((slug) => (
-            <span key={slug} className="qp-picker__chip">
-              <span className="qp-picker__chip-text">{titles[slug] ?? slug}</span>
-              <button type="button" className="qp-picker__chip-x" aria-label="Bỏ chọn" onClick={() => remove(slug)}>×</button>
-            </span>
-          ))}
-        </div>
-      ) : (
-        <p className="type-body-small text-muted" style={{ margin: "0 0 8px" }}>Chưa chọn bài nào.</p>
-      )}
-
       {/* Ô tìm kiếm */}
       <input
         className="qp-input"
-        placeholder={full ? `Đã đủ ${max} bài — bỏ bớt để chọn khác…` : "Gõ từ khoá để tìm bài…"}
+        placeholder={full && max !== 1 ? `Đã đủ ${max} bài — bỏ bớt để chọn khác…` : "Gõ từ khoá để tìm bài…"}
         value={q}
         onChange={(e) => onQuery(e.target.value)}
         disabled={full && max !== 1}
+        style={{ marginBottom: 6 }}
       />
 
       {/* Kết quả — chỉ hiện khi có từ khoá */}
       {q.trim() && (
-        <div className="qp-picker__results">
+        <div className="qp-picker__results" style={{ marginBottom: 8 }}>
           {loading ? (
             <p className="type-body-small text-muted" style={{ margin: 4 }}>Đang tìm…</p>
           ) : results.length === 0 ? (
@@ -103,6 +90,32 @@ export function ArticlePicker({ selected, max, titles, onChange, onLearnTitles }
             })
           )}
         </div>
+      )}
+
+      {/* Bài đã chọn — dạng table */}
+      {selected.length > 0 ? (
+        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+          <thead>
+            <tr style={{ borderBottom: "1px solid var(--color-border, #e5e7eb)" }}>
+              <th style={{ textAlign: "left", padding: "4px 8px", fontWeight: 600, color: "var(--color-gray-text)", width: 28 }}>#</th>
+              <th style={{ textAlign: "left", padding: "4px 8px", fontWeight: 600, color: "var(--color-gray-text)" }}>Tiêu đề</th>
+              <th style={{ padding: "4px 8px" }} />
+            </tr>
+          </thead>
+          <tbody>
+            {selected.map((slug, i) => (
+              <tr key={slug} style={{ borderBottom: "1px solid var(--color-border, #e5e7eb)" }}>
+                <td style={{ padding: "6px 8px", color: "var(--color-gray-text)" }}>{i + 1}</td>
+                <td style={{ padding: "6px 8px" }}>{titles[slug] ?? slug}</td>
+                <td style={{ padding: "6px 8px", textAlign: "right" }}>
+                  <button type="button" onClick={() => remove(slug)} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--color-error, #ef4444)", fontSize: 13, padding: "0 4px" }}>Xoá</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ) : (
+        <p className="type-body-small text-muted" style={{ margin: "4px 0 0" }}>Chưa chọn bài nào.</p>
       )}
     </div>
   );

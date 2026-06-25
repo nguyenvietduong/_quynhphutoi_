@@ -26,7 +26,7 @@ export const NAV_TREE: NavNode[] = [
   { id: "index", label: "Trang chủ", href: "/" },
   {
     id: "dich-vu-cong",
-    label: "Dịch vụ công",
+    label: "Tra cứu",
     children: [
       { id: "truong-hoc", label: "Trường học", href: "/truong-hoc", desc: "Trường học theo xã & cấp học", icon: "school" },
       { id: "y-te", label: "Y tế", href: "/y-te", desc: "Bệnh viện, trạm y tế, phòng khám", icon: "health" },

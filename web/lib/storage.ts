@@ -21,11 +21,12 @@ function ensureConfig() {
 }
 
 // Lưu 1 ảnh, trả về URL công khai.
-export async function saveImage(buf: Buffer, ext: string, contentType: string): Promise<string> {
+export async function saveImage(buf: Buffer, ext: string, contentType: string, subfolder?: string): Promise<string> {
   if (usingCloudinary) {
     ensureConfig();
+    const folder = subfolder ? `${FOLDER}/${subfolder}` : FOLDER;
     const dataUri = `data:${contentType};base64,${buf.toString("base64")}`;
-    const res = await cloudinary.uploader.upload(dataUri, { folder: FOLDER, resource_type: "image" });
+    const res = await cloudinary.uploader.upload(dataUri, { folder, resource_type: "image" });
     return res.secure_url;
   }
 

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { HeroSlider, type HeroSlide } from "@/components/home/HeroSlider";
-import { listArticles, type ArticleDoc } from "@/lib/articles";
+import { type ArticleDoc } from "@/lib/articles";
 import { loadHomeSections } from "@/lib/home-sections";
 import { NewsCard } from "@/components/news/NewsCard";
 import { HomeModuleCard } from "@/components/home/HomeModuleCard";
@@ -139,10 +139,7 @@ export default async function HomePage() {
   // Các khối trang chủ (Tin tức / Việc làm / Tìm đồ rơi / Mua bán) — đọc theo cấu hình admin.
   const home = await loadHomeSections();
 
-  // Slide hero: ưu tiên bài "Nổi bật"; nếu chưa có bài nào tick → lấy 4 bài mới nhất.
-  const featuredDocs = await listArticles({ status: "published", featured: true, limit: 4 }).catch(() => []);
-  const heroDocs = featuredDocs.length ? featuredDocs : await listArticles({ status: "published", limit: 4 }).catch(() => []);
-  const heroSlides: HeroSlide[] = heroDocs.map(toHeroSlide);
+  const heroSlides: HeroSlide[] = home.sliderDocs.map(toHeroSlide);
   return (
     <>
       <JsonLd data={[jsonLdWebSite(), jsonLdOrganization()]} />

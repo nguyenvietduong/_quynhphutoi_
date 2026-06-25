@@ -6,7 +6,7 @@ import { useRef, useState } from "react";
 import { MAX_IMAGE_BYTES, MAX_IMAGE_MB, IMAGE_ACCEPT, isAllowedImageType, formatMB } from "@/lib/upload-limits";
 import { useToast } from "@/components/common/Toast";
 
-export function ImageUploader({ value, onChange, max = 6 }: { value: string[]; onChange: (urls: string[]) => void; max?: number }) {
+export function ImageUploader({ value, onChange, max = 6, subfolder }: { value: string[]; onChange: (urls: string[]) => void; max?: number; subfolder?: string }) {
   const [uploading, setUploading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
@@ -29,6 +29,7 @@ export function ImageUploader({ value, onChange, max = 6 }: { value: string[]; o
     try {
       const fd = new FormData();
       picked.forEach((f) => fd.append("files", f));
+      if (subfolder) fd.append("subfolder", subfolder);
       const res = await fetch("/api/upload", { method: "POST", body: fd });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) { toast.error(data.error || "Tải ảnh thất bại."); return; }

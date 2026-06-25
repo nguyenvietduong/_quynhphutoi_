@@ -60,6 +60,13 @@ export type AppSettings = {
   // --- AI tạo nội dung ---
   geminiApiKey: string;           // khoá API Gemini. Để trống = lấy từ env GEMINI_API_KEY
   geminiApiKeySet?: boolean;      // SUY DIỄN (không lưu DB): đã có khoá Gemini chưa
+  openaiApiKey: string;           // khoá API OpenAI. Để trống = lấy từ env OPENAI_API_KEY
+  openaiModel: string;            // model OpenAI (mặc định: gpt-4o-mini)
+  openaiApiKeySet?: boolean;      // SUY DIỄN
+  customAiEndpoint: string;       // base URL tương thích OpenAI (VD: https://api.kiraai.vn/v1)
+  customAiKey: string;            // khoá API tùy chỉnh
+  customAiModel: string;          // tên model tùy chỉnh
+  customAiKeySet?: boolean;       // SUY DIỄN
 };
 
 const DEFAULTS: AppSettings = {
@@ -113,6 +120,11 @@ const DEFAULTS: AppSettings = {
   newsGnewsKey: "",
 
   geminiApiKey: "",
+  openaiApiKey: "",
+  openaiModel: "gpt-4o-mini",
+  customAiEndpoint: "",
+  customAiKey: "",
+  customAiModel: "",
 };
 
 type SettingsDoc = { _id: string; values: Partial<AppSettings> };
@@ -141,6 +153,10 @@ const redact = (s: AppSettings): AppSettings => ({
   newsGnewsKeySet: !!s.newsGnewsKey,
   geminiApiKey: "",
   geminiApiKeySet: !!s.geminiApiKey || !!process.env.GEMINI_API_KEY,
+  openaiApiKey: "",
+  openaiApiKeySet: !!s.openaiApiKey || !!process.env.OPENAI_API_KEY,
+  customAiKey: "",
+  customAiKeySet: !!s.customAiKey,
 });
 
 // Bản DÙNG CHUNG — đã che newsApiKey. Mọi trang/route public dùng hàm này (an toàn).
@@ -214,6 +230,13 @@ export async function updateSettings(patch: Partial<AppSettings>): Promise<AppSe
       ? patch.newsGnewsKey.trim().slice(0, 200) : c.newsGnewsKey,
     geminiApiKey: typeof patch.geminiApiKey === "string" && patch.geminiApiKey.trim()
       ? patch.geminiApiKey.trim().slice(0, 200) : c.geminiApiKey,
+    openaiApiKey: typeof patch.openaiApiKey === "string" && patch.openaiApiKey.trim()
+      ? patch.openaiApiKey.trim().slice(0, 200) : c.openaiApiKey,
+    openaiModel: str(patch.openaiModel ?? c.openaiModel, 80, c.openaiModel) || "gpt-4o-mini",
+    customAiEndpoint: str(patch.customAiEndpoint ?? c.customAiEndpoint, 300, c.customAiEndpoint),
+    customAiKey: typeof patch.customAiKey === "string" && patch.customAiKey.trim()
+      ? patch.customAiKey.trim().slice(0, 200) : c.customAiKey,
+    customAiModel: str(patch.customAiModel ?? c.customAiModel, 80, c.customAiModel),
   };
   if (next.postCooldownMax < next.postCooldownMin) next.postCooldownMax = next.postCooldownMin;
   await (await col()).updateOne({ _id: "app" }, { $set: { values: next } }, { upsert: true });

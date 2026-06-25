@@ -13,6 +13,7 @@ export const dynamic = "force-dynamic";
 
 const config: ModConfig = {
   apiBase: "/api/admin/lost-found", publicBase: "/tim-do-roi", extraKey: "reward", extraLabel: "Hậu tạ",
+  subfolder: "tim-do-roi",
   statusOptions: [
     { value: "open", label: "Đang mở" }, { value: "matched", label: "Đã có manh mối" },
     { value: "resolved", label: "Đã giải quyết" }, { value: "closed", label: "Đã đóng" },

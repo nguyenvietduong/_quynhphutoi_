@@ -13,6 +13,7 @@ export const dynamic = "force-dynamic";
 
 const config: ModConfig = {
   apiBase: "/api/admin/jobs", publicBase: "/viec-lam", extraKey: "company", extraLabel: "Công ty",
+  subfolder: "viec-lam",
   statusOptions: [
     { value: "open", label: "Đang tuyển" }, { value: "closed", label: "Đã đóng" }, { value: "filled", label: "Đã tuyển xong" },
   ],

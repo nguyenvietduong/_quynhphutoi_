@@ -33,6 +33,7 @@ export type ModConfig = {
   extraKey: "company" | "priceText" | "reward" | null;
   extraLabel: string;
   statusOptions: { value: string; label: string }[];
+  subfolder?: string;     // Cloudinary sub-folder cho module này
 };
 
 export function PostModerationManager({ initial, config, perm = "full" }: { initial: ModRow[]; config: ModConfig; perm?: PermLevel }) {
@@ -140,7 +141,7 @@ export function PostModerationManager({ initial, config, perm = "full" }: { init
 
               <div className="qp-admin-section-title">Hình ảnh &amp; vị trí</div>
               <div className="qp-form-group"><label className="qp-label">Hình ảnh</label>
-                <ImageUploader value={edit.images ?? []} onChange={(urls) => setEdit((cur) => (cur ? { ...cur, images: urls } : cur))} max={8} /></div>
+                <ImageUploader value={edit.images ?? []} onChange={(urls) => setEdit((cur) => (cur ? { ...cur, images: urls } : cur))} max={8} subfolder={config.subfolder} /></div>
               <div className="qp-form-group"><label className="qp-label">Địa chỉ cụ thể</label>
                 <input className="qp-input" maxLength={200} value={edit.address ?? ""} onChange={(e) => setEdit((cur) => (cur ? { ...cur, address: e.target.value } : cur))} placeholder="VD: Thôn …, gần chợ …" /></div>
               <div className="qp-form-group"><label className="qp-label">Link Google Maps</label>

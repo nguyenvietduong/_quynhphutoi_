@@ -18,9 +18,8 @@ export function SeoFieldsEditor({
   const set = (patch: Partial<SeoFields>) => onChange({ ...v, ...patch });
 
   return (
-    <details style={{ marginTop: 8 }}>
-      <summary className="qp-label" style={{ cursor: "pointer" }}>Tối ưu SEO (tuỳ chọn)</summary>
-      <div style={{ marginTop: 12 }}>
+    <div style={{ marginTop: 8 }}>
+      <div>
         <p className="type-body-small text-muted" style={{ marginTop: 0 }}>
           Để trống = tự sinh từ nội dung. Chỉ điền khi muốn ghi đè hiển thị trên Google / mạng xã hội.
         </p>
@@ -58,6 +57,6 @@ export function SeoFieldsEditor({
           Ẩn khỏi công cụ tìm kiếm (noindex)
         </label>
       </div>
-    </details>
+    </div>
   );
 }

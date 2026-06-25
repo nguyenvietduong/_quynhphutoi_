@@ -13,13 +13,13 @@ import type { ArticleScope } from "@/lib/news";
 export type ArticleForm = {
   title: string; excerpt: string; category: string; scope: ArticleScope; tags: string;
   coverImage: string; coverAlt: string; authorName: string; authorTitle: string;
-  bodyHtml: string; featured: boolean; status: "draft" | "published";
+  bodyHtml: string; status: "draft" | "published";
   seoMetaTitle: string; seoMetaDescription: string; seoKeywords: string; seoOgImage: string; seoNoindex: boolean;
 };
 
 export const ARTICLE_FORM_EMPTY: ArticleForm = {
   title: "", excerpt: "", category: "", scope: "trong-xa", tags: "", coverImage: "", coverAlt: "",
-  authorName: "Ban biên tập", authorTitle: "", bodyHtml: "", featured: false, status: "draft",
+  authorName: "Ban biên tập", authorTitle: "Quỳnh Phụ Tôi", bodyHtml: "", status: "draft",
   seoMetaTitle: "", seoMetaDescription: "", seoKeywords: "", seoOgImage: "", seoNoindex: false,
 };
 
@@ -38,7 +38,15 @@ export function ArticleEditorPage({ editingSlug, initialForm, categories }: Prop
   const [busy, setBusy] = useState(false);
   const [tab, setTab] = useState<Tab>("content");
 
+  type AiProvider = "gemini" | "openai" | "custom";
+  const AI_PROVIDERS: { v: AiProvider; label: string }[] = [
+    { v: "gemini", label: "Gemini" },
+    { v: "openai", label: "OpenAI" },
+    { v: "custom", label: "KiraAI / Tùy chỉnh" },
+  ];
+
   const [aiOpen, setAiOpen] = useState(false);
+  const [aiProvider, setAiProvider] = useState<AiProvider>("gemini");
   const [aiTone, setAiTone] = useState<"chinh-thong" | "than-thien" | "thong-tin">("chinh-thong");
   const [aiLength, setAiLength] = useState<"ngan" | "vua" | "dai">("vua");
   const [aiCustom, setAiCustom] = useState("");
@@ -49,6 +57,53 @@ export function ArticleEditorPage({ editingSlug, initialForm, categories }: Prop
   function openAi() { setAiOpen(true); setAiResult(null); setAiError(null); }
   function closeAi() { setAiOpen(false); setAiResult(null); setAiError(null); }
 
+  // ── Viết lại nội dung gốc ──
+  type RewriteResult = { title: string; excerpt: string; bodyHtml: string; tags: string; coverAlt?: string; seoMetaTitle: string; seoMetaDescription: string; seoKeywords: string };
+  const [rwOpen, setRwOpen] = useState(false);
+  const [rwText, setRwText] = useState("");
+  const [rwProvider, setRwProvider] = useState<AiProvider>("gemini");
+  const [rwBusy, setRwBusy] = useState(false);
+  const [rwError, setRwError] = useState<string | null>(null);
+  const [rwResult, setRwResult] = useState<RewriteResult | null>(null);
+
+  function openRewrite() { setRwOpen(true); setRwText(""); setRwError(null); setRwResult(null); }
+  function closeRewrite() { setRwOpen(false); setRwResult(null); setRwError(null); }
+
+  async function doRewrite() {
+    if (!rwText.trim()) return;
+    setRwBusy(true); setRwError(null); setRwResult(null);
+    try {
+      const res = await fetch("/api/admin/ai/rewrite", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: rwText.trim(), provider: rwProvider }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) { setRwError(data.error || "Có lỗi xảy ra."); return; }
+      setRwResult(data as RewriteResult);
+    } catch { setRwError("Không thể kết nối server."); }
+    finally { setRwBusy(false); }
+  }
+
+  function applyRewrite() {
+    if (!rwResult) return;
+    setForm((f) => ({
+      ...f,
+      title:              rwResult.title              || f.title,
+      excerpt:            rwResult.excerpt            || f.excerpt,
+      bodyHtml:           rwResult.bodyHtml           || f.bodyHtml,
+      tags:               rwResult.tags               || f.tags,
+      coverAlt:           rwResult.coverAlt           || f.coverAlt,
+      authorName:         f.authorName               || "Ban biên tập",
+      authorTitle:        f.authorTitle              || "Quỳnh Phụ Tôi",
+      seoMetaTitle:       rwResult.seoMetaTitle       || f.seoMetaTitle,
+      seoMetaDescription: rwResult.seoMetaDescription || f.seoMetaDescription,
+      seoKeywords:        rwResult.seoKeywords        || f.seoKeywords,
+    }));
+    closeRewrite();
+    toast.success("Đã điền toàn bộ nội dung vào form.");
+  }
+
   async function generateAI() {
     setAiGenerating(true);
     setAiError(null);
@@ -56,7 +111,7 @@ export function ArticleEditorPage({ editingSlug, initialForm, categories }: Prop
       const res = await fetch("/api/admin/ai/generate-article", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title: form.title, excerpt: form.excerpt, category: form.category, scope: form.scope, tone: aiTone, length: aiLength, customPrompt: aiCustom }),
+        body: JSON.stringify({ title: form.title, excerpt: form.excerpt, category: form.category, scope: form.scope, tone: aiTone, length: aiLength, customPrompt: aiCustom, provider: aiProvider }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) { setAiError(data.error || "Có lỗi xảy ra."); return; }
@@ -102,7 +157,7 @@ export function ArticleEditorPage({ editingSlug, initialForm, categories }: Prop
       tags: f.tags.split(",").map((t) => t.trim()).filter(Boolean),
       coverImage: f.coverImage, coverAlt: f.coverAlt,
       authorName: f.authorName, authorTitle: f.authorTitle,
-      bodyHtml: f.bodyHtml, featured: f.featured, status: f.status,
+      bodyHtml: f.bodyHtml, status: f.status,
       seoMetaTitle: f.seoMetaTitle, seoMetaDescription: f.seoMetaDescription,
       seoKeywords: f.seoKeywords.split(",").map((t) => t.trim()).filter(Boolean),
       seoOgImage: f.seoOgImage, seoNoindex: f.seoNoindex,
@@ -130,23 +185,37 @@ export function ArticleEditorPage({ editingSlug, initialForm, categories }: Prop
   const seoColor = seo.total >= 80 ? "green" : seo.total >= 60 ? "yellow" : "red";
 
   return (
+    <>
+    <div className="qp-admin-head">
+      <Link href="/admin/tin-tuc" className="qp-admin-head__eyebrow">Tin tức</Link>
+      <h1 className="type-h1">{editingSlug ? "Sửa bài viết" : "Viết bài mới"}</h1>
+      {form.title && <span className="qp-admin-head__name">{form.title}</span>}
+    </div>
     <div className="qp-ae">
 
-      {/* ── Topbar ── */}
+      {/* ── Topbar + Tabs ── */}
       <div className="qp-ae__topbar">
-        <div className="qp-ae__breadcrumb">
-          <Link href="/admin/tin-tuc" className="qp-ae__back">
-            <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-              <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
-            </svg>
-            Tin tức
-          </Link>
-          <span className="qp-ae__pagetitle">
-            {editingSlug ? (form.title ? `Sửa: ${form.title}` : "Sửa bài viết") : "Viết bài mới"}
-          </span>
+        <div className="qp-ae__tabbar">
+          <button type="button" className={`qp-ae__tab-btn${tab === "content" ? " is-active" : ""}`} onClick={() => setTab("content")}>
+            <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" /></svg>
+            Nội dung
+          </button>
+          <button type="button" className={`qp-ae__tab-btn${tab === "detail" ? " is-active" : ""}`} onClick={() => setTab("detail")}>
+            <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" /></svg>
+            Chi tiết
+          </button>
+          <button type="button" className={`qp-ae__tab-btn${tab === "seo" ? " is-active" : ""}`} onClick={() => setTab("seo")}>
+            <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" /></svg>
+            SEO
+            {seo.total < 60 && <span className="qp-ae__tab-warn">!</span>}
+          </button>
         </div>
         <div className="qp-ae__headeractions">
           <span className={`qp-ae__seo-pill qp-ae__seo-pill--${seoColor}`}>SEO {seo.total}/100</span>
+          <button type="button" className="qp-ae__import-btn" onClick={openRewrite} disabled={busy} title="Dán nội dung gốc, AI viết lại và điền vào form">
+            <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/></svg>
+            Viết lại bằng AI
+          </button>
           <button type="button" className="qp-btn-outline" onClick={() => router.push("/admin/tin-tuc")} disabled={busy}>Huỷ</button>
           <button type="button" className="qp-btn-outline" onClick={() => save("draft")} disabled={busy}>
             {busy ? "Đang lưu…" : "Lưu nháp"}
@@ -155,23 +224,6 @@ export function ArticleEditorPage({ editingSlug, initialForm, categories }: Prop
             {busy ? "Đang lưu…" : editingSlug ? "Lưu thay đổi" : "Xuất bản"}
           </button>
         </div>
-      </div>
-
-      {/* ── Tab bar ── */}
-      <div className="qp-ae__tabbar">
-        <button type="button" className={`qp-ae__tab-btn${tab === "content" ? " is-active" : ""}`} onClick={() => setTab("content")}>
-          <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" /></svg>
-          Nội dung
-        </button>
-        <button type="button" className={`qp-ae__tab-btn${tab === "detail" ? " is-active" : ""}`} onClick={() => setTab("detail")}>
-          <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" /></svg>
-          Chi tiết
-        </button>
-        <button type="button" className={`qp-ae__tab-btn${tab === "seo" ? " is-active" : ""}`} onClick={() => setTab("seo")}>
-          <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" /></svg>
-          SEO
-          {seo.total < 60 && <span className="qp-ae__tab-warn">!</span>}
-        </button>
       </div>
 
       {/* ── Tab content ── */}
@@ -243,21 +295,6 @@ export function ArticleEditorPage({ editingSlug, initialForm, categories }: Prop
                     <button type="button" className={`qp-ae__seg-btn${form.status === "published" ? " is-pub" : ""}`} onClick={() => set("status", "published")}>Xuất bản</button>
                   </div>
                 </div>
-                <hr className="qp-ae__scard-divider" />
-                <div
-                  className="qp-ae__toggle-row"
-                  onClick={() => set("featured", !form.featured)}
-                  role="button" tabIndex={0}
-                  onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && set("featured", !form.featured)}
-                >
-                  <div className="qp-ae__toggle-info">
-                    <span className="qp-ae__toggle-title">Bài nổi bật</span>
-                    <span className="qp-ae__toggle-sub">Hiển thị ở vị trí ưu tiên</span>
-                  </div>
-                  <div className={`qp-ae__switch${form.featured ? " is-on" : ""}`} aria-hidden="true">
-                    <span className="qp-ae__switch-thumb" />
-                  </div>
-                </div>
               </div>
             </div>
 
@@ -273,6 +310,7 @@ export function ArticleEditorPage({ editingSlug, initialForm, categories }: Prop
                 <ImageUploader
                   value={form.coverImage ? [form.coverImage] : []}
                   onChange={(arr) => set("coverImage", arr[0] ?? "")}
+                  subfolder="tin-tuc"
                   max={1}
                 />
                 <div className="qp-ae__field" style={{ marginTop: 12, marginBottom: 0 }}>
@@ -405,6 +443,106 @@ export function ArticleEditorPage({ editingSlug, initialForm, categories }: Prop
 
       </div>
 
+      {/* ── Viết lại nội dung gốc Modal ── */}
+      {rwOpen && (
+        <div className="qp-ai-modal" role="dialog" aria-modal="true" aria-label="Viết lại nội dung gốc">
+          <div className="qp-ai-modal__backdrop" onClick={closeRewrite} />
+          <div className="qp-ai-modal__dialog" style={{ maxWidth: 560 }}>
+            <div className="qp-ai-modal__head">
+              <svg className="qp-ai-modal__icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/>
+              </svg>
+              <span className="qp-ai-modal__title">Viết lại bằng AI</span>
+              <button type="button" className="qp-ai-modal__close" onClick={closeRewrite} aria-label="Đóng">
+                <svg viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
+              </button>
+            </div>
+            <div className="qp-ai-modal__body">
+              {!rwResult ? (
+                <>
+                  <p style={{ fontSize: 13, color: "var(--color-gray-text)", margin: 0 }}>
+                    Copy nội dung từ bất kỳ nguồn nào (báo, Facebook…) rồi dán vào đây. AI sẽ viết lại hoàn toàn và tự điền <strong>tiêu đề · sapo · nội dung · tags · SEO</strong>.
+                  </p>
+                  <div>
+                    <div className="qp-ai-modal__label">Dùng AI</div>
+                    <div className="qp-ai-modal__seg">
+                      {AI_PROVIDERS.map(({ v, label }) => (
+                        <button key={v} type="button" className={`qp-ai-modal__seg-btn${rwProvider === v ? " is-on" : ""}`} onClick={() => setRwProvider(v)}>{label}</button>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="qp-ai-modal__label">Nội dung gốc</div>
+                    <textarea
+                      className="qp-textarea"
+                      rows={8}
+                      placeholder="Dán nội dung bài viết gốc vào đây…"
+                      value={rwText}
+                      onChange={(e) => setRwText(e.target.value)}
+                      disabled={rwBusy}
+                      autoFocus
+                      style={{ resize: "vertical" }}
+                    />
+                    <div style={{ fontSize: 11, color: "var(--color-gray-text)", marginTop: 4 }}>
+                      {rwText.trim().length} ký tự
+                    </div>
+                  </div>
+                  {(form.title || form.bodyHtml) && (
+                    <p style={{ fontSize: 12, color: "var(--color-warning)", fontWeight: 600, margin: 0 }}>
+                      ⚠ Các ô hiện tại sẽ bị ghi đè sau khi điền.
+                    </p>
+                  )}
+                  {rwError && <p style={{ fontSize: 13, color: "var(--color-error)", margin: 0 }}>{rwError}</p>}
+                  <div className="qp-ai-modal__actions">
+                    <button type="button" className="qp-btn-primary" onClick={doRewrite}
+                      disabled={rwBusy || rwText.trim().length < 50}>
+                      {rwBusy ? "Đang viết lại…" : "✨ Viết lại"}
+                    </button>
+                    <button type="button" className="qp-btn-outline" onClick={closeRewrite} disabled={rwBusy}>Huỷ</button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="qp-ai-modal__insert-row">
+                    <span className="qp-ai-modal__badge">✓ Đã viết lại xong</span>
+                    <span style={{ fontSize: 12, color: "var(--color-gray-text)" }}>
+                      ~{rwResult.bodyHtml.replace(/<[^>]+>/g, " ").split(/\s+/).filter(Boolean).length} từ
+                    </span>
+                  </div>
+                  <div className="qp-ai-modal__ctx">
+                    <div className="qp-ai-modal__ctx-label">Tiêu đề</div>
+                    <div className="qp-ai-modal__ctx-title">{rwResult.title}</div>
+                  </div>
+                  {rwResult.excerpt && (
+                    <div className="qp-ai-modal__ctx">
+                      <div className="qp-ai-modal__ctx-label">Sapo</div>
+                      <div className="qp-ai-modal__ctx-excerpt">{rwResult.excerpt}</div>
+                    </div>
+                  )}
+                  {rwResult.tags && (
+                    <div className="qp-ai-modal__ctx">
+                      <div className="qp-ai-modal__ctx-label">Tags</div>
+                      <div className="qp-ai-modal__ctx-excerpt">{rwResult.tags}</div>
+                    </div>
+                  )}
+                  {rwResult.seoMetaTitle && (
+                    <div className="qp-ai-modal__ctx">
+                      <div className="qp-ai-modal__ctx-label">SEO Meta Title</div>
+                      <div className="qp-ai-modal__ctx-excerpt">{rwResult.seoMetaTitle}</div>
+                    </div>
+                  )}
+                  <div className="qp-ai-modal__actions">
+                    <button type="button" className="qp-btn-primary" onClick={applyRewrite}>Điền vào form</button>
+                    <button type="button" className="qp-btn-outline" onClick={() => setRwResult(null)}>Viết lại khác</button>
+                    <button type="button" className="qp-btn-outline" onClick={closeRewrite}>Đóng</button>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ── AI Content Generator Modal ── */}
       {aiOpen && (
         <div className="qp-ai-modal" role="dialog" aria-modal="true" aria-label="Tạo nội dung bằng AI">
@@ -429,6 +567,14 @@ export function ArticleEditorPage({ editingSlug, initialForm, categories }: Prop
               </div>
               {!aiResult && (
                 <>
+                  <div>
+                    <div className="qp-ai-modal__label">Dùng AI</div>
+                    <div className="qp-ai-modal__seg">
+                      {AI_PROVIDERS.map(({ v, label }) => (
+                        <button key={v} type="button" className={`qp-ai-modal__seg-btn${aiProvider === v ? " is-on" : ""}`} onClick={() => setAiProvider(v)}>{label}</button>
+                      ))}
+                    </div>
+                  </div>
                   <div>
                     <div className="qp-ai-modal__label">Giọng văn</div>
                     <div className="qp-ai-modal__seg">
@@ -490,5 +636,6 @@ export function ArticleEditorPage({ editingSlug, initialForm, categories }: Prop
         </div>
       )}
     </div>
+    </>
   );
 }

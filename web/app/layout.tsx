@@ -38,7 +38,7 @@ const sourceSerif = Source_Serif_4({
 
 // Từ khoá gốc mặc định (dùng khi admin chưa nhập "Từ khoá gốc" ở tab SEO).
 const DEFAULT_KEYWORDS = [
-  "Quỳnh Phụ", "Thái Bình", "cổng thông tin Quỳnh Phụ", "tin tức Quỳnh Phụ",
+  "Quỳnh Phụ", "Thái Bình", "thông tin Quỳnh Phụ", "tin tức Quỳnh Phụ",
   "việc làm Quỳnh Phụ", "mua bán Quỳnh Phụ", "tìm đồ rơi", "trường học Quỳnh Phụ",
   "y tế Quỳnh Phụ", "giao thông Quỳnh Phụ", "di tích Quỳnh Phụ", "chợ Quỳnh Phụ",
 ];

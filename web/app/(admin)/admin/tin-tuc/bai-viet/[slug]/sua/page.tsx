@@ -25,19 +25,13 @@ export default async function EditArticlePage({ params }: { params: Promise<{ sl
     tags: (row.tags ?? []).join(", "),
     coverImage: row.coverImage ?? "", coverAlt: row.coverAlt ?? "",
     authorName: row.authorName ?? "", authorTitle: row.authorTitle ?? "",
-    bodyHtml: row.bodyHtml ?? "", featured: row.featured, status: row.status,
+    bodyHtml: row.bodyHtml ?? "", status: row.status,
     seoMetaTitle: row.seo.metaTitle ?? "", seoMetaDescription: row.seo.metaDescription ?? "",
     seoKeywords: (row.seo.keywords ?? []).join(", "),
     seoOgImage: row.seo.ogImage ?? "", seoNoindex: !!row.seo.noindex,
   };
 
   return (
-    <>
-      <div className="qp-admin-head">
-        <span className="qp-admin-head__eyebrow">Tin tức</span>
-        <h1 className="type-h1">Sửa bài viết</h1>
-      </div>
-      <ArticleEditorPage editingSlug={slug} initialForm={initialForm} categories={categories} />
-    </>
+    <ArticleEditorPage editingSlug={slug} initialForm={initialForm} categories={categories} />
   );
 }

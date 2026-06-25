@@ -21,12 +21,14 @@ export async function POST(req: Request) {
   const files = form.getAll("files").filter((f): f is File => f instanceof File);
   if (files.length === 0) return NextResponse.json({ error: "Chưa chọn ảnh." }, { status: 400 });
 
+  const subfolder = form.get("subfolder")?.toString().trim() || undefined;
+
   const urls: string[] = [];
   for (const f of files.slice(0, MAX_FILES_PER_UPLOAD)) {
     if (!isAllowedImageType(f.type)) return NextResponse.json({ error: "Chỉ chấp nhận ảnh JPG/PNG/WEBP/GIF." }, { status: 400 });
     if (f.size > MAX_IMAGE_BYTES) return NextResponse.json({ error: `Mỗi ảnh tối đa ${MAX_IMAGE_MB}MB.` }, { status: 400 });
     const ext = (f.type.split("/")[1] || "jpg").replace("jpeg", "jpg");
-    const url = await saveImage(Buffer.from(await f.arrayBuffer()), ext, f.type);
+    const url = await saveImage(Buffer.from(await f.arrayBuffer()), ext, f.type, subfolder);
     urls.push(url);
   }
   return NextResponse.json({ urls });

@@ -13,6 +13,7 @@ export const dynamic = "force-dynamic";
 
 const config: ModConfig = {
   apiBase: "/api/admin/mua-ban", publicBase: "/mua-ban", extraKey: "priceText", extraLabel: "Giá",
+  subfolder: "mua-ban",
   statusOptions: [
     { value: "open", label: "Đang bán" }, { value: "sold", label: "Đã bán" }, { value: "closed", label: "Đã đóng" },
   ],
