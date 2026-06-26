@@ -11,10 +11,12 @@ import { relics } from "@/lib/relics";
 import { articles, countArticles, listArticles } from "@/lib/articles";
 import { adminUnits } from "@/lib/admin-units";
 import { listActiveCategoryOptions } from "@/lib/categories";
-import { dailyNewCounts, userStats } from "@/lib/stats";
+import { dailyNewCountsRange, userStats } from "@/lib/stats";
 import { BarList } from "@/components/admin/charts/BarList";
-import { TrendChart } from "@/components/admin/charts/TrendChart";
 import { ChartSwitcher, type SwitchOption } from "@/components/admin/charts/ChartSwitcher";
+import { DashboardDatePanel } from "@/components/admin/dashboard/DashboardDatePanel";
+import { getCurrentUser } from "@/lib/admin";
+import { isAdmin } from "@/lib/users";
 
 export const metadata: Metadata = { title: "Bảng điều khiển — Quản trị", robots: { index: false, follow: false } };
 export const dynamic = "force-dynamic";
@@ -22,9 +24,10 @@ export const dynamic = "force-dynamic";
 const C = {
   teal: "#00A98F", indigo: "#6366F1", navy: "#0F4C81", warn: "#F59E0B",
   tealLight: "#34D4B8", indigoLight: "#818CF8", rose: "#E1567C", slate: "#64748B",
+  violet: "#7C3AED",
 };
 
-/* ─── SVG Icons ─────────────────────────────────────────── */
+/* ─── SVG Icons ──────────────────────────────────────────────── */
 const IconUsers = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: "100%", height: "100%" }}>
     <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" />
@@ -35,6 +38,13 @@ const IconFile = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: "100%", height: "100%" }}>
     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" />
     <line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /><line x1="10" y1="9" x2="8" y2="9" />
+  </svg>
+);
+const IconFileDraft = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: "100%", height: "100%" }}>
+    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" />
+    <line x1="12" y1="18" x2="8" y2="18" /><line x1="12" y1="14" x2="8" y2="14" /><line x1="10" y1="10" x2="8" y2="10" />
+    <line x1="16" y1="14" x2="16.01" y2="14" /><line x1="16" y1="18" x2="16.01" y2="18" />
   </svg>
 );
 const IconTrend = () => (
@@ -92,7 +102,7 @@ const IconBell = () => (
   </svg>
 );
 
-/* ─── Helper components ──────────────────────────────────── */
+/* ─── Helper components ──────────────────────────────────────── */
 function StatCard({
   icon, value, label, sub, color = C.teal, warn = false,
 }: {
@@ -100,15 +110,12 @@ function StatCard({
 }) {
   const accent = warn ? C.warn : color;
   return (
-    <div
-      className={`qp-acc-stat${warn ? " is-warn" : ""}`}
-      style={{ textAlign: "left", padding: "20px 22px", borderTop: `3px solid ${accent}` }}
-    >
+    <div className={`qp-acc-stat${warn ? " is-warn" : ""}`}
+      style={{ textAlign: "left", padding: "20px 22px", borderTop: `3px solid ${accent}` }}>
       <div style={{
         display: "inline-flex", alignItems: "center", justifyContent: "center",
         width: 40, height: 40, borderRadius: 10,
-        background: `${accent}18`, marginBottom: 14,
-        flexShrink: 0,
+        background: `${accent}18`, marginBottom: 14, flexShrink: 0,
       }}>
         <div style={{ color: accent, width: 20, height: 20 }}>{icon}</div>
       </div>
@@ -137,8 +144,7 @@ function ModuleCard({
         <div style={{
           display: "inline-flex", alignItems: "center", justifyContent: "center",
           width: 46, height: 46, borderRadius: 12,
-          background: ok ? "var(--color-teal-pale)" : "rgba(245,158,11,0.10)",
-          flexShrink: 0,
+          background: ok ? "var(--color-teal-pale)" : "rgba(245,158,11,0.10)", flexShrink: 0,
         }}>
           <div style={{ color: ok ? "var(--color-teal-dark)" : C.warn, width: 22, height: 22 }}>{icon}</div>
         </div>
@@ -156,42 +162,93 @@ function ModuleCard({
   );
 }
 
-/* ─── Page ───────────────────────────────────────────────── */
+/* ─── Role badge ─────────────────────────────────────────────── */
+function RoleBadge({ isAdminUser }: { isAdminUser: boolean }) {
+  return (
+    <span style={{
+      display: "inline-flex", alignItems: "center", gap: 5,
+      padding: "3px 10px", borderRadius: 999, fontSize: 11.5, fontWeight: 700,
+      background: isAdminUser ? "rgba(99,102,241,0.12)" : "rgba(0,169,143,0.12)",
+      color: isAdminUser ? C.indigo : C.teal,
+      border: `1px solid ${isAdminUser ? "rgba(99,102,241,0.3)" : "rgba(0,169,143,0.3)"}`,
+    }}>
+      {isAdminUser ? "Quản trị viên" : "Biên tập viên"}
+    </span>
+  );
+}
+
+/* ─── Section heading ────────────────────────────────────────── */
+function SectionHead({ label, title }: { label: string; title: string }) {
+  return (
+    <div style={{
+      display: "flex", alignItems: "center", gap: 12,
+      marginBottom: "var(--space-4)", paddingBottom: "var(--space-3)",
+      borderBottom: "1px solid var(--color-gray-border)",
+    }}>
+      <div>
+        <p style={{ margin: 0, fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.7px", color: "var(--color-gray-text)", marginBottom: 4 }}>{label}</p>
+        <h2 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: "var(--color-navy-deep)" }}>{title}</h2>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Page ────────────────────────────────────────────────────── */
 export default async function AdminHomePage() {
+  const user = await getCurrentUser();
+  const isAdminUser = isAdmin(user);
+
+  const now = new Date();
+  const som = new Date(now.getFullYear(), now.getMonth(), 1);
+
+  /* ── Dữ liệu dùng chung cho cả admin lẫn editor ── */
   const [
     pJobs, pLost, pClass, tJobs, tLost, tClass,
-    nSchools, nHealth, nMarket, nTransit, nRelics, nArticles, nUnits,
-    artPublished, artDraft, topArticles, byLevel, byHealth, users, daily,
-    schoolLevels, healthTypes,
+    artPublished, artDraft, nArticles, topArticles, daily,
   ] = await Promise.all([
     countPendingJobs(), countPendingLostFound(), countPendingClassifieds(),
-    countJobs({ approvedOnly: false }), countPosts({ approvedOnly: false }), countClassifieds({ approvedOnly: false }),
-    schools().then((c) => c.countDocuments({})),
-    health().then((c) => c.countDocuments({})),
-    market().then((c) => c.countDocuments({})),
-    transit().then((c) => c.countDocuments({})),
-    relics().then((c) => c.countDocuments({})),
-    articles().then((c) => c.countDocuments({})),
-    adminUnits().then((c) => c.countDocuments({})),
+    countJobs({ approvedOnly: false }),
+    countPosts({ approvedOnly: false }),
+    countClassifieds({ approvedOnly: false }),
     countArticles({ status: "published" }),
     countArticles({ status: "draft" }),
+    articles().then((c) => c.countDocuments({})),
     listArticles({ status: "published", sort: "popular", limit: 6 }),
-    countByLevel(),
-    healthByType(),
-    userStats(),
-    dailyNewCounts(14),
-    listActiveCategoryOptions("truong-hoc"),
-    listActiveCategoryOptions("y-te"),
+    dailyNewCountsRange(som, now),
   ]);
+
+  /* ── Dữ liệu chỉ admin mới cần ── */
+  const adminData = isAdminUser ? await (async () => {
+    const [us, nSch, nHlt, nMkt, nTrn, nRel, nUnt, bLvl, bHlt, schLvl, hltTypes] = await Promise.all([
+      userStats(),
+      schools().then((c) => c.countDocuments({})),
+      health().then((c) => c.countDocuments({})),
+      market().then((c) => c.countDocuments({})),
+      transit().then((c) => c.countDocuments({})),
+      relics().then((c) => c.countDocuments({})),
+      adminUnits().then((c) => c.countDocuments({})),
+      countByLevel(),
+      healthByType(),
+      listActiveCategoryOptions("truong-hoc"),
+      listActiveCategoryOptions("y-te"),
+    ]);
+    return {
+      users: us, nSchools: nSch, nHealth: nHlt, nMarket: nMkt,
+      nTransit: nTrn, nRelics: nRel, nUnits: nUnt,
+      byLevel: bLvl, byHealthType: bHlt,
+      schoolLevels: schLvl, healthTypes: hltTypes,
+    };
+  })() : null;
 
   const totalPending = pJobs + pLost + pClass;
   const totalPosts = tJobs + tLost + tClass;
   const totalApproved = totalPosts - totalPending;
-  const totalDataEntries = nSchools + nHealth + nMarket + nTransit + nRelics + nUnits;
-  const sum = (k: "jobs" | "lostfound" | "classifieds" | "articles") => daily.reduce((s, d) => s + d[k], 0);
-  const totalNew14 = sum("jobs") + sum("lostfound") + sum("classifieds") + sum("articles");
+  const sum = (k: "jobs" | "lostfound" | "classifieds" | "articles") =>
+    daily.reduce((s, d) => s + d[k], 0);
+  const totalNewMonth = sum("jobs") + sum("lostfound") + sum("classifieds") + sum("articles");
 
-  const barOptions: SwitchOption[] = [
+  /* ── Chart options – phụ thuộc vào role ── */
+  const barOptions: SwitchOption[] = isAdminUser && adminData ? [
     { key: "posts", label: "Tin theo phân hệ", type: "bar", unit: " tin", items: [
       { label: "Việc làm", value: tJobs, color: C.teal },
       { label: "Tìm đồ rơi", value: tLost, color: C.indigo },
@@ -199,17 +256,27 @@ export default async function AdminHomePage() {
     ] },
     { key: "content", label: "Nội dung & danh bạ", type: "bar", items: [
       { label: "Bài viết", value: nArticles, color: C.navy },
-      { label: "Trường học", value: nSchools, color: C.teal },
-      { label: "Y tế", value: nHealth, color: C.rose },
-      { label: "Di tích", value: nRelics, color: C.indigo },
-      { label: "Chợ & mua bán", value: nMarket, color: C.warn },
-      { label: "Giao thông", value: nTransit, color: C.slate },
-      { label: "Đơn vị HC", value: nUnits, color: C.indigoLight },
+      { label: "Trường học", value: adminData.nSchools, color: C.teal },
+      { label: "Y tế", value: adminData.nHealth, color: C.rose },
+      { label: "Di tích", value: adminData.nRelics, color: C.indigo },
+      { label: "Chợ & mua bán", value: adminData.nMarket, color: C.warn },
+      { label: "Giao thông", value: adminData.nTransit, color: C.slate },
+      { label: "Đơn vị HC", value: adminData.nUnits, color: C.indigoLight },
     ] },
     { key: "schools", label: "Trường học theo cấp", type: "bar", unit: " trường",
-      items: schoolLevels.map((l) => ({ label: l.name, value: byLevel[l.slug] ?? 0, color: C.teal })) },
+      items: adminData.schoolLevels.map((l) => ({ label: l.name, value: adminData.byLevel[l.slug] ?? 0, color: C.teal })) },
     { key: "health", label: "Cơ sở y tế theo loại", type: "bar",
-      items: healthTypes.map((t) => ({ label: t.name, value: byHealth[t.slug] ?? 0, color: C.rose })) },
+      items: adminData.healthTypes.map((t) => ({ label: t.name, value: adminData.byHealthType[t.slug] ?? 0, color: C.rose })) },
+  ] : [
+    { key: "posts", label: "Tin theo phân hệ", type: "bar", unit: " tin", items: [
+      { label: "Việc làm", value: tJobs, color: C.teal },
+      { label: "Tìm đồ rơi", value: tLost, color: C.indigo },
+      { label: "Mua bán", value: tClass, color: C.warn },
+    ] },
+    { key: "articles", label: "Bài viết", type: "bar", unit: " bài", items: [
+      { label: "Đã xuất bản", value: artPublished, color: C.teal },
+      { label: "Bản nháp", value: artDraft, color: C.slate },
+    ] },
   ];
 
   const donutOptions: SwitchOption[] = [
@@ -217,27 +284,37 @@ export default async function AdminHomePage() {
       { label: "Đã duyệt", value: Math.max(0, totalApproved), color: C.teal },
       { label: "Chờ duyệt", value: totalPending, color: C.warn },
     ] },
-    { key: "new", label: "Tin mới 14 ngày theo phân hệ", type: "donut", center: "Tin mới", items: [
+    { key: "new", label: "Tin mới tháng này", type: "donut", center: "Tin mới", items: [
       { label: "Việc làm", value: sum("jobs"), color: C.teal },
       { label: "Tìm đồ rơi", value: sum("lostfound"), color: C.indigo },
       { label: "Mua bán", value: sum("classifieds"), color: C.warn },
       { label: "Bài viết", value: sum("articles"), color: C.navy },
     ] },
-    { key: "users", label: "Người dùng", type: "donut", center: "Tài khoản", items: [
-      { label: "Quản trị (admin)", value: users.admins, color: C.indigo },
-      { label: "Người dùng", value: Math.max(0, users.total - users.admins), color: C.teal },
-    ] },
+    ...(isAdminUser && adminData ? [
+      { key: "users", label: "Người dùng", type: "donut" as const, center: "Tài khoản", items: [
+        { label: "Quản trị", value: adminData.users.admins, color: C.indigo },
+        { label: "Người dùng", value: Math.max(0, adminData.users.total - adminData.users.admins), color: C.teal },
+      ] },
+    ] : []),
   ];
 
   return (
     <>
-      {/* ── Header ─────────────────────────────────────────── */}
+      {/* ── Header ──────────────────────────────────────────── */}
       <div className="qp-admin-head">
-        <span className="qp-admin-head__eyebrow">Tổng quan</span>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}>
+          <span className="qp-admin-head__eyebrow">Tổng quan</span>
+          <RoleBadge isAdminUser={isAdminUser} />
+        </div>
         <h1 className="type-h1">Bảng điều khiển</h1>
+        <p className="qp-admin-head__desc">
+          {isAdminUser
+            ? "Số liệu toàn hệ thống · người dùng · nội dung · kiểm duyệt."
+            : "Số liệu nội dung và hàng đợi kiểm duyệt của bạn."}
+        </p>
       </div>
 
-      {/* ── Pending alert ──────────────────────────────────── */}
+      {/* ── Pending alert ────────────────────────────────────── */}
       {totalPending > 0 && (
         <div style={{
           display: "flex", alignItems: "center", gap: 14,
@@ -246,8 +323,7 @@ export default async function AdminHomePage() {
           border: "1px solid rgba(245,158,11,0.35)",
           borderLeft: `4px solid ${C.warn}`,
           borderRadius: "var(--radius-card)",
-          marginBottom: "var(--space-5)",
-          flexWrap: "wrap",
+          marginBottom: "var(--space-5)", flexWrap: "wrap",
         }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10, flex: 1, minWidth: 200 }}>
             <svg viewBox="0 0 24 24" fill="none" stroke={C.warn} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ width: 20, height: 20, flexShrink: 0 }}>
@@ -275,80 +351,60 @@ export default async function AdminHomePage() {
         </div>
       )}
 
-      {/* ── KPI Stats — 3 cột × 2 hàng ────────────────────── */}
-      <div style={{
-        display: "grid",
-        gridTemplateColumns: "repeat(3, minmax(0,1fr))",
-        gap: 14,
-        marginBottom: "var(--space-6)",
-      }}>
-        <StatCard
-          icon={<IconUsers />}
-          value={users.total}
-          label="Người dùng"
-          color={C.navy}
-          sub={`${users.admins} quản trị · ${Math.max(0, users.total - users.admins)} thành viên`}
-        />
-        <StatCard
-          icon={<IconFile />}
-          value={artPublished}
-          label="Bài đã xuất bản"
-          color={C.indigo}
-          sub={`${artDraft} bài nháp · ${nArticles} tổng bài viết`}
-        />
-        <StatCard
-          icon={<IconTrend />}
-          value={totalNew14}
-          label="Tin mới 14 ngày"
-          color={C.teal}
-          sub={`${sum("jobs")} VL · ${sum("lostfound")} ĐR · ${sum("classifieds")} MB · ${sum("articles")} bài`}
-        />
-        <StatCard
-          icon={<IconInbox />}
-          value={totalPosts}
-          label="Tổng tin đăng"
-          color={C.slate}
-          sub={`${tJobs} việc làm · ${tLost} tìm đồ rơi · ${tClass} mua bán`}
-        />
-        <StatCard
-          icon={<IconClock />}
-          value={totalPending}
-          label="Chờ duyệt"
-          warn={totalPending > 0}
-          sub={totalPending > 0
-            ? [pJobs > 0 && `${pJobs} việc làm`, pLost > 0 && `${pLost} đồ rơi`, pClass > 0 && `${pClass} mua bán`].filter(Boolean).join(" · ")
-            : "Không có tin nào cần duyệt"}
-        />
-        <StatCard
-          icon={<IconDatabase />}
-          value={totalDataEntries}
-          label="Dữ liệu hệ thống"
-          color={C.teal}
-          sub={`${nSchools} trường · ${nHealth} y tế · ${nRelics} di tích · ${nMarket} chợ · ${nTransit} GT · ${nUnits} đơn vị HC`}
+      {/* ── KPI Stats ─────────────────────────────────────────── */}
+      {isAdminUser && adminData ? (
+        /* Admin: 6 cards (3+3) */
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0,1fr))", gap: 14, marginBottom: "var(--space-6)" }}>
+          <StatCard icon={<IconUsers />}    value={adminData.users.total} label="Người dùng"          color={C.violet}
+            sub={`${adminData.users.admins} quản trị · ${adminData.users.verified} đã xác minh · ${Math.max(0, adminData.users.total - adminData.users.admins)} thành viên`} />
+          <StatCard icon={<IconFile />}     value={artPublished}          label="Bài đã xuất bản"      color={C.indigo}
+            sub={`${artDraft} bài nháp · ${nArticles} tổng bài viết`} />
+          <StatCard icon={<IconClock />}    value={totalPending}          label="Chờ duyệt"             warn={totalPending > 0}
+            sub={totalPending > 0
+              ? [pJobs > 0 && `${pJobs} việc làm`, pLost > 0 && `${pLost} đồ rơi`, pClass > 0 && `${pClass} mua bán`].filter(Boolean).join(" · ")
+              : "Không có tin nào cần duyệt"} />
+          <StatCard icon={<IconInbox />}    value={totalPosts}            label="Tổng tin đăng"         color={C.slate}
+            sub={`${tJobs} việc làm · ${tLost} tìm đồ rơi · ${tClass} mua bán`} />
+          <StatCard icon={<IconTrend />}    value={totalNewMonth}         label="Tin mới tháng này"     color={C.teal}
+            sub={`${sum("jobs")} VL · ${sum("lostfound")} ĐR · ${sum("classifieds")} MB · ${sum("articles")} bài`} />
+          <StatCard icon={<IconDatabase />} value={adminData.nSchools + adminData.nHealth + adminData.nMarket + adminData.nTransit + adminData.nRelics + adminData.nUnits}
+            label="Dữ liệu hệ thống" color={C.teal}
+            sub={`${adminData.nSchools} trường · ${adminData.nHealth} y tế · ${adminData.nRelics} di tích · ${adminData.nMarket} chợ · ${adminData.nTransit} GT · ${adminData.nUnits} đơn vị HC`} />
+        </div>
+      ) : (
+        /* Editor: 5 cards (3+2) */
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0,1fr))", gap: 14, marginBottom: "var(--space-6)" }}>
+          <StatCard icon={<IconFile />}     value={artPublished} label="Bài đã xuất bản" color={C.indigo}
+            sub={`${nArticles} tổng bài viết`} />
+          <StatCard icon={<IconFileDraft />} value={artDraft}    label="Bài nháp"         color={C.slate} />
+          <StatCard icon={<IconClock />}    value={totalPending}  label="Chờ duyệt"        warn={totalPending > 0}
+            sub={totalPending > 0
+              ? [pJobs > 0 && `${pJobs} việc làm`, pLost > 0 && `${pLost} đồ rơi`, pClass > 0 && `${pClass} mua bán`].filter(Boolean).join(" · ")
+              : "Không có tin nào cần duyệt"} />
+          <StatCard icon={<IconInbox />}    value={totalPosts}    label="Tổng tin đăng"    color={C.slate}
+            sub={`${tJobs} việc làm · ${tLost} tìm đồ rơi · ${tClass} mua bán`} />
+          <StatCard icon={<IconTrend />}    value={totalNewMonth}  label="Tin mới tháng này" color={C.teal}
+            sub={`${sum("jobs")} VL · ${sum("lostfound")} ĐR · ${sum("classifieds")} MB · ${sum("articles")} bài`} />
+          <div /> {/* placeholder giữ grid */}
+        </div>
+      )}
+
+      {/* ── Thống kê theo ngày (interactive) ─────────────────── */}
+      <div style={{ marginBottom: "var(--space-6)" }}>
+        <DashboardDatePanel
+          initial={daily}
+          showUserStats={isAdminUser}
         />
       </div>
 
-      {/* ── Charts grid — 3 cột ────────────────────────────── */}
+      {/* ── Charts grid ───────────────────────────────────────── */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0,1fr))", gap: "var(--space-5)", marginBottom: "var(--space-6)" }}>
-
-        {/* Xu hướng — span toàn bộ */}
-        <div className="qp-chart-card" style={{ gridColumn: "1 / -1" }}>
-          <div className="qp-chart-card__head">
-            <span className="qp-chart-card__title">Xu hướng đăng tin · bài (14 ngày)</span>
-            <span className="qp-chart-card__hint">Tổng: {daily.reduce((s, d) => s + d.total, 0).toLocaleString("vi-VN")} tin · bài</span>
-          </div>
-          <TrendChart points={daily.map((d) => ({ date: d.date, total: d.total }))} />
-        </div>
-
-        {/* Bar — 2 cột (rộng hơn để label không bị cắt) */}
         <div style={{ gridColumn: "span 2" }}>
           <ChartSwitcher title="Phân bố số lượng" options={barOptions} />
         </div>
-
-        {/* Donut — 1 cột */}
         <ChartSwitcher title="Tỉ lệ" options={donutOptions} />
 
-        {/* Top bài viết — span toàn bộ */}
+        {/* Top bài viết */}
         <div className="qp-chart-card" style={{ gridColumn: "1 / -1" }}>
           <div className="qp-chart-card__head">
             <span className="qp-chart-card__title">Bài viết xem nhiều nhất</span>
@@ -360,65 +416,30 @@ export default async function AdminHomePage() {
         </div>
       </div>
 
-      {/* ── Module shortcuts ───────────────────────────────── */}
+      {/* ── Module shortcuts ──────────────────────────────────── */}
       <div style={{ marginBottom: "var(--space-4)" }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: "var(--space-4)", paddingBottom: "var(--space-3)", borderBottom: "1px solid var(--color-gray-border)" }}>
-          <div>
-            <p style={{ margin: 0, fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.7px", color: "var(--color-gray-text)", marginBottom: 4 }}>Lối tắt</p>
-            <h2 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: "var(--color-navy-deep)" }}>Truy cập nhanh</h2>
-          </div>
-        </div>
+        <SectionHead label="Lối tắt" title="Truy cập nhanh" />
       </div>
 
       <div className="qp-admin-grid">
-        <ModuleCard
-          href="/admin/viec-lam"
-          icon={<IconBriefcase />}
-          label="Việc làm"
-          badge={pJobs ? `${pJobs} chờ duyệt` : "Xong rồi"}
-          ok={!pJobs}
-          count={tJobs}
-        />
-        <ModuleCard
-          href="/admin/tim-do-roi"
-          icon={<IconSearch />}
-          label="Tìm đồ rơi"
-          badge={pLost ? `${pLost} chờ duyệt` : "Xong rồi"}
-          ok={!pLost}
-          count={tLost}
-        />
-        <ModuleCard
-          href="/admin/mua-ban"
-          icon={<IconTag />}
-          label="Mua bán"
-          badge={pClass ? `${pClass} chờ duyệt` : "Xong rồi"}
-          ok={!pClass}
-          count={tClass}
-        />
-        <ModuleCard
-          href="/admin/tin-tuc"
-          icon={<IconNewspaper />}
-          label="Tin tức"
-          badge="Soạn bài"
-          ok
-          count={nArticles}
-        />
-        <ModuleCard
-          href="/admin/nguoi-dung"
-          icon={<IconUserCog />}
-          label="Người dùng"
-          badge="Quản lý"
-          ok
-          count={users.total}
-        />
-        <ModuleCard
-          href="/admin/thong-bao"
-          icon={<IconBell />}
-          label="Thông báo"
-          badge="Broadcast"
-          ok
-          desc="Gửi thông báo tới người dùng hoặc ban quản trị"
-        />
+        <ModuleCard href="/admin/viec-lam"   icon={<IconBriefcase />} label="Việc làm"
+          badge={pJobs ? `${pJobs} chờ duyệt` : "Xong rồi"} ok={!pJobs} count={tJobs} />
+        <ModuleCard href="/admin/tim-do-roi" icon={<IconSearch />}    label="Tìm đồ rơi"
+          badge={pLost ? `${pLost} chờ duyệt` : "Xong rồi"} ok={!pLost} count={tLost} />
+        <ModuleCard href="/admin/mua-ban"    icon={<IconTag />}       label="Mua bán"
+          badge={pClass ? `${pClass} chờ duyệt` : "Xong rồi"} ok={!pClass} count={tClass} />
+        <ModuleCard href="/admin/tin-tuc"    icon={<IconNewspaper />} label="Tin tức"
+          badge="Soạn bài" ok count={nArticles} />
+
+        {/* Chỉ admin mới thấy các module hệ thống */}
+        {isAdminUser && adminData && (
+          <>
+            <ModuleCard href="/admin/nguoi-dung" icon={<IconUserCog />} label="Người dùng"
+              badge="Quản lý" ok count={adminData.users.total} />
+            <ModuleCard href="/admin/thong-bao"  icon={<IconBell />}    label="Thông báo"
+              badge="Broadcast" ok desc="Gửi thông báo tới người dùng hoặc ban quản trị" />
+          </>
+        )}
       </div>
     </>
   );
