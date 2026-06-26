@@ -100,7 +100,7 @@ export function AdminSidebar({ counts, logo, role }: { counts: AdminCounts; logo
           </span>
           <span>
             <span className="qp-admin-brand__name">Quản trị</span><br />
-            <span className="qp-admin-brand__sub">Cổng thông tin Quỳnh Phụ</span>
+            <span className="qp-admin-brand__sub">Trang cộng đồng Quỳnh Phụ</span>
           </span>
         </Link>
 

@@ -169,11 +169,11 @@ export function SettingsManager({ initial }: { initial: AppSettings }) {
         {tab === "seo" && (
           <>
             <Card title="Nhận diện & metadata" desc="Áp dụng cho thẻ <title>, mô tả và ảnh chia sẻ của TOÀN site. Để trống ô nào → dùng giá trị mặc định cài sẵn. Có hiệu lực ngay, không cần build lại.">
-              <Field label="Tên site" hint="Dùng cho tiêu đề mặc định và hậu tố mọi trang: “Tên trang · Tên site”. Trống = “Cổng thông tin Quỳnh Phụ”.">
-                <input maxLength={80} className="qp-input" value={form.seoSiteName} onChange={txt("seoSiteName")} placeholder="Cổng thông tin Quỳnh Phụ" />
+              <Field label=”Tên site” hint=”Dùng cho tiêu đề mặc định và hậu tố mọi trang: “Tên trang · Tên site”. Trống = “Trang cộng đồng Quỳnh Phụ”.”>
+                <input maxLength={80} className=”qp-input” value={form.seoSiteName} onChange={txt(“seoSiteName”)} placeholder=”Trang cộng đồng Quỳnh Phụ” />
               </Field>
-              <Field label="Mô tả mặc định" hint="Hiển thị dưới tiêu đề trên Google cho trang chủ và trang không có mô tả riêng (≈ 160 ký tự).">
-                <textarea maxLength={300} className="qp-textarea" value={form.seoSiteDescription} onChange={(e) => set("seoSiteDescription", e.target.value as never)} placeholder="Cổng thông tin xã Quỳnh Phụ — tin tức, việc làm, mua bán…" />
+              <Field label=”Mô tả mặc định” hint=”Hiển thị dưới tiêu đề trên Google cho trang chủ và trang không có mô tả riêng (≈ 160 ký tự).”>
+                <textarea maxLength={300} className=”qp-textarea” value={form.seoSiteDescription} onChange={(e) => set(“seoSiteDescription”, e.target.value as never)} placeholder=”Trang cộng đồng Quỳnh Phụ — tin tức, việc làm, mua bán…” />
               </Field>
               <Field label="Từ khoá gốc (cách nhau dấu phẩy)" hint="Trống = bộ từ khoá mặc định về Quỳnh Phụ.">
                 <textarea maxLength={400} className="qp-textarea" value={form.seoDefaultKeywords} onChange={(e) => set("seoDefaultKeywords", e.target.value as never)} placeholder="Quỳnh Phụ, Thái Bình, tin tức Quỳnh Phụ, việc làm Quỳnh Phụ…" />

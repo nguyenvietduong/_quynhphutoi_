@@ -193,7 +193,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
             <div className="qp-lf-infocard qp-lf-infocard--cta">
               <div className="qp-lf-infocard__title">Theo dõi tin huyện nhà</div>
               <p className="type-body-small" style={{ color: "var(--on-dark-body, rgba(255,255,255,.85))", margin: "0 0 14px" }}>
-                Tin tức, thông báo và việc làm mới — cập nhật liên tục từ Cổng thông tin Quỳnh Phụ.
+                Tin tức, thông báo và việc làm mới — cập nhật liên tục từ Trang cộng đồng Quỳnh Phụ.
               </p>
               <Link href="/tin-tuc" className="qp-btn-primary qp-btn-block">Xem tất cả tin →</Link>
             </div>

@@ -7,7 +7,7 @@ import { ResetPasswordForm } from "@/components/auth/ResetPasswordForm";
 
 export const metadata: Metadata = {
   title: "Đặt lại mật khẩu",
-  description: "Đặt mật khẩu mới cho tài khoản Cổng thông tin Quỳnh Phụ.",
+  description: "Đặt mật khẩu mới cho tài khoản Trang cộng đồng Quỳnh Phụ.",
   robots: { index: false, follow: false },
 };
 

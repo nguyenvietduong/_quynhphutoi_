@@ -220,7 +220,7 @@ export function buildArticleJsonLd(a: ArticleDoc) {
     author: [{ "@type": "Person", name: a.author.name }],
     publisher: {
       "@type": "Organization",
-      name: "Cổng thông tin Quỳnh Phụ",
+      name: "Trang cộng đồng Quỳnh Phụ",
       logo: { "@type": "ImageObject", url: `${SITE_URL}${SITE.logo}` },
     },
     articleSection: a.category,

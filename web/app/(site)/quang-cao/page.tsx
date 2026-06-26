@@ -32,7 +32,7 @@ export default async function QuangCaoPage() {
           <span className="type-tag qp-pagehero__eyebrow">Nhà tài trợ</span>
           <h1 id="ad-title" className="type-h1">Quảng cáo & Nhà tài trợ</h1>
           <p className="qp-pagehero__lead">
-            Các doanh nghiệp, cửa hàng đang đồng hành cùng Cổng thông tin Quỳnh Phụ. Bấm vào mỗi
+            Các doanh nghiệp, cửa hàng đang đồng hành cùng Trang cộng đồng Quỳnh Phụ. Bấm vào mỗi
             quảng cáo để xem chi tiết và thông tin liên hệ.
           </p>
           <span className="qp-pagehero__line" aria-hidden />

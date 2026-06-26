@@ -23,7 +23,7 @@ export default async function ProfilePage() {
     <div className="qp-acc-page">
       <header className="qp-acc-page__head">
         <h2 className="type-h2">Trang cá nhân</h2>
-        <p className="type-body-small text-muted">Thông tin tài khoản và hoạt động của bạn trên cổng thông tin.</p>
+        <p className="type-body-small text-muted">Thông tin tài khoản và hoạt động của bạn trên trang cộng đồng.</p>
       </header>
 
       {/* Thẻ thông tin tài khoản */}

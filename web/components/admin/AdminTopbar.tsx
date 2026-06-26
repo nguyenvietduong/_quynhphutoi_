@@ -136,7 +136,7 @@ export function AdminTopbar({ name, email, avatar }: Props) {
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden>
                 <path d="M3 12L12 3l9 9" /><path d="M9 21V12h6v9" /><path d="M3 12v9h18v-9" />
               </svg>
-              Về cổng thông tin
+              Về trang chủ
             </Link>
 
             <div className="qp-admin-user__sep" />

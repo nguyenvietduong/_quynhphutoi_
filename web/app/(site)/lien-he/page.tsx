@@ -8,7 +8,7 @@ export async function generateMetadata() {
   return pageMetadata({
     key: "/lien-he", path: "/lien-he",
     title: "Liên hệ & đặt quảng cáo",
-    description: "Liên hệ với Cổng thông tin Quỳnh Phụ — góp ý, hợp tác và đặt quảng cáo.",
+    description: "Liên hệ với Trang cộng đồng Quỳnh Phụ — góp ý, hợp tác và đặt quảng cáo.",
   });
 }
 
@@ -45,7 +45,7 @@ export default function LienHePage() {
           <span className="type-tag qp-pagehero__eyebrow">Liên hệ · Quảng cáo</span>
           <h1 id="lh-title" className="type-h1">Liên hệ &amp; đặt quảng cáo</h1>
           <p className="qp-pagehero__lead">
-            Góp ý nội dung, hợp tác hay đặt quảng cáo trên Cổng thông tin Quỳnh Phụ — gửi liên hệ, mình phản hồi sớm nhất.
+            Góp ý nội dung, hợp tác hay đặt quảng cáo trên Trang cộng đồng Quỳnh Phụ — gửi liên hệ, mình phản hồi sớm nhất.
           </p>
           <span className="qp-pagehero__line" aria-hidden />
         </div>

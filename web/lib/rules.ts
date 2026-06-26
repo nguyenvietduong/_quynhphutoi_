@@ -10,7 +10,7 @@ export const RULES_TITLE = "Quy định đăng bài & nội quy cộng đồng";
 
 export const RULES_INTRO =
   "Để đảm bảo an toàn, chất lượng nội dung và bảo vệ quyền riêng tư của mỗi thành viên, " +
-  "những bài đăng có nội dung sau đây sẽ KHÔNG được phê duyệt hiển thị công khai trên Cổng thông tin Quỳnh Phụ:";
+  "những bài đăng có nội dung sau đây sẽ KHÔNG được phê duyệt hiển thị công khai trên Trang cộng đồng Quỳnh Phụ:";
 
 export const RULES_ITEMS: string[] = [
   "Liên quan đến giấy tờ tuỳ thân (CCCD, giấy phép lái xe, đăng ký xe, thẻ BHYT…) gây mất an toàn thông tin cá nhân.",

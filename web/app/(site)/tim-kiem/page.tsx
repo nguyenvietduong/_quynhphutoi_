@@ -7,7 +7,7 @@ export async function generateMetadata() {
     key: "/tim-kiem",
     path: "/tim-kiem",
     title: "Tìm kiếm",
-    description: "Tìm kiếm tin tức, việc làm, mua bán, tìm đồ rơi, trường học, y tế, giao thông và di tích trên Cổng thông tin Quỳnh Phụ.",
+    description: "Tìm kiếm tin tức, việc làm, mua bán, tìm đồ rơi, trường học, y tế, giao thông và di tích trên Trang cộng đồng Quỳnh Phụ.",
     noindex: true,
   });
 }

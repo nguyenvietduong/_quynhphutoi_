@@ -49,7 +49,7 @@ export default async function OgImage() {
         <div style={{ display: "flex", alignItems: "center", gap: 18, marginBottom: 28 }}>
           <div style={{ width: 18, height: 18, borderRadius: 9, background: "#FCD34D" }} />
           <div style={{ fontSize: 30, fontWeight: 700, letterSpacing: 2, color: "#FCD34D" }}>
-            CỔNG THÔNG TIN CỘNG ĐỒNG
+            TRANG CỘNG ĐỒNG QUỲNH PHỤ
           </div>
         </div>
         <div style={{ fontSize: 92, fontWeight: 800, lineHeight: 1.05, maxWidth: 1000 }}>{title}</div>

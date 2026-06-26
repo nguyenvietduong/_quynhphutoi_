@@ -6,7 +6,7 @@ import { RegisterForm } from "@/components/auth/RegisterForm";
 
 export const metadata: Metadata = {
   title: "Đăng ký",
-  description: "Tạo tài khoản Cổng thông tin Quỳnh Phụ.",
+  description: "Tạo tài khoản Trang cộng đồng Quỳnh Phụ.",
   robots: { index: false, follow: false },
 };
 

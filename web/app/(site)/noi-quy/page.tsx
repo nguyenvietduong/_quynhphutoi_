@@ -9,7 +9,7 @@ export async function generateMetadata() {
     key: "/noi-quy", path: "/noi-quy",
     title: "Nội quy & Quy định đăng bài — Quỳnh Phụ Tôi",
     description:
-      "Quy định đăng bài và nội quy cộng đồng trên Cổng thông tin Quỳnh Phụ: những nội dung không được phê duyệt nhằm bảo đảm an toàn, chất lượng và quyền riêng tư của thành viên.",
+      "Quy định đăng bài và nội quy cộng đồng trên Trang cộng đồng Quỳnh Phụ: những nội dung không được phê duyệt nhằm bảo đảm an toàn, chất lượng và quyền riêng tư của thành viên.",
   });
 }
 
@@ -74,7 +74,7 @@ export default function NoiQuyPage() {
             <div className="qp-rules__sign">
               <span className="qp-rules__sign-line" aria-hidden />
               <b>{RULES_SIGNATURE.replace(/^Ban Quản trị\s*—\s*/, "")}</b>
-              <small>Ban Quản trị Cổng thông tin Quỳnh Phụ</small>
+              <small>Ban Quản trị Trang cộng đồng Quỳnh Phụ</small>
             </div>
           </div>
         </div>

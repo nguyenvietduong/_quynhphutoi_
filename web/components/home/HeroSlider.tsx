@@ -20,12 +20,12 @@ export type HeroSlide = {
 const DEFAULT_SLIDE: HeroSlide = {
   id: "chao-mung",
   eyebrow: "Chào mừng · Quỳnh Phụ",
-  headline: "Cổng thông tin xã Quỳnh Phụ",
+  headline: "Trang cộng đồng Quỳnh Phụ",
   lead: "Một điểm đến số duy nhất cho người dân Quỳnh Phụ — tra cứu thông báo, việc làm, tin tức và kết nối cộng đồng nhanh chóng, thuận tiện.",
   image: "/img/patterns/slider-default.png",
-  imageAlt: "Cổng thông tin xã Quỳnh Phụ",
-  cta: { label: "Khám phá cổng thông tin", href: "/tong-quan" },
-  byline: { avatar: "QP", role: "Cổng thông tin xã", name: "Phục vụ người dân", time: "Trực tuyến 24/7" },
+  imageAlt: "Trang cộng đồng Quỳnh Phụ",
+  cta: { label: "Khám phá trang cộng đồng", href: "/tong-quan" },
+  byline: { avatar: "QP", role: "Trang cộng đồng", name: "Phục vụ người dân", time: "Trực tuyến 24/7" },
 };
 
 const FLOATS = [

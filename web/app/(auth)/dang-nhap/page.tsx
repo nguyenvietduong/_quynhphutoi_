@@ -7,7 +7,7 @@ import { LoginForm } from "@/components/auth/LoginForm";
 
 export const metadata: Metadata = {
   title: "Đăng nhập",
-  description: "Đăng nhập vào Cổng thông tin Quỳnh Phụ.",
+  description: "Đăng nhập vào Trang cộng đồng Quỳnh Phụ.",
   robots: { index: false, follow: false },
 };
 
