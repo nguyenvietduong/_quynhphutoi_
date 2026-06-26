@@ -9,7 +9,7 @@ const db = client.db("quynhphu");
 const actor = await db.collection("users").findOne({ email: "duongnv10504@gmail.com" });
 if (!actor) { console.log("Không tìm thấy user!"); await client.close(); process.exit(1); }
 
-const text = "Chào mừng đến với Khu vực Quản trị Cổng thông tin Quỳnh Phụ! Hãy cùng nhau xây dựng cộng đồng tốt đẹp hơn.";
+const text = "Chào mừng đến với Khu vực Quản trị Trang cộng đồng Quỳnh Phụ! Hãy cùng nhau xây dựng cộng đồng tốt đẹp hơn.";
 const actorName = actor.name;
 const now = new Date();
 

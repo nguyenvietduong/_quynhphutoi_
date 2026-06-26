@@ -59,7 +59,7 @@ const ARTICLES: SeedArticle[] = [
       { type: "h2", text: "Người lao động cần chuẩn bị gì?" },
       { type: "p", text: "Ứng viên mang theo căn cước công dân, sơ yếu lý lịch và các chứng chỉ nghề (nếu có). Doanh nghiệp ưu tiên lao động địa phương và có chính sách hỗ trợ đào tạo tại chỗ cho người chưa có tay nghề." },
       { type: "quote", text: "Mục tiêu của huyện là không để lao động phải đi xa tìm việc khi ngay tại quê hương đã có cơ hội ổn định.", cite: "Đại diện Phòng LĐ-TB&XH" },
-      { type: "p", text: "Lịch phỏng vấn cụ thể từng doanh nghiệp sẽ được niêm yết tại trụ sở UBND các xã, thị trấn và cập nhật trên Cổng thông tin Quỳnh Phụ." },
+      { type: "p", text: "Lịch phỏng vấn cụ thể từng doanh nghiệp sẽ được niêm yết tại trụ sở UBND các xã, thị trấn và cập nhật trên Trang cộng đồng Quỳnh Phụ." },
     ],
     seo: {
       metaTitle: "Lịch tuyển dụng lao động quý III/2026 tại Quỳnh Phụ — hơn 1.000 vị trí",
@@ -112,7 +112,7 @@ const ARTICLES: SeedArticle[] = [
     tags: ["Nông nghiệp", "Giá cả", "Chợ đầu mối"],
     coverImage: IMG.waves,
     coverAlt: "Sạp rau màu tại chợ đầu mối",
-    author: { name: "Cộng tác viên thị trường", title: "Cổng thông tin Quỳnh Phụ" },
+    author: { name: "Cộng tác viên thị trường", title: "Trang cộng đồng Quỳnh Phụ" },
     featured: false,
     status: "published",
     views: 1760,
