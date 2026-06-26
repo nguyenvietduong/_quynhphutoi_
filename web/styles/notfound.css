@@ -1,0 +1,233 @@
+/* ============================================================
+   Trang 404 — PORT NGUYÊN BẢN 404-mockup.html
+   Scope: .wm-404 để không ảnh hưởng trang khác.
+   ============================================================ */
+
+:root {
+  --nf-g1: #1a4d2e; --nf-g2: #2d7a45; --nf-g3: #3fa85e;
+}
+
+.wm-404 *, .wm-404 *::before, .wm-404 *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+.wm-404 {
+  font-family: 'DM Sans', sans-serif;
+  background: radial-gradient(ellipse at 60% 40%, #d8f0e2 0%, #edf7f1 60%);
+  min-height: 100vh; min-height: 100dvh;
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+}
+
+/* ── CARD ── */
+.wm-404 .nf-card {
+  position: relative;
+  width: 900px; height: 500px;
+  background: #fff;
+  border-radius: 30px;
+  box-shadow: 0 40px 100px rgba(30,80,50,.15), 0 8px 24px rgba(0,0,0,.06);
+  overflow: hidden;
+  display: flex;
+  animation: nfCardIn .9s cubic-bezier(.22,1,.36,1) both;
+}
+@keyframes nfCardIn {
+  from { opacity:0; transform:translateY(22px) scale(.97); }
+  to   { opacity:1; transform:none; }
+}
+
+/* ── CONTENT (trái) ── */
+.wm-404 .nf-content {
+  position: relative; z-index: 10; order: 1;
+  width: 510px; height: 100%;
+  padding: 52px 52px 52px 56px;
+  display: flex; flex-direction: column; justify-content: center;
+  background: #fff;
+}
+
+/* ── LEAF PANEL (phải, xanh) ── */
+.wm-404 .nf-leaf-panel {
+  flex: 1; position: relative; order: 2;
+  background: linear-gradient(145deg, #1e5c35 0%, #2d7a45 45%, #3fa85e 100%);
+  overflow: hidden;
+}
+.wm-404 .nf-leaf-panel::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 30% 20%, rgba(96,204,122,.35) 0%, transparent 65%);
+}
+.wm-404 .nf-leaf-svg {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -48%);
+  width: 310px; height: auto;
+  pointer-events: none;
+}
+
+/* ── WATERMARK ── */
+.wm-404 .nf-watermark {
+  position: absolute; bottom: 22px; left: 0; right: 0;
+  display: flex; align-items: center; justify-content: center; gap: 7px;
+  opacity: .3; pointer-events: none;
+}
+.wm-404 .nf-watermark span {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: .88rem; font-weight: 700;
+  color: white; letter-spacing: .04em;
+}
+
+/* ── LEAF ANIMATIONS ── */
+.wm-404 #nfLeafGroup {
+  transform-origin: 155px 72px;
+  transform: rotate(-28deg) translate(-40px, -30px);
+  animation: nfWind 8s ease-in-out infinite;
+}
+@keyframes nfWind {
+  0%,100% { transform:rotate(-28deg)   translate(-40px,-30px); }
+  25%     { transform:rotate(-26.5deg) translate(-37px,-27px) skewX(.4deg); }
+  50%     { transform:rotate(-29.5deg) translate(-43px,-33px) skewX(-.4deg); }
+  75%     { transform:rotate(-27deg)   translate(-38px,-28px) skewX(.2deg); }
+}
+.wm-404 #nfLeafSheen { animation: nfSheen 5.5s ease-in-out infinite; }
+@keyframes nfSheen {
+  0%,100% { opacity:0; transform:translateX(-140px); }
+  28%     { opacity:1; transform:translateX(20px); }
+  55%     { opacity:.5; transform:translateX(160px); }
+  75%     { opacity:0; transform:translateX(280px); }
+}
+.wm-404 .nf-vm { stroke-dasharray:650; stroke-dashoffset:650; animation:nfDv 2s ease forwards; }
+.wm-404 .nf-vp { stroke-dasharray:220; stroke-dashoffset:220; animation:nfDv 1.3s ease forwards; }
+@keyframes nfDv { to { stroke-dashoffset:0; } }
+.wm-404 .nfd0{animation-delay:.3s}  .wm-404 .nfd1{animation-delay:.5s}
+.wm-404 .nfd2{animation-delay:.65s} .wm-404 .nfd3{animation-delay:.75s}
+.wm-404 .nfd4{animation-delay:.85s} .wm-404 .nfd5{animation-delay:.95s}
+.wm-404 .nfd6{animation-delay:1.05s}.wm-404 .nfd7{animation-delay:1.12s}
+
+/* ── BRAND ── */
+.wm-404 .nf-brand {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 34px; text-decoration: none;
+  width: fit-content; transition: opacity .2s;
+}
+.wm-404 .nf-brand:hover { opacity: .75; }
+.wm-404 .nf-brand-icon {
+  width: 30px; height: 30px; border-radius: 8px;
+  position: relative; overflow: hidden; flex-shrink: 0;
+}
+.wm-404 .nf-brand-icon img { object-fit: contain; }
+.wm-404 .nf-brand-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.05rem; font-weight: 700;
+  color: var(--nf-g1); letter-spacing: .02em;
+}
+
+/* ── TYPOGRAPHY ── */
+.wm-404 .nf-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 7rem; font-weight: 700; line-height: 1;
+  background: linear-gradient(135deg, var(--nf-g1) 0%, var(--nf-g3) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: nfFadeUp .7s cubic-bezier(.22,1,.36,1) .1s both;
+}
+@keyframes nfFadeUp {
+  from { opacity:0; transform:translateY(14px); }
+  to   { opacity:1; transform:none; }
+}
+.wm-404 .nf-bar {
+  width: 44px; height: 3px;
+  background: linear-gradient(90deg, var(--nf-g3), transparent);
+  border-radius: 2px; margin: 12px 0 16px;
+  animation: nfFadeUp .7s cubic-bezier(.22,1,.36,1) .18s both;
+}
+.wm-404 .nf-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.75rem; font-weight: 700;
+  color: var(--nf-g1); line-height: 1.2; margin-bottom: 8px;
+  animation: nfFadeUp .7s cubic-bezier(.22,1,.36,1) .24s both;
+}
+.wm-404 .nf-sub {
+  font-size: .82rem; color: #7a9e87; font-weight: 300;
+  line-height: 1.65; margin-bottom: 28px;
+  animation: nfFadeUp .7s cubic-bezier(.22,1,.36,1) .30s both;
+}
+.wm-404 .nf-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 11px 22px; width: fit-content;
+  background: linear-gradient(135deg, var(--nf-g1) 0%, var(--nf-g3) 100%);
+  color: #fff; border-radius: 10px; text-decoration: none;
+  font-family: 'DM Sans', sans-serif; font-size: .88rem; font-weight: 500;
+  box-shadow: 0 6px 22px rgba(30,80,50,.28);
+  transition: transform .15s, box-shadow .2s;
+  position: relative; overflow: hidden;
+  animation: nfFadeUp .7s cubic-bezier(.22,1,.36,1) .36s both;
+}
+.wm-404 .nf-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(30,80,50,.36); }
+.wm-404 .nf-btn svg { width: 15px; height: 15px; flex-shrink: 0; }
+.wm-404 .nf-btn::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,.18) 0%, transparent 60%);
+  pointer-events: none;
+}
+.wm-404 .nf-links {
+  margin-top: 12px; font-size: .78rem; color: #7a9e87;
+  animation: nfFadeUp .7s cubic-bezier(.22,1,.36,1) .42s both;
+}
+.wm-404 .nf-links a { color:var(--nf-g2); font-weight:500; text-decoration:none; transition:color .2s; }
+.wm-404 .nf-links a:hover { color:var(--nf-g1); }
+
+/* Lá mobile (ẩn trên desktop) */
+.wm-404 .nf-leaf-mobile { display: none; }
+
+/* reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .wm-404 .nf-card { animation: none; }
+  .wm-404 .nf-num, .wm-404 .nf-bar, .wm-404 .nf-title,
+  .wm-404 .nf-sub, .wm-404 .nf-btn, .wm-404 .nf-links { animation: none; }
+  .wm-404 #nfLeafGroup, .wm-404 #nfLeafSheen,
+  .wm-404 .nf-vm, .wm-404 .nf-vp { animation: none; }
+}
+
+/* ============================================================
+   MOBILE — full screen, xanh lá, content căn giữa
+   ============================================================ */
+@media (max-width: 768px) {
+  .wm-404 { padding: 0; align-items: stretch; }
+  .wm-404 .nf-card {
+    width: 100%; height: 100dvh; height: 100vh;
+    flex-direction: column; border-radius: 0; box-shadow: none;
+    background: radial-gradient(ellipse at 40% 35%, #b8dfc8 0%, #d4eedd 55%, #e8f5ee 100%);
+    align-items: center; justify-content: center;
+    overflow: hidden;
+  }
+  .wm-404 .nf-leaf-panel { display: none; }
+  .wm-404 .nf-leaf-mobile {
+    display: block;
+    position: absolute;
+    top: -30px; right: -70px;
+    width: 55vw; height: auto;
+    opacity: .28; pointer-events: none; z-index: 1;
+  }
+  .wm-404 .nf-brand {
+    position: absolute;
+    top: calc(env(safe-area-inset-top, 0px) + 20px);
+    left: 22px; z-index: 10; margin-bottom: 0;
+  }
+  .wm-404 .nf-brand-name { color: var(--nf-g1); }
+  .wm-404 .nf-content {
+    position: relative; z-index: 5;
+    width: 100%; flex: none; height: auto;
+    padding: 0 32px;
+    background: transparent;
+    align-items: center; text-align: center;
+  }
+  .wm-404 .nf-num { font-size: 6rem; }
+  .wm-404 .nf-title { font-size: 1.55rem; }
+  .wm-404 .nf-sub { color: #3a6e4e; }
+  .wm-404 .nf-bar { margin: 12px auto 16px; }
+  .wm-404 .nf-links { color: #4a7a5e; }
+  .wm-404 .nf-links a { color: var(--nf-g1); }
+}
+
+@media (max-width: 400px) {
+  .wm-404 .nf-content { padding: 0 24px; }
+  .wm-404 .nf-num { font-size: 5rem; }
+  .wm-404 .nf-title { font-size: 1.35rem; }
+}

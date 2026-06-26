@@ -117,111 +117,247 @@ function blockHtml(sec: number): string {
   const human = sec >= 60
     ? `${Math.floor(sec / 60)} phút${sec % 60 ? " " + (sec % 60) + " giây" : ""}`
     : `${sec} giây`;
-  return `<!doctype html><html lang="vi"><head><meta charset="utf-8" />
+
+  const LEAF = "M210 8 C295 55,415 185,420 330 C425 470,355 625,272 705 C248 728,228 742,210 746 C192 742,172 728,148 705 C65 625,-5 470,0 330 C5 185,125 55,210 8 Z";
+
+  return `<!doctype html><html lang="vi"><head>
+<meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta http-equiv="refresh" content="${sec}; url=/" />
-<title>Tạm dừng truy cập — Cổng thông tin Quỳnh Phụ</title>
+<title>Bảo vệ hệ thống — Cổng thông tin Quỳnh Phụ</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
 <style>
-  :root{--navy:#0F4C81;--navy-deep:#062340;--navy-pale:#EAF1F8;--teal:#00A98F;--teal-dark:#007D69;
-        --indigo:#6366F1;--indigo-dark:#4338CA;--yellow:#FCD34D;--gray-text:#334155;--border:#E5E8ED}
-  *{box-sizing:border-box}
-  html,body{overflow-x:hidden;max-width:100%}
-  body{margin:0;min-height:100vh;min-height:100svh;display:grid;place-items:center;padding:24px;position:relative;
-       font-family:'Be Vietnam Pro',system-ui,sans-serif;color:var(--navy-deep);
-       background:radial-gradient(at 20% 30%,#F0F7FF 0%,transparent 60%),
-                  radial-gradient(at 80% 70%,#EAF1F8 0%,transparent 60%),
-                  linear-gradient(135deg,#F0F7FF 0%,#E6F7F3 60%,#EAF1F8 100%)}
-  .blob{position:absolute;border-radius:50%;filter:blur(70px);z-index:0;animation:drift 18s ease-in-out infinite}
-  .blob.t{width:340px;height:340px;top:-110px;left:6%;background:var(--teal);opacity:.18}
-  .blob.i{width:240px;height:240px;top:28%;left:30%;background:var(--indigo);opacity:.15;animation-delay:-8s}
-  .blob.y{width:260px;height:260px;bottom:-90px;left:60%;background:var(--yellow);opacity:.16;animation-delay:-12s}
-  .art{position:absolute;top:0;bottom:0;right:0;width:240px;z-index:0;pointer-events:none;opacity:.85;
-       background:url('/img/vectors/rice-halftone.svg') no-repeat right center / contain}
-  @keyframes drift{0%,100%{transform:translate(0,0)}33%{transform:translate(20px,-18px)}66%{transform:translate(-14px,12px)}}
-  @media (prefers-reduced-motion:reduce){.blob{animation:none}}
-  .wrap{position:relative;z-index:1;width:100%;max-width:560px;text-align:center}
-  .brand{display:inline-flex;align-items:center;gap:11px;margin-bottom:30px}
-  .brand img{width:46px;height:46px;border-radius:11px;box-shadow:0 4px 16px -6px rgba(6,35,64,.25)}
-  .brand .nm{text-align:left;line-height:1.2}
-  .brand .nm b{font-size:16px;color:var(--navy-deep);font-weight:800}
-  .brand .nm small{display:block;font-size:11.5px;color:var(--gray-text)}
-  .eyebrow{display:inline-flex;align-items:center;gap:9px;font-family:'Space Grotesk',sans-serif;font-weight:700;
-           font-size:12px;letter-spacing:1.2px;text-transform:uppercase;color:var(--teal-dark);margin-bottom:18px}
-  .eyebrow::before{content:'';width:8px;height:8px;border-radius:50%;background:var(--yellow)}
-  .ring{position:relative;width:128px;height:128px;margin:0 auto 24px}
-  .ring svg{width:100%;height:100%;transform:rotate(-90deg)}
-  .ring__num{position:absolute;inset:0;display:grid;place-items:center;font-family:'Space Grotesk',sans-serif;
-             font-size:30px;font-weight:700;color:var(--navy);font-variant-numeric:tabular-nums}
-  h1{font-size:30px;line-height:1.18;letter-spacing:-.5px;color:var(--navy);margin:0 0 14px;font-weight:800}
-  p{max-width:460px;margin:0 auto 10px;color:var(--gray-text);line-height:1.65;font-size:15px}
-  .line{display:block;width:64px;height:3px;border-radius:2px;background:var(--yellow);margin:18px auto 6px}
-  .actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:24px}
-  .btn{display:inline-block;padding:12px 26px;border-radius:100px;text-decoration:none;font-weight:700;font-size:14px;
-       transition:transform .25s,box-shadow .25s}
-  .btn--primary{background:linear-gradient(135deg,var(--indigo),var(--indigo-dark));color:#fff;
-                box-shadow:0 14px 32px -10px rgba(99,102,241,.5)}
-  .btn--primary:hover{transform:translateY(-2px)}
-  .btn--ghost{border:1.5px solid var(--teal);color:var(--navy);background:transparent}
-  .btn--ghost:hover{border-color:var(--yellow)}
-  .note{font-size:12.5px;color:var(--gray-text);opacity:.8;margin-top:22px}
-  @media (max-width:640px){
-    body{padding:20px 18px;align-content:center}
-    .art{display:none}
-    .blob{filter:blur(56px)}
-    .blob.t{width:220px;height:220px;left:-40px;top:-80px}
-    .blob.i{width:160px;height:160px}
-    .blob.y{width:200px;height:200px;left:auto;right:-50px;bottom:-70px}
-    .brand{margin-bottom:22px}
-    .brand img{width:40px;height:40px}
-    .brand .nm b{font-size:14.5px}
-    .ring{width:108px;height:108px;margin-bottom:20px}
-    .ring__num{font-size:26px}
-    h1{font-size:23px}
-    p{font-size:14px}
-    .actions{flex-direction:column;align-items:stretch}
-    .btn{width:100%;text-align:center}
-  }
+:root{--g1:#1a4d2e;--g2:#2d7a45;--g3:#3fa85e;--wm-white:#fff}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;
+     background:radial-gradient(ellipse at 30% 50%,#d8f0e2 0%,#edf7f1 60%);
+     min-height:100vh;min-height:100dvh;
+     display:flex;align-items:center;justify-content:center;overflow:hidden}
+.card{position:relative;width:940px;height:590px;background:var(--wm-white);
+      border-radius:30px;box-shadow:0 40px 100px rgba(30,80,50,.15),0 8px 24px rgba(0,0,0,.06);
+      overflow:hidden;display:flex;animation:cardIn .9s cubic-bezier(.22,1,.36,1) both}
+@keyframes cardIn{from{opacity:0;transform:translateY(22px) scale(.97)}to{opacity:1;transform:none}}
+.leaf-layer{position:absolute;inset:0;pointer-events:none;z-index:2;overflow:visible}
+#leafGroup{transform-origin:155px 72px;transform:rotate(-32deg) translate(-55px,-38px);
+           animation:wmWind 8s ease-in-out infinite}
+@keyframes wmWind{
+  0%,100%{transform:rotate(-32deg) translate(-55px,-38px)}
+  20%{transform:rotate(-30.4deg) translate(-52px,-35px) skewX(.5deg)}
+  45%{transform:rotate(-33.4deg) translate(-57px,-41px) skewX(-.45deg)}
+  62%{transform:rotate(-31deg) translate(-53px,-36px) skewX(.3deg)}
+  80%{transform:rotate(-32.8deg) translate(-56px,-40px) skewX(-.2deg)}}
+#leafSheen{animation:sheenMove 5.5s ease-in-out infinite}
+@keyframes sheenMove{
+  0%,100%{opacity:0;transform:translateX(-140px)}
+  28%{opacity:1;transform:translateX(20px)}
+  55%{opacity:.5;transform:translateX(160px)}
+  75%{opacity:0;transform:translateX(280px)}}
+.vm{stroke-dasharray:650;stroke-dashoffset:650;animation:dv 2s ease forwards}
+.vp{stroke-dasharray:220;stroke-dashoffset:220;animation:dv 1.3s ease forwards}
+@keyframes dv{to{stroke-dashoffset:0}}
+.d0{animation-delay:.3s}.d1{animation-delay:.5s}.d2{animation-delay:.65s}
+.d3{animation-delay:.75s}.d4{animation-delay:.85s}.d5{animation-delay:.95s}
+.d6{animation-delay:1.05s}.d7{animation-delay:1.12s}
+.brand-corner{position:absolute;top:28px;right:38px;display:flex;align-items:center;
+              gap:8px;z-index:20;text-decoration:none;transition:opacity .2s}
+.brand-corner:hover{opacity:.8}
+.brand-icon{width:30px;height:30px;border-radius:8px;overflow:hidden;flex-shrink:0;
+            background:rgba(255,255,255,.22);display:flex;align-items:center;justify-content:center}
+.brand-icon img{width:100%;height:100%;object-fit:contain}
+.brand-corner-name{font-family:'Cormorant Garamond',serif;font-size:1.05rem;font-weight:700;
+                   color:rgba(255,255,255,.92);letter-spacing:.02em}
+.form-panel{position:relative;z-index:10;width:400px;min-height:590px;
+            padding:60px 36px 50px 48px;
+            display:flex;flex-direction:column;justify-content:center}
+.title-row{display:flex;align-items:center;gap:10px;margin-bottom:4px}
+.title-icon{width:36px;height:36px;border-radius:10px;flex-shrink:0;
+            background:linear-gradient(135deg,#e8f7ee,#d0f0de);
+            display:flex;align-items:center;justify-content:center}
+.title-icon svg{width:18px;height:18px;color:var(--g2)}
+.form-title{font-family:'Cormorant Garamond',serif;font-size:1.95rem;font-weight:700;
+            color:var(--g1);line-height:1.1}
+.form-sub{font-size:.8rem;color:#7a9e87;margin-bottom:22px;font-weight:300;line-height:1.55}
+.ring{position:relative;width:112px;height:112px;margin-bottom:20px}
+.ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ring-num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+          font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:700;
+          color:var(--g1);font-variant-numeric:tabular-nums}
+.desc{font-size:.8rem;color:#7a9e87;line-height:1.65;margin-bottom:20px;font-weight:300}
+.desc b{color:var(--g1);font-weight:600}
+.actions{display:flex;gap:10px;flex-wrap:wrap}
+.btn{display:inline-block;padding:11px 22px;border-radius:10px;text-decoration:none;
+     font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:500;
+     transition:transform .15s,box-shadow .2s;position:relative;overflow:hidden}
+.btn-primary{background:linear-gradient(135deg,var(--g1) 0%,var(--g3) 100%);color:#fff;
+             box-shadow:0 6px 22px rgba(30,80,50,.28)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(30,80,50,.36)}
+.btn-primary::after{content:'';position:absolute;inset:0;
+                    background:linear-gradient(135deg,rgba(255,255,255,.18) 0%,transparent 60%);
+                    pointer-events:none}
+.btn-ghost{border:1.5px solid rgba(45,122,69,.35);color:var(--g1);background:transparent}
+.btn-ghost:hover{border-color:var(--g3)}
+.note{font-size:.72rem;color:#a0bba8;margin-top:16px;line-height:1.5}
+.leaf-bottom{display:none}
+@media(prefers-reduced-motion:reduce){
+  .card,#leafGroup,#leafSheen{animation:none}
+  #leafGroup{transform:rotate(-32deg) translate(-55px,-38px)}
+  .vm,.vp{animation:none;stroke-dashoffset:0}}
+@media(max-width:768px){
+  body{padding:0;align-items:stretch}
+  .card{width:100%;height:100dvh;height:100vh;flex-direction:column;border-radius:0;
+        box-shadow:none;background:radial-gradient(ellipse at 70% 40%,#a8d8bc 0%,#ceeedd 100%);
+        overflow:hidden}
+  .leaf-layer{position:absolute;top:-20px;right:-60px;bottom:auto;left:auto;
+              width:62vw;height:auto;opacity:.45;transform:scaleX(-1)}
+  .brand-corner{position:absolute;top:calc(env(safe-area-inset-top,0px) + 20px);
+                left:22px;right:auto}
+  .brand-corner-name{color:var(--g1)}
+  .brand-icon{background:var(--g2)}
+  .form-panel{margin-top:190px;flex:1;width:100%;min-height:0;padding:28px 26px 32px;
+              background:#fff;border-radius:24px 24px 0 0;
+              box-shadow:0 -6px 24px rgba(0,0,0,.1);justify-content:flex-start;
+              overflow-y:auto;z-index:20;animation:panelUp .5s cubic-bezier(.22,1,.36,1) both}
+  @keyframes panelUp{from{transform:translateY(24px);opacity:0}to{transform:none;opacity:1}}
+  .leaf-bottom{display:block;position:absolute;bottom:-120px;right:-65px;
+               width:60vw;height:auto;transform:rotate(148deg) scaleX(-1);
+               pointer-events:none;z-index:22}
+  .ring{width:96px;height:96px}
+  .ring-num{font-size:1.7rem}
+  .form-title{font-size:1.75rem}
+  .actions{flex-direction:column}
+  .btn{text-align:center}}
 </style></head><body>
-  <span class="blob t"></span><span class="blob i"></span><span class="blob y"></span><span class="art"></span>
-  <div class="wrap">
-    <span class="brand">
-      <img src="/img/patterns/logo.png" alt="Cổng thông tin Quỳnh Phụ" />
-      <span class="nm"><b>Cổng thông tin Quỳnh Phụ</b><small>Cộng đồng xã Quỳnh Phụ · Thái Bình</small></span>
-    </span>
-    <div class="eyebrow">Bảo vệ hệ thống</div>
-    <div class="ring">
-      <svg width="128" height="128" viewBox="0 0 128 128">
-        <circle cx="64" cy="64" r="56" fill="none" stroke="var(--navy-pale)" stroke-width="9" />
-        <circle id="arc" cx="64" cy="64" r="56" fill="none" stroke="var(--yellow)" stroke-width="9" stroke-linecap="round"
-                stroke-dasharray="351.858" stroke-dashoffset="0" />
-      </svg>
-      <div class="ring__num" id="cd">${clock}</div>
+<div class="card">
+
+  <!-- LEAF CHÍNH -->
+  <svg class="leaf-layer" viewBox="0 0 940 590" xmlns="http://www.w3.org/2000/svg" overflow="visible">
+    <defs>
+      <linearGradient id="lbg" x1="0%" y1="100%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#12381f"/>
+        <stop offset="30%" stop-color="#2d7a45"/>
+        <stop offset="65%" stop-color="#3fa85e"/>
+        <stop offset="100%" stop-color="#60cc7c"/>
+      </linearGradient>
+      <linearGradient id="lhl" x1="0%" y1="0%" x2="80%" y2="100%">
+        <stop offset="0%" stop-color="#80e89c" stop-opacity=".22"/>
+        <stop offset="100%" stop-color="#1a4d2e" stop-opacity="0"/>
+      </linearGradient>
+      <linearGradient id="sheen" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="white" stop-opacity="0"/>
+        <stop offset="42%" stop-color="white" stop-opacity=".2"/>
+        <stop offset="58%" stop-color="white" stop-opacity=".24"/>
+        <stop offset="100%" stop-color="white" stop-opacity="0"/>
+      </linearGradient>
+      <filter id="leafShadow" x="-15%" y="-10%" width="140%" height="130%">
+        <feDropShadow dx="8" dy="14" stdDeviation="20" flood-color="#0f3020" flood-opacity=".22"/>
+      </filter>
+      <clipPath id="lclip"><path d="${LEAF}"/></clipPath>
+    </defs>
+    <g id="leafGroup" filter="url(#leafShadow)">
+      <g clip-path="url(#lclip)">
+        <rect x="-25" y="0" width="480" height="760" fill="url(#lbg)"/>
+        <rect x="-25" y="0" width="480" height="760" fill="url(#lhl)"/>
+        <g fill="none" stroke-linecap="round">
+          <path class="vm d0" d="M210 16 C210 220,210 520,210 742" stroke="rgba(255,255,255,.48)" stroke-width="2.8"/>
+          <path class="vp d1" d="M210 118 C174 138,132 157,62 182" stroke="rgba(255,255,255,.30)" stroke-width="1.7"/>
+          <path class="vp d2" d="M210 188 C168 212,122 234,46 265" stroke="rgba(255,255,255,.28)" stroke-width="1.6"/>
+          <path class="vp d3" d="M210 262 C166 288,118 310,38 345" stroke="rgba(255,255,255,.26)" stroke-width="1.5"/>
+          <path class="vp d4" d="M210 336 C168 362,126 380,50 412" stroke="rgba(255,255,255,.24)" stroke-width="1.4"/>
+          <path class="vp d5" d="M210 405 C176 426,142 443,82 468" stroke="rgba(255,255,255,.22)" stroke-width="1.3"/>
+          <path class="vp d6" d="M210 468 C186 482,160 496,116 514" stroke="rgba(255,255,255,.19)" stroke-width="1.1"/>
+          <path class="vp d7" d="M210 524 C194 534,174 544,144 555" stroke="rgba(255,255,255,.15)" stroke-width=".9"/>
+          <path class="vp d1" d="M210 118 C246 138,288 157,358 182" stroke="rgba(255,255,255,.30)" stroke-width="1.7"/>
+          <path class="vp d2" d="M210 188 C252 212,298 234,374 265" stroke="rgba(255,255,255,.28)" stroke-width="1.6"/>
+          <path class="vp d3" d="M210 262 C254 288,302 310,382 345" stroke="rgba(255,255,255,.26)" stroke-width="1.5"/>
+          <path class="vp d4" d="M210 336 C252 362,294 380,370 412" stroke="rgba(255,255,255,.24)" stroke-width="1.4"/>
+          <path class="vp d5" d="M210 405 C244 426,278 443,338 468" stroke="rgba(255,255,255,.22)" stroke-width="1.3"/>
+          <path class="vp d6" d="M210 468 C234 482,260 496,304 514" stroke="rgba(255,255,255,.19)" stroke-width="1.1"/>
+          <path class="vp d7" d="M210 524 C226 534,246 544,276 555" stroke="rgba(255,255,255,.15)" stroke-width=".9"/>
+        </g>
+        <rect id="leafSheen" x="-80" y="0" width="300" height="760" fill="url(#sheen)"/>
+        <path d="${LEAF}" fill="none" stroke="rgba(255,255,255,.1)" stroke-width="10"/>
+      </g>
+      <path d="M210 744 C206 768,204 790,210 806" stroke="#12381f" stroke-width="4.5" fill="none" stroke-linecap="round" opacity=".55"/>
+    </g>
+  </svg>
+
+  <!-- BRAND CORNER -->
+  <a class="brand-corner" href="/" aria-label="Quỳnh Phụ Tôi — Về trang chủ">
+    <div class="brand-icon">
+      <img src="/img/patterns/logo.png" alt="" />
     </div>
-    <h1>Bạn thao tác hơi nhanh</h1>
-    <p>Hệ thống phát hiện việc tải lại trang liên tục bất thường nên tạm dừng để bảo vệ máy chủ và trải nghiệm của những người dân khác.</p>
-    <p>Vui lòng chờ khoảng <b>${human}</b> — trang sẽ <b>tự động tải lại</b>. Tải lại liên tục sẽ khiến thời gian chờ <b>tăng dần</b>.</p>
-    <span class="line"></span>
+    <span class="brand-corner-name">Quỳnh Phụ Tôi</span>
+  </a>
+
+  <!-- FORM PANEL -->
+  <div class="form-panel">
+    <div class="title-row">
+      <div class="title-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+      </div>
+      <div class="form-title">Bảo vệ hệ thống</div>
+    </div>
+    <div class="form-sub">Tải lại trang quá nhanh — vui lòng đợi một chút</div>
+
+    <div class="ring">
+      <svg viewBox="0 0 112 112">
+        <circle cx="56" cy="56" r="48" fill="none" stroke="rgba(63,168,94,.15)" stroke-width="7"/>
+        <circle id="arc" cx="56" cy="56" r="48" fill="none" stroke="var(--g3)" stroke-width="7"
+                stroke-linecap="round" stroke-dasharray="301.593" stroke-dashoffset="0"/>
+      </svg>
+      <div class="ring-num" id="cd">${clock}</div>
+    </div>
+
+    <p class="desc">
+      Hệ thống phát hiện việc tải lại trang bất thường nên tạm dừng để bảo vệ máy chủ và trải nghiệm của những người dân khác.<br/><br/>
+      Vui lòng chờ <b>${human}</b> — trang sẽ <b>tự động tải lại</b>. Tải lại liên tục sẽ khiến thời gian chờ <b>tăng dần</b>.
+    </p>
+
     <div class="actions">
-      <a class="btn btn--primary" href="/">Về trang chủ</a>
-      <a class="btn btn--ghost" href="/">Thử lại ngay</a>
+      <a class="btn btn-primary" href="/">Về trang chủ</a>
+      <a class="btn btn-ghost" href="/">Thử lại ngay</a>
     </div>
     <div class="note">Nếu bạn cho rằng đây là nhầm lẫn, vui lòng thử lại sau ít phút.</div>
   </div>
+
+  <!-- LÁ DƯỚI (mobile only) -->
+  <svg class="leaf-bottom" viewBox="-5 8 430 740" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="lbg2" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#60cc7c"/>
+        <stop offset="50%" stop-color="#2d7a45"/>
+        <stop offset="100%" stop-color="#12381f"/>
+      </linearGradient>
+    </defs>
+    <g opacity="0.11">
+      <path d="${LEAF}" fill="url(#lbg2)"/>
+      <g fill="none" stroke-linecap="round">
+        <path d="M210 16 C210 220,210 520,210 742" stroke="rgba(255,255,255,.55)" stroke-width="2.5"/>
+        <path d="M210 118 C174 138,132 157,62 182" stroke="rgba(255,255,255,.35)" stroke-width="1.4"/>
+        <path d="M210 118 C246 138,288 157,358 182" stroke="rgba(255,255,255,.35)" stroke-width="1.4"/>
+        <path d="M210 262 C166 288,118 310,38 345" stroke="rgba(255,255,255,.28)" stroke-width="1.2"/>
+        <path d="M210 262 C254 288,302 310,382 345" stroke="rgba(255,255,255,.28)" stroke-width="1.2"/>
+      </g>
+    </g>
+  </svg>
+
+</div>
 <script>
-  (function(){
-    var total=${sec},s=${sec},C=351.858,
-        num=document.getElementById('cd'),arc=document.getElementById('arc');
-    function fmt(x){return x>=60?(Math.floor(x/60)+':'+String(x%60).padStart(2,'0')):String(x);}
-    var t=setInterval(function(){
-      s--;
-      if(num)num.textContent=fmt(s>0?s:0);
-      if(arc)arc.style.strokeDashoffset=String(C*(1-s/total));
-      if(s<=0){clearInterval(t);location.href='/';}
-    },1000);
-  })();
+(function(){
+  var total=${sec},s=${sec},C=301.593,
+      num=document.getElementById('cd'),arc=document.getElementById('arc');
+  function fmt(x){return x>=60?(Math.floor(x/60)+':'+String(x%60).padStart(2,'0')):String(x);}
+  var t=setInterval(function(){
+    s--;
+    if(num)num.textContent=fmt(s>0?s:0);
+    if(arc)arc.style.strokeDashoffset=String(C*(1-Math.max(s,0)/total));
+    if(s<=0){clearInterval(t);location.href='/';}
+  },1000);
+})();
 </script>
 </body></html>`;
 }

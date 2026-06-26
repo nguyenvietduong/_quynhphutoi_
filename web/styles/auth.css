@@ -202,17 +202,15 @@
   background:rgba(63,168,94,.1); border-radius:8px;
 }
 
-/* Trang đăng ký nhiều trường hơn → card cao & các trường thoáng, không dít nhau */
-.wm-login .card--register { height: auto; min-height: 660px; }
-.wm-login .card--register .form-panel {
-  justify-content: flex-start;   /* bám từ trên xuống, không căn giữa */
-  padding-top: 74px;             /* chừa chỗ cho brand-corner ở góc, tránh dính tiêu đề */
-  padding-bottom: 40px;
-}
-.wm-login .card--register .form-title { margin-bottom: 6px; }
-.wm-login .card--register .form-sub { margin-bottom: 26px; }
-.wm-login .card--register .field-group { margin-bottom: 18px; }
-.wm-login .card--register .row-extra { margin: 4px 0 22px; }
+/* Trang đăng ký — nén spacing để vừa viewport */
+.wm-login .card--register { height: auto; min-height: 0; }
+.wm-login .card--register .form-panel { justify-content: center; }
+.wm-login .card--register .form-title { margin-bottom: 2px; }
+.wm-login .card--register .form-sub { margin-bottom: 14px; }
+.wm-login .card--register .field-group { margin-bottom: 10px; }
+.wm-login .card--register .row-extra { margin: 2px 0 10px; }
+.wm-login .card--register .divider { margin: 8px 0; }
+.wm-login .card--register .qp-recaptcha { margin-bottom: 10px; }
 
 .wm-login .divider { display:flex;align-items:center;gap:10px;margin:14px 0; }
 .wm-login .divider hr { flex:1;border:none;border-top:1px solid #e0ede6; }
@@ -222,53 +220,195 @@
 .wm-login .signup-row a { color:var(--g2);font-weight:500;text-decoration:none;transition:color .2s; }
 .wm-login .signup-row a:hover { color:var(--g1); }
 
+/* Lá dưới cùng — ẩn trên desktop, hiện trên mobile */
+.wm-login .leaf-bottom { display: none; }
+
+/* Tôn trọng người dùng tắt hiệu ứng */
+@media (prefers-reduced-motion: reduce) {
+  .wm-login .form-panel { animation: none; }
+}
+
 /* ============================================================
-   MOBILE / GIAO DIỆN ĐIỆN THOẠI
-   - Card co về 1 cột, full chiều rộng, chừa đệm 2 bên.
-   - Lá làm nền mờ; chữ tiêu đề đè lên lá đổi sang đen + quầng
-     sáng trắng cho dễ đọc.
+   MOBILE — full-screen: nền xanh lá + form trắng trượt lên
    ============================================================ */
 @media (max-width: 768px) {
   .wm-login {
-    padding: 22px 16px;            /* đệm 2 bên: card không sát mép màn hình */
-    align-items: center;
+    padding: 0;
+    align-items: stretch;
   }
   .wm-login .card {
-    width: 100%;
-    max-width: 440px;
-    height: auto;
-    min-height: 0;
+    width: 100%; max-width: 100%;
+    height: 100dvh; height: 100vh;
     flex-direction: column;
-    border-radius: 26px;
+    border-radius: 0; box-shadow: none;
+    background: radial-gradient(ellipse at 30% 40%, #a8d8bc 0%, #ceeedd 100%);
+    overflow: hidden;
   }
-
-  /* Lá mờ đi làm nền trang trí */
-  .wm-login .leaf-layer { opacity: .5; }
-
-  .wm-login .brand-corner { top: 20px; right: 22px; }
-
+  /* Lá trang trí góc trên-trái của vùng xanh */
+  .wm-login .leaf-layer {
+    position: absolute;
+    top: -20px; left: -60px; right: auto; bottom: auto;
+    width: 62vw; height: auto;
+    opacity: 0.45; z-index: 2;
+  }
+  .wm-login .brand-corner {
+    position: absolute;
+    top: calc(env(safe-area-inset-top, 0px) + 20px);
+    right: 22px; left: auto; z-index: 10;
+  }
+  /* Form panel trắng trượt lên từ 190px */
   .wm-login .form-panel {
-    width: 100%;
-    margin-left: 0;
-    padding: 86px 24px 34px;       /* 24px đệm trái–phải cho form */
+    margin-top: 190px;
+    flex: 1; width: 100%; margin-left: 0;
+    padding: 30px 26px calc(32px + env(safe-area-inset-bottom, 0px));
+    background: #fff;
+    border-radius: 24px 24px 0 0;
+    box-shadow: 0 -6px 24px rgba(0,0,0,.1);
     justify-content: flex-start;
+    overflow-y: auto; z-index: 20;
+    animation: panelUp .5s cubic-bezier(.22,1,.36,1) both;
   }
-
-  /* Chữ tiêu đề đè lên lá → đen + quầng sáng trắng cho dễ nhìn */
-  .wm-login .form-title {
-    font-size: 2.05rem;
-    color: #0c2316;
-    text-shadow: 0 1px 12px rgba(255,255,255,.92), 0 0 3px rgba(255,255,255,.85);
+  @keyframes panelUp {
+    from { transform: translateY(24px); opacity: 0; }
+    to   { transform: none; opacity: 1; }
   }
-  .wm-login .form-sub {
-    color: #244033;
-    text-shadow: 0 1px 8px rgba(255,255,255,.85);
+  .wm-login .form-title { font-size: 1.8rem; color: var(--g1); text-shadow: none; }
+  .wm-login .form-sub { color: #7a9e87; text-shadow: none; margin-bottom: 20px; }
+  .wm-login .field-group { margin-bottom: 14px; }
+  .wm-login .row-extra { margin: 0 0 16px; }
+  /* Lá góc phải dưới */
+  .wm-login .leaf-bottom {
+    display: block;
+    position: absolute;
+    bottom: -120px; right: -65px;
+    width: 60vw; height: auto;
+    transform: rotate(148deg);
+    pointer-events: none; z-index: 22;
   }
 }
 
 /* Điện thoại nhỏ */
 @media (max-width: 400px) {
-  .wm-login { padding: 16px 12px; }
-  .wm-login .form-panel { padding: 78px 18px 30px; }
-  .wm-login .form-title { font-size: 1.85rem; }
+  .wm-login .form-panel { margin-top: 160px; padding: 26px 20px calc(28px + env(safe-area-inset-bottom, 0px)); }
+  .wm-login .form-title { font-size: 1.65rem; }
+  .wm-login .leaf-bottom { width: 65vw; bottom: -100px; right: -55px; }
+}
+
+/* ============================================================
+   REGISTER — lá bên phải (scaleX mirror), form bên trái
+   ============================================================ */
+.wm-login .card--register .leaf-layer {
+  transform: scaleX(-1);
+}
+.wm-login .card--register .form-panel {
+  margin-left: 0;
+  padding: 62px 36px 26px 48px;
+  height: auto;
+}
+.wm-login .card--register .brand-corner {
+  right: auto; left: 48px;
+}
+
+/* ============================================================
+   SOCIAL BUTTONS (Google / GitHub)
+   ============================================================ */
+.wm-login .social-row {
+  display: flex; gap: 10px;
+}
+.wm-login .btn-social {
+  flex: 1;
+  display: flex; align-items: center; justify-content: center; gap: 7px;
+  padding: 9px 10px;
+  border: 1.5px solid #d8eede; border-radius: 10px;
+  background: #fff; color: #1a3d28;
+  font-family: 'DM Sans', sans-serif; font-size: .8rem; font-weight: 500;
+  cursor: pointer; transition: border-color .2s, background .2s;
+}
+.wm-login .btn-social:hover { border-color: var(--g2); background: rgba(63,168,94,.05); }
+.wm-login .btn-social svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+/* ============================================================
+   TITLE ROW (icon + tiêu đề — trang quên / đặt lại mật khẩu)
+   ============================================================ */
+.wm-login .title-row {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 4px;
+}
+.wm-login .title-icon {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  background: rgba(63,168,94,.12);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.wm-login .title-icon svg { width: 18px; height: 18px; color: var(--g2); }
+
+/* ============================================================
+   SUCCESS PANEL (quên / đặt lại mật khẩu)
+   ============================================================ */
+.wm-login .success-panel {
+  text-align: center;
+  padding: 10px 0;
+  animation: cardIn .5s cubic-bezier(.22,1,.36,1) both;
+}
+.wm-login .success-icon {
+  width: 62px; height: 62px;
+  border-radius: 50%;
+  background: rgba(63,168,94,.12);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 16px;
+}
+.wm-login .success-icon svg { width: 28px; height: 28px; color: var(--g2); }
+.wm-login .success-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.55rem; font-weight: 700; color: var(--g1);
+  margin-bottom: 8px;
+}
+.wm-login .success-body {
+  font-size: .8rem; color: #7a9e87; line-height: 1.6; margin-bottom: 18px;
+}
+.wm-login .success-link {
+  font-size: .82rem; color: var(--g3); font-weight: 500;
+  text-decoration: none; display: block; margin-bottom: 14px;
+}
+.wm-login .success-link:hover { color: var(--g1); }
+
+/* ============================================================
+   PASSWORD STRENGTH BAR (trang đặt lại mật khẩu)
+   ============================================================ */
+.wm-login .strength-bar {
+  display: flex; gap: 4px; margin: 6px 0 3px;
+}
+.wm-login .strength-bar span {
+  flex: 1; height: 4px; border-radius: 2px;
+  background: #e0ede6; transition: background .3s;
+}
+.wm-login .strength-bar.weak   span:nth-child(1) { background: #e74c3c; }
+.wm-login .strength-bar.fair   span:nth-child(1),
+.wm-login .strength-bar.fair   span:nth-child(2) { background: #f39c12; }
+.wm-login .strength-bar.good   span:nth-child(1),
+.wm-login .strength-bar.good   span:nth-child(2),
+.wm-login .strength-bar.good   span:nth-child(3) { background: var(--g3); }
+.wm-login .strength-bar.strong span { background: var(--g1); }
+.wm-login .strength-label {
+  font-size: .7rem; color: #9ab8a6; text-align: right; margin-bottom: 12px;
+}
+
+/* ============================================================
+   MOBILE — điều chỉnh register
+   (lá góc trên-phải, brand góc trái)
+   ============================================================ */
+@media (max-width: 768px) {
+  .wm-login .card--register .leaf-layer {
+    transform: none;
+    left: auto; right: -60px;
+  }
+  .wm-login .card--register .brand-corner { left: 22px; right: auto; }
+  .wm-login .card--register .form-panel {
+    padding: 28px 26px calc(32px + env(safe-area-inset-bottom, 0px));
+    margin-left: 0;
+  }
+  .wm-login .card--register .leaf-bottom { transform: rotate(148deg) scaleX(-1); }
+}
+@media (max-width: 400px) {
+  .wm-login .card--register .form-panel { padding: 24px 20px calc(28px + env(safe-area-inset-bottom, 0px)); }
 }
